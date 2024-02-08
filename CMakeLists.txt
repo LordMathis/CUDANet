@@ -27,6 +27,7 @@ target_link_libraries(${PROJECT_NAME} ${CUDA_cublas_LIBRARY})
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include/utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/layers
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 

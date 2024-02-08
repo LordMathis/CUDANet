@@ -2,18 +2,6 @@
 #include <cstdlib>
 #include "cuda_helper.h"
 
-// CUDA error checking macro
-#define CUDA_CHECK(call) \
-do { \
-    cudaError_t result = call; \
-    if (result != cudaSuccess) { \
-        std::fprintf(stderr, "CUDA error at %s:%d code=%d(%s) \"%s\" \n", \
-                     __FILE__, __LINE__, static_cast<unsigned int>(result), \
-                     cudaGetErrorString(result), #call); \
-        std::exit(EXIT_FAILURE); \
-    } \
-} while (0)
-
 // Initialize CUDA and return the device properties
 cudaDeviceProp initializeCUDA() {
     int deviceCount;
