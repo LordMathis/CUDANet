@@ -3,6 +3,8 @@
 
 #include <cuda_runtime.h>
 
+#define IDX2C(i,j,ld) (((j)*(ld))+(i))
+
 // CUDA error checking macro
 #define CUDA_CHECK(call) \
 do { \

@@ -1,5 +1,10 @@
 #include "dense.h"
+#include "cuda_helper.h"
+#include <cstdlib>
 #include <cublas_v2.h>
+#include <cstdio>
+#include <stdexcept>
+	
 
 
 Layers::Dense::Dense(int inputSize, int outputSize, cublasHandle_t cublasHandle)
@@ -13,12 +18,10 @@ Layers::Dense::Dense(int inputSize, int outputSize, cublasHandle_t cublasHandle)
     initializeBiases();
 
     // Allocate GPU memory for weights and biases
-    cudaMalloc((void**)&d_weights, sizeof(float) * inputSize * outputSize);
-    cudaMalloc((void**)&d_biases, sizeof(float) * biases.size());
+    CUDA_CHECK(cudaMalloc((void**)&d_weights, sizeof(float) * inputSize * outputSize));
+    CUDA_CHECK(cudaMalloc((void**)&d_biases, sizeof(float) * biases.size()));
 
-    // Copy weights and biases to GPU
-    cudaMemcpy(d_weights, weights.data(), sizeof(float) * inputSize * outputSize, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_biases, biases.data(), sizeof(float) * biases.size(), cudaMemcpyHostToDevice);
+    to_cuda();
 }
 
 Layers::Dense::~Dense() {
@@ -49,4 +52,9 @@ void Layers::Dense::forward(const float* input, float* output) {
 
     // Add biases
     cublasSaxpy(cublasHandle, outputSize, &alpha, d_biases, 1, output, 1);
+}
+
+void Layers::Dense::to_cuda() {
+    CUDA_CHECK(cudaMemcpy(d_weights, weights.data(), sizeof(float) * inputSize * outputSize, cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_biases, biases.data(), sizeof(float) * biases.size(), cudaMemcpyHostToDevice));
 }

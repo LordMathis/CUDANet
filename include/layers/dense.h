@@ -5,15 +5,17 @@
 
 #include <vector>
 #include <cublas_v2.h>
+#include <ilayer.h>
 
 namespace Layers {
 
-    class Dense {
+    class Dense : public ILayer {
     public:
         Dense(int inputSize, int outputSize, cublasHandle_t cublasHandle);
         ~Dense();
 
         void forward(const float* input, float* output);
+        void to_cuda();
 
     private:
         int inputSize;
