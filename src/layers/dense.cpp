@@ -6,19 +6,18 @@ Layers::Dense::Dense(int inputSize, int outputSize, cublasHandle_t cublasHandle)
     : inputSize(inputSize), outputSize(outputSize), cublasHandle(cublasHandle) {
 
     // Allocate memory for weights and biases
-    weights.resize(inputSize * outputSize);
+    weights.resize(outputSize, std::vector<float>(inputSize));
     biases.resize(outputSize);
 
-    // Initialize weights and biases (you may customize this part)
     initializeWeights();
     initializeBiases();
 
     // Allocate GPU memory for weights and biases
-    cudaMalloc((void**)&d_weights, sizeof(float) * weights.size());
+    cudaMalloc((void**)&d_weights, sizeof(float) * inputSize * outputSize);
     cudaMalloc((void**)&d_biases, sizeof(float) * biases.size());
 
     // Copy weights and biases to GPU
-    cudaMemcpy(d_weights, weights.data(), sizeof(float) * weights.size(), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_weights, weights.data(), sizeof(float) * inputSize * outputSize, cudaMemcpyHostToDevice);
     cudaMemcpy(d_biases, biases.data(), sizeof(float) * biases.size(), cudaMemcpyHostToDevice);
 }
 
@@ -29,17 +28,16 @@ Layers::Dense::~Dense() {
 }
 
 void Layers::Dense::initializeWeights() {
-    
-    float range = sqrt((float) 6/(inputSize + outputSize));
-
-    for (float& weight : weights) {
-        weight = static_cast<float>(rand()) / RAND_MAX * 2.0 * range - range;
+    for (auto& row : weights) {
+        for (float& weight : row) {
+            weight = 0.0f;
+        }
     }
 }
 
 void Layers::Dense::initializeBiases() {
     for (float& bias : biases) {
-        bias = static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f;
+        bias = 0.0f;
     }
 }
 
