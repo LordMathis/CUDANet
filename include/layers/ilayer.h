@@ -11,7 +11,6 @@ namespace Layers {
         virtual ~ILayer() {}
 
         virtual void forward(const float* input, float* output) = 0;
-        virtual void to_cuda() = 0;
     };
 
 } // namespace Layers

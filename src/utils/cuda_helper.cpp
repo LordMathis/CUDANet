@@ -1,9 +1,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include "cuda_helper.h"
+#include <cublas_v2.h>
 
-// Initialize CUDA and return the device properties
-cudaDeviceProp initializeCUDA() {
+cudaDeviceProp initializeCUDA(cublasHandle_t& cublasHandle) {
     int deviceCount;
     CUDA_CHECK(cudaGetDeviceCount(&deviceCount));
 
@@ -12,13 +12,16 @@ cudaDeviceProp initializeCUDA() {
         std::exit(EXIT_FAILURE);
     }
 
-    int device = 0; // You can modify this to choose a different GPU
+    int device = 0;
     CUDA_CHECK(cudaSetDevice(device));
 
     cudaDeviceProp deviceProp;
     CUDA_CHECK(cudaGetDeviceProperties(&deviceProp, device));
 
     std::printf("Using CUDA device %d: %s\n", device, deviceProp.name);
+
+    // Initialize cuBLAS
+    CUBLAS_CHECK(cublasCreate(&cublasHandle));
 
     return deviceProp;
 }

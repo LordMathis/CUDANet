@@ -21,7 +21,7 @@ Layers::Dense::Dense(int inputSize, int outputSize, cublasHandle_t cublasHandle)
     CUDA_CHECK(cudaMalloc((void**)&d_weights, sizeof(float) * inputSize * outputSize));
     CUDA_CHECK(cudaMalloc((void**)&d_biases, sizeof(float) * biases.size()));
 
-    to_cuda();
+    toCuda();
 }
 
 Layers::Dense::~Dense() {
@@ -54,7 +54,17 @@ void Layers::Dense::forward(const float* input, float* output) {
     cublasSaxpy(cublasHandle, outputSize, &alpha, d_biases, 1, output, 1);
 }
 
-void Layers::Dense::to_cuda() {
-    CUDA_CHECK(cudaMemcpy(d_weights, weights.data(), sizeof(float) * inputSize * outputSize, cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_biases, biases.data(), sizeof(float) * biases.size(), cudaMemcpyHostToDevice));
+void Layers::Dense::toCuda() {
+    CUBLAS_CHECK(cublasSetMatrix(outputSize, inputSize, sizeof(float), weights.data(), inputSize, d_weights, outputSize));
+    CUBLAS_CHECK(cublasSetVector(biases.size(), sizeof(float), biases.data(), 1, d_biases, 1));
+}
+
+void Layers::Dense::setWeights(const std::vector<std::vector<float>>& weights) {
+    this->weights = weights;
+    toCuda();
+}
+
+void Layers::Dense::setBiases(const std::vector<float>& biases) {
+    this->biases = biases;
+    toCuda();
 }
