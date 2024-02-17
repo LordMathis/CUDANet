@@ -15,8 +15,8 @@ namespace Layers {
         ~Dense();
 
         void forward(const float* input, float* output);
-        virtual void setWeights(const std::vector<std::vector<float>>& weights) = 0;
-        virtual void setBiases(const std::vector<float>& biases) = 0;
+        void setWeights(const std::vector<std::vector<float>>& weights);
+        void setBiases(const std::vector<float>& biases);
 
     private:
         int inputSize;

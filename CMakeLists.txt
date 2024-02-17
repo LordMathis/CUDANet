@@ -1,35 +1,36 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.17)
 
-project(CUDANet)
-
-# Find CUDA
-find_package(CUDA REQUIRED)
-
-# Add CUDA include directories
-include_directories(${CUDA_INCLUDE_DIRS})
-
-# Add project source files
-set(SOURCES
-    src/main.cpp
-    src/utils/cuda_helper.cpp
+project(CUDANet
+        LANGUAGES CXX CUDA
 )
 
-# Set CUDA architecture (change according to your GPU)
+find_package(CUDAToolkit REQUIRED)
+include_directories(${CUDAToolkit_INCLUDE_DIRS})
+
+# Add project source files for the library
+set(LIBRARY_SOURCES
+    src/utils/cuda_helper.cpp
+    src/layers/dense.cpp
+)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -arch=sm_75)
 
-# Build executable
-cuda_add_executable(${PROJECT_NAME} ${SOURCES})
+# Build static library
+add_library(${PROJECT_NAME} STATIC ${LIBRARY_SOURCES})
 
-# Link cuBLAS library
-target_link_libraries(${PROJECT_NAME} ${CUDA_cublas_LIBRARY})
+# Link cuBLAS library to the library
+target_link_libraries(${PROJECT_NAME} CUDA::cublas CUDA::cudart)
 
-# Set include directories
-target_include_directories(${PROJECT_NAME} PRIVATE
+# Set include directories for the library
+target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include/utils
     ${CMAKE_CURRENT_SOURCE_DIR}/include/layers
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-# Set C++ standard
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
+
+# Add testing subdirectory
+add_subdirectory(test)
