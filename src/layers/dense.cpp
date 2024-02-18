@@ -45,14 +45,12 @@ void Layers::Dense::initializeBiases() {
     }
 }
 
-void Layers::Dense::forward(const float* input, float* output) {
-    // Perform matrix multiplication: output = weights * input + biases
+void Layers::Dense::forward(const float* d_input, float* d_output) {
     const float alpha = 1.0f;
     const float beta = 1.0f;
-    cublasSgemv(cublasHandle, CUBLAS_OP_N, inputSize, outputSize, &alpha, d_weights, inputSize, input, 1, &beta, output, 1);
 
-    // Add biases
-    cublasSaxpy(cublasHandle, outputSize, &alpha, d_biases, 1, output, 1);
+    cublasSgemv(cublasHandle, CUBLAS_OP_N, inputSize, outputSize, &alpha, d_weights, inputSize, d_input, 1, &beta, d_output, 1);
+    cublasSaxpy(cublasHandle, outputSize, &alpha, d_biases, 1, d_output, 1);
 }
 
 void Layers::Dense::toCuda() {
