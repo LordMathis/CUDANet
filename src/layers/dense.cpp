@@ -4,15 +4,13 @@
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <cstdio>
-#include <stdexcept>
-	
-
+#include <random>
 
 Layers::Dense::Dense(int inputSize, int outputSize, cublasHandle_t cublasHandle)
     : inputSize(inputSize), outputSize(outputSize), cublasHandle(cublasHandle) {
 
     // Allocate memory for weights and biases
-    weights.resize(outputSize, std::vector<float>(inputSize));
+    weights.resize(outputSize * inputSize);
     biases.resize(outputSize);
 
     initializeWeights();
@@ -32,17 +30,22 @@ Layers::Dense::~Dense() {
 }
 
 void Layers::Dense::initializeWeights() {
-    for (auto& row : weights) {
-        for (float& weight : row) {
-            weight = 0.0f;
+    int numWeights = inputSize * outputSize;
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::normal_distribution<float> dist(0.0f, 0.01f); // Xavier initialization
+
+    for (int i = 0; i < outputSize; ++i) {
+        for (int j = 0; j < inputSize; ++j) {
+            int idx = IDX2C(i, j, inputSize);
+            weights[idx] = dist(gen);
         }
     }
 }
 
 void Layers::Dense::initializeBiases() {
-    for (float& bias : biases) {
-        bias = 0.0f;
-    }
+    std::fill(biases.begin(), biases.end(), 0.1f);
 }
 
 void Layers::Dense::forward(const float* d_input, float* d_output) {
@@ -58,12 +61,20 @@ void Layers::Dense::toCuda() {
     CUBLAS_CHECK(cublasSetVector(biases.size(), sizeof(float), biases.data(), 1, d_biases, 1));
 }
 
-void Layers::Dense::setWeights(const std::vector<std::vector<float>>& weights) {
-    this->weights = weights;
+void Layers::Dense::setWeights(const std::vector<std::vector<float>>& weights_input) {
+    int numWeights = inputSize * outputSize;
+
+    for (int i = 0; i < outputSize; ++i) {
+        for (int j = 0; j < inputSize; ++j) {
+            int idx = IDX2C(i, j, inputSize);
+            weights[idx] = weights_input[i][j];
+        }
+    }
+
     toCuda();
 }
 
-void Layers::Dense::setBiases(const std::vector<float>& biases) {
-    this->biases = biases;
+void Layers::Dense::setBiases(const std::vector<float>& biases_input) {
+    std::copy(biases_input.begin(), biases_input.end(), biases.begin());
     toCuda();
 }

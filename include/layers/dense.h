@@ -27,7 +27,7 @@ namespace Layers {
         float* d_weights;
         float* d_biases;
 
-        std::vector<std::vector<float>> weights;
+        std::vector<float> weights;
         std::vector<float> biases;
 
         void initializeWeights();
