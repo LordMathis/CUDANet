@@ -1,10 +1,10 @@
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
-add_executable(test_dense layers/test_dense.cpp)
+add_executable(test_dense layers/test_dense.cu)
 
 add_library(test_utils
-    test_utils/test_cublas_fixture.cpp
+    test_utils/test_cublas_fixture.cu
 )
 
 target_include_directories(test_utils PUBLIC test_utils)

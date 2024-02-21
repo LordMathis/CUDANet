@@ -1,5 +1,3 @@
-// fully_connected_layer.h
-
 #ifndef DENSE_LAYER_H
 #define DENSE_LAYER_H
 

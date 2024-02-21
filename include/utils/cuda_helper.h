@@ -24,7 +24,7 @@ do { \
     cublasStatus_t result = call; \
     if (result != CUBLAS_STATUS_SUCCESS) { \
         fprintf(stderr, "cuBLAS error at %s:%d code=%d\n", \
-                __FILE__, __LINE__, static_cast<int>(result)); \
+                __FILE__, __LINE__, static_cast<unsigned int>(result)); \
         exit(EXIT_FAILURE); \
     } \
 } while (0)

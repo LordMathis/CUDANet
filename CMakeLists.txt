@@ -9,8 +9,8 @@ include_directories(${CUDAToolkit_INCLUDE_DIRS})
 
 # Add project source files for the library
 set(LIBRARY_SOURCES
-    src/utils/cuda_helper.cpp
-    src/layers/dense.cpp
+    src/utils/cuda_helper.cu
+    src/layers/dense.cu
 )
 
 set(CMAKE_CUDA_ARCHITECTURES 75)

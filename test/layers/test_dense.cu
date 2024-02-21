@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include <cuda_runtime_api.h>
 #include <driver_types.h>
+#include <iostream>
 #include "dense.h"
 #include "test_cublas_fixture.h"
 
@@ -37,6 +38,40 @@ protected:
     cudaError_t cudaStatus;
     cublasStatus_t cublasStatus;
 };
+
+TEST_F(DenseLayerTest, Init) {
+
+    for (int i = 1; i < 100; ++i) {
+        for (int j = 1; j < 100; ++j) {
+
+            int inputSize = i;
+            int outputSize = j;
+
+            // std::cout << "Dense layer: input size = " << inputSize << ", output size = " << outputSize << std::endl;
+            Layers::Dense denseLayer(inputSize, outputSize, cublasHandle);
+        }    
+    }
+}
+
+TEST_F(DenseLayerTest, setWeights) {
+
+
+    int inputSize = 4;
+    int outputSize = 5;
+
+    std::vector<std::vector<float>> weights = {
+        {0.5f, 1.0f, 0.2f, 0.8f},
+        {1.2f, 0.3f, 1.5f, 0.4f},
+        {0.7f, 1.8f, 0.9f, 0.1f},
+        {0.4f, 2.0f, 0.6f, 1.1f},
+        {1.3f, 0.5f, 0.0f, 1.7f}
+    };
+
+    Layers::Dense denseLayer(inputSize, outputSize, cublasHandle);
+
+    denseLayer.setWeights(weights);
+
+}
 
 TEST_F(DenseLayerTest, ForwardUnitWeightMatrix) {
 
@@ -80,25 +115,25 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrix) {
     std::vector<float> input = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
 
     std::vector<std::vector<float>> weights = {
-        {0.5f, 1.0f, 0.2f, 0.8f},
-        {1.2f, 0.3f, 1.5f, 0.4f},
-        {0.7f, 1.8f, 0.9f, 0.1f},
-        {0.4f, 2.0f, 0.6f, 1.1f},
-        {1.3f, 0.5f, 0.0f, 1.7f}
-    };
+        {0.5f, 1.2f, 0.7f, 0.4f, 1.3f},
+        {1.0f, 0.3f, 1.8f, 2.0f, 0.5f},
+        {0.2f, 1.5f, 0.9f, 0.6f, 0.0f},
+        {0.8f, 0.4f, 0.1f, 1.1f, 1.7f}
+    };    
     std::vector<float> biases = {0.2f, 0.5f, 0.7f, 1.1f};
 
     float* d_input;
-    float* d_output;    
+    float* d_output;  
 
     Layers::Dense denseLayer = commonTestSetup(inputSize, outputSize, input, weights, biases, d_input, d_output);
+    
     denseLayer.forward(d_input, d_output);
 
     std::vector<float> output(outputSize);
     cublasStatus = cublasGetVector(outputSize, sizeof(float), d_output, 1, output.data(), 1);
     EXPECT_EQ(cublasStatus, CUBLAS_STATUS_SUCCESS);
 
-    std::vector<float> expectedOutput = {3.4f, 4.4f, 5.6f, 7.4f};
+    std::vector<float> expectedOutput = {10.4f, 13.0f, 8.9f, 9.3f};
     for (int i = 0; i < outputSize; ++i) {
         EXPECT_NEAR(output[i], expectedOutput[i], 1e-4); // Allow small tolerance for floating-point comparison
     }
