@@ -9,6 +9,6 @@ add_library(test_utils
 
 target_include_directories(test_utils PUBLIC test_utils)
 
-target_link_libraries(test_dense gtest gtest_main CUDANet test_utils)
+target_link_libraries(test_dense ${GTEST_BOTH_LIBRARIES} CUDANet test_utils)
 
 add_test(NAME TestDense COMMAND test_dense)
