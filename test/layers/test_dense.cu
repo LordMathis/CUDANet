@@ -2,8 +2,8 @@
 #include <cuda_runtime_api.h>
 #include <driver_types.h>
 #include <iostream>
-#include "dense.h"
-#include "test_cublas_fixture.h"
+#include "dense.cuh"
+#include "test_cublas_fixture.cuh"
 
 class DenseLayerTest : public CublasTestFixture {
 protected:

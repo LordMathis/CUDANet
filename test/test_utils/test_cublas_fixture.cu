@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "cublas_v2.h"
-#include "test_cublas_fixture.h"
+#include "test_cublas_fixture.cuh"
 
 cublasHandle_t CublasTestFixture::cublasHandle;
 

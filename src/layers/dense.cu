@@ -1,5 +1,5 @@
-#include "dense.h"
-#include "cuda_helper.h"
+#include "dense.cuh"
+#include "cuda_helper.cuh"
 #include <cstdlib>
 #include <cuda_runtime.h>
 #include <cublas_v2.h>

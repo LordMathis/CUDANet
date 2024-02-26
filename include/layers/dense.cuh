@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <cublas_v2.h>
-#include <ilayer.h>
+#include <ilayer.cuh>
 
 namespace Layers {
 
