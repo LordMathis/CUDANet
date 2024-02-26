@@ -2,6 +2,7 @@
 #include <cuda_runtime_api.h>
 #include <driver_types.h>
 #include <iostream>
+#include "activations.cuh"
 #include "dense.cuh"
 #include "test_cublas_fixture.cuh"
 
@@ -9,7 +10,7 @@ class DenseLayerTest : public CublasTestFixture {
 protected:
     Layers::Dense commonTestSetup(int inputSize, int outputSize, std::vector<float>& input, std::vector<std::vector<float>>& weights, std::vector<float>& biases, float*& d_input, float*& d_output) {
         // Create Dense layer
-        Layers::Dense denseLayer(inputSize, outputSize, cublasHandle);
+        Layers::Dense denseLayer(inputSize, outputSize, "linear", cublasHandle);
 
         // Set weights and biases
         denseLayer.setWeights(weights);
@@ -48,7 +49,7 @@ TEST_F(DenseLayerTest, Init) {
             int outputSize = j;
 
             // std::cout << "Dense layer: input size = " << inputSize << ", output size = " << outputSize << std::endl;
-            Layers::Dense denseLayer(inputSize, outputSize, cublasHandle);
+            Layers::Dense denseLayer(inputSize, outputSize, "linear", cublasHandle);
         }    
     }
 }
@@ -67,7 +68,7 @@ TEST_F(DenseLayerTest, setWeights) {
         {1.3f, 0.5f, 0.0f, 1.7f}
     };
 
-    Layers::Dense denseLayer(inputSize, outputSize, cublasHandle);
+    Layers::Dense denseLayer(inputSize, outputSize, "linear", cublasHandle);
 
     denseLayer.setWeights(weights);
 

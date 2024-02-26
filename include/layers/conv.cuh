@@ -1,5 +1,3 @@
-// fully_connected_layer.h
-
 #ifndef CONV_LAYER_H
 #define CONV_LAYER_H
 

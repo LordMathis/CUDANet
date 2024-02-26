@@ -1,15 +1,17 @@
 #ifndef DENSE_LAYER_H
 #define DENSE_LAYER_H
 
+#include <functional>
 #include <vector>
 #include <cublas_v2.h>
-#include <ilayer.cuh>
+#include <string>
+#include "ilayer.cuh"
 
 namespace Layers {
 
     class Dense : public ILayer {
     public:
-        Dense(int inputSize, int outputSize, cublasHandle_t cublasHandle);
+        Dense(int inputSize, int outputSize, std::string activation, cublasHandle_t cublasHandle);
         ~Dense();
 
         void forward(const float* input, float* output);
@@ -27,6 +29,8 @@ namespace Layers {
 
         std::vector<float> weights;
         std::vector<float> biases;
+
+        std::string activation;
 
         void initializeWeights();
         void initializeBiases();

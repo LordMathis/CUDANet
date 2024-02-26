@@ -10,6 +10,7 @@ include_directories(${CUDAToolkit_INCLUDE_DIRS})
 # Add project source files for the library
 set(LIBRARY_SOURCES
     src/utils/cuda_helper.cu
+    src/functions/activations.cu
     src/layers/dense.cu
 )
 
@@ -27,11 +28,12 @@ target_link_libraries(${PROJECT_NAME} CUDA::cublas CUDA::cudart)
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include/utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/functions
     ${CMAKE_CURRENT_SOURCE_DIR}/include/layers
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 
 # Add testing subdirectory
 add_subdirectory(test)

@@ -1,13 +1,15 @@
 #include "dense.cuh"
 #include "cuda_helper.cuh"
+#include "activations.cuh"
 #include <cstdlib>
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <cstdio>
 #include <iostream>
+#include <functional>
 
-Layers::Dense::Dense(int inputSize, int outputSize, cublasHandle_t cublasHandle)
-    : inputSize(inputSize), outputSize(outputSize), cublasHandle(cublasHandle) {
+Layers::Dense::Dense(int inputSize, int outputSize, std::string activation, cublasHandle_t cublasHandle)
+    : inputSize(inputSize), outputSize(outputSize), cublasHandle(cublasHandle), activation(activation) {
 
     // Allocate memory for weights and biases
     weights.resize(outputSize * inputSize);
@@ -33,13 +35,7 @@ Layers::Dense::~Dense() {
 }
 
 void Layers::Dense::initializeWeights() {
-
-    for (int j = 0; j < inputSize; ++j) {
-        for (int i = 0; i < outputSize; ++i) {
-            int idx = IDX2C(i, j, outputSize);
-            weights[idx] = 0.0f;
-        }
-    }
+    std::fill(weights.begin(), weights.end(), 0.0f);
 }
 
 void Layers::Dense::initializeBiases() {
@@ -52,6 +48,18 @@ void Layers::Dense::forward(const float* d_input, float* d_output) {
 
     CUBLAS_CHECK(cublasSgemv(cublasHandle, CUBLAS_OP_N, inputSize, outputSize, &alpha, d_weights, inputSize, d_input, 1, &beta, d_output, 1));
     CUBLAS_CHECK(cublasSaxpy(cublasHandle, outputSize, &alpha, d_biases, 1, d_output, 1));
+
+    int threadsPerBlock = 256;
+    int blocksPerGrid = (outputSize + threadsPerBlock - 1) / threadsPerBlock;
+
+    if (activation == "sigmoid") {
+        sigmoid_kernel<<<blocksPerGrid, threadsPerBlock>>>(d_output, d_output, outputSize);
+    } else if (activation == "relu") {
+        relu_kernel<<<blocksPerGrid, threadsPerBlock>>>(d_output, d_output, outputSize);
+    } else {
+        linear_kernel<<<blocksPerGrid, threadsPerBlock>>>(d_output, d_output, outputSize);
+    }
+
 }
 
 void Layers::Dense::toCuda() {
