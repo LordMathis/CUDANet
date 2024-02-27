@@ -55,11 +55,11 @@ void Layers::Dense::initializeBiases() {
 
 void Layers::Dense::forward(const float* d_input, float* d_output) {
     const float alpha = 1.0f;
-    const float beta  = 1.0f;
+    const float beta  = 0.0f;
 
     CUBLAS_CHECK(cublasSgemv(
-        cublasHandle, CUBLAS_OP_N, inputSize, outputSize, &alpha, d_weights,
-        inputSize, d_input, 1, &beta, d_output, 1
+        cublasHandle, CUBLAS_OP_N, outputSize, inputSize, &alpha, d_weights,
+        outputSize, d_input, 1, &beta, d_output, 1
     ));
     CUBLAS_CHECK(
         cublasSaxpy(cublasHandle, outputSize, &alpha, d_biases, 1, d_output, 1)
