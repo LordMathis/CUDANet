@@ -16,7 +16,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           thread-comments: false
-          extensions: h,cpp,cu,hpp
+          step-summary: true
+          extensions: h,c,hpp,cpp,cuh,cu
       - name: Fail fast?!
         if: steps.linter.outputs.checks-failed > 0
-        run: echo "Some files failed the linting checks!"
+        run: exit 1
