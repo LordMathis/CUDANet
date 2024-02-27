@@ -209,9 +209,7 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixSigmoid) {
     };
 
     for (int i = 0; i < outputSize; ++i) {
-        EXPECT_NEAR(
-            output[i], expectedOutput[i], 1e-5
-        );
+        EXPECT_NEAR(output[i], expectedOutput[i], 1e-5);
     }
 
     commonTestTeardown(d_input, d_output);

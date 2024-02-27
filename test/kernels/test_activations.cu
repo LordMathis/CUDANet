@@ -14,7 +14,6 @@ class ActivationsTest : public CublasTestFixture {
 };
 
 TEST_F(ActivationsTest, SigmoidSanityCheck) {
-
     float input[3] = {-100.0f, 0.0f, 100.0f};
 
     std::vector<float> expected_output = {0.0f, 0.5f, 1.0f};
@@ -37,7 +36,8 @@ TEST_F(ActivationsTest, SigmoidSanityCheck) {
 
     std::vector<float> output(3);
 
-    cublasStatus = cublasGetVector(3, sizeof(float), d_output, 1, output.data(), 1);
+    cublasStatus =
+        cublasGetVector(3, sizeof(float), d_output, 1, output.data(), 1);
     EXPECT_EQ(cublasStatus, CUBLAS_STATUS_SUCCESS);
 
     for (int i = 0; i < 3; i++) {
