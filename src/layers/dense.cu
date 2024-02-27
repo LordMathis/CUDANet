@@ -1,16 +1,25 @@
-#include "dense.cuh"
-#include "cuda_helper.cuh"
-#include "activations.cuh"
-#include <cstdlib>
-#include <cuda_runtime.h>
 #include <cublas_v2.h>
+#include <cuda_runtime.h>
+
 #include <cstdio>
-#include <iostream>
+#include <cstdlib>
 #include <functional>
+#include <iostream>
 
-Layers::Dense::Dense(int inputSize, int outputSize, std::string activation, cublasHandle_t cublasHandle)
-    : inputSize(inputSize), outputSize(outputSize), cublasHandle(cublasHandle), activation(activation) {
+#include "activations.cuh"
+#include "cuda_helper.cuh"
+#include "dense.cuh"
 
+Layers::Dense::Dense(
+    int            inputSize,
+    int            outputSize,
+    std::string    activation,
+    cublasHandle_t cublasHandle
+)
+    : inputSize(inputSize),
+      outputSize(outputSize),
+      cublasHandle(cublasHandle),
+      activation(activation) {
     // Allocate memory for weights and biases
     weights.resize(outputSize * inputSize);
     biases.resize(outputSize);
@@ -19,10 +28,12 @@ Layers::Dense::Dense(int inputSize, int outputSize, std::string activation, cubl
     initializeBiases();
 
     d_weights = nullptr;
-    d_biases = nullptr;
+    d_biases  = nullptr;
 
     // Allocate GPU memory for weights and biases
-    CUDA_CHECK(cudaMalloc((void**)&d_weights, sizeof(float) * inputSize * outputSize));
+    CUDA_CHECK(
+        cudaMalloc((void**)&d_weights, sizeof(float) * inputSize * outputSize)
+    );
     CUDA_CHECK(cudaMalloc((void**)&d_biases, sizeof(float) * outputSize));
 
     toCuda();
@@ -44,30 +55,47 @@ void Layers::Dense::initializeBiases() {
 
 void Layers::Dense::forward(const float* d_input, float* d_output) {
     const float alpha = 1.0f;
-    const float beta = 1.0f;
+    const float beta  = 1.0f;
 
-    CUBLAS_CHECK(cublasSgemv(cublasHandle, CUBLAS_OP_N, inputSize, outputSize, &alpha, d_weights, inputSize, d_input, 1, &beta, d_output, 1));
-    CUBLAS_CHECK(cublasSaxpy(cublasHandle, outputSize, &alpha, d_biases, 1, d_output, 1));
+    CUBLAS_CHECK(cublasSgemv(
+        cublasHandle, CUBLAS_OP_N, inputSize, outputSize, &alpha, d_weights,
+        inputSize, d_input, 1, &beta, d_output, 1
+    ));
+    CUBLAS_CHECK(
+        cublasSaxpy(cublasHandle, outputSize, &alpha, d_biases, 1, d_output, 1)
+    );
 
     int threadsPerBlock = 256;
-    int blocksPerGrid = (outputSize + threadsPerBlock - 1) / threadsPerBlock;
+    int blocksPerGrid   = (outputSize + threadsPerBlock - 1) / threadsPerBlock;
 
     if (activation == "sigmoid") {
-        sigmoid_kernel<<<blocksPerGrid, threadsPerBlock>>>(d_output, d_output, outputSize);
+        sigmoid_kernel<<<blocksPerGrid, threadsPerBlock>>>(
+            d_output, d_output, outputSize
+        );
     } else if (activation == "relu") {
-        relu_kernel<<<blocksPerGrid, threadsPerBlock>>>(d_output, d_output, outputSize);
+        relu_kernel<<<blocksPerGrid, threadsPerBlock>>>(
+            d_output, d_output, outputSize
+        );
     } else {
-        linear_kernel<<<blocksPerGrid, threadsPerBlock>>>(d_output, d_output, outputSize);
+        linear_kernel<<<blocksPerGrid, threadsPerBlock>>>(
+            d_output, d_output, outputSize
+        );
     }
-
 }
 
 void Layers::Dense::toCuda() {
-    CUBLAS_CHECK(cublasSetMatrix(outputSize, inputSize, sizeof(float), weights.data(), outputSize, d_weights, outputSize));
-    CUBLAS_CHECK(cublasSetVector(biases.size(), sizeof(float), biases.data(), 1, d_biases, 1));
+    CUBLAS_CHECK(cublasSetMatrix(
+        outputSize, inputSize, sizeof(float), weights.data(), outputSize,
+        d_weights, outputSize
+    ));
+    CUBLAS_CHECK(cublasSetVector(
+        biases.size(), sizeof(float), biases.data(), 1, d_biases, 1
+    ));
 }
 
-void Layers::Dense::setWeights(const std::vector<std::vector<float>>& weights_input) {
+void Layers::Dense::setWeights(
+    const std::vector<std::vector<float>>& weights_input
+) {
     int numWeights = inputSize * outputSize;
 
     if (weights.size() != numWeights) {
@@ -77,7 +105,7 @@ void Layers::Dense::setWeights(const std::vector<std::vector<float>>& weights_in
 
     for (int j = 0; j < inputSize; ++j) {
         for (int i = 0; i < outputSize; ++i) {
-            int idx = IDX2C(i, j, outputSize);
+            int idx      = IDX2C(i, j, outputSize);
             weights[idx] = weights_input[i][j];
         }
     }

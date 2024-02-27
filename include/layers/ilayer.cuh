@@ -3,19 +3,20 @@
 #define I_LAYER_H
 
 #include <cublas_v2.h>
+
 #include <vector>
 
 namespace Layers {
 
-    class ILayer {
-    public:
-        virtual ~ILayer() {}
+class ILayer {
+  public:
+    virtual ~ILayer() {}
 
-        virtual void forward(const float* input, float* output) = 0;
-        virtual void setWeights(const std::vector<std::vector<float>>& weights) = 0;
-        virtual void setBiases(const std::vector<float>& biases) = 0;
-    };
+    virtual void forward(const float* input, float* output)                 = 0;
+    virtual void setWeights(const std::vector<std::vector<float>>& weights) = 0;
+    virtual void setBiases(const std::vector<float>& biases)                = 0;
+};
 
-} // namespace Layers
+}  // namespace Layers
 
-#endif // I_LAYERH
+#endif  // I_LAYERH

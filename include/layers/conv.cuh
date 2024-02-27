@@ -5,22 +5,27 @@
 
 namespace Layers {
 
-    class Conv {
-    public:
-        Conv(int inputSize, int outputSize, int kernelSize, cublasHandle_t cublasHandle);
-        ~Conv();
+class Conv {
+  public:
+    Conv(
+        int            inputSize,
+        int            outputSize,
+        int            kernelSize,
+        cublasHandle_t cublasHandle
+    );
+    ~Conv();
 
-        void forward(const float* input, float* output);
+    void forward(const float* input, float* output);
 
-    private:
-        int inputSize;
-        int outputSize;
-        int kernelSize;
-        cublasHandle_t cublasHandle;
-        float* d_weights;
-        float* d_biases;
-    };
+  private:
+    int            inputSize;
+    int            outputSize;
+    int            kernelSize;
+    cublasHandle_t cublasHandle;
+    float*         d_weights;
+    float*         d_biases;
+};
 
-} // namespace Layers
+}  // namespace Layers
 
-#endif // CONV_LAYER_H
+#endif  // CONV_LAYER_H

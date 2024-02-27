@@ -1,42 +1,49 @@
 #ifndef DENSE_LAYER_H
 #define DENSE_LAYER_H
 
-#include <functional>
-#include <vector>
 #include <cublas_v2.h>
+
+#include <functional>
 #include <string>
+#include <vector>
+
 #include "ilayer.cuh"
 
 namespace Layers {
 
-    class Dense : public ILayer {
-    public:
-        Dense(int inputSize, int outputSize, std::string activation, cublasHandle_t cublasHandle);
-        ~Dense();
+class Dense : public ILayer {
+  public:
+    Dense(
+        int            inputSize,
+        int            outputSize,
+        std::string    activation,
+        cublasHandle_t cublasHandle
+    );
+    ~Dense();
 
-        void forward(const float* input, float* output);
-        void setWeights(const std::vector<std::vector<float>>& weights);
-        void setBiases(const std::vector<float>& biases);
+    void forward(const float* input, float* output);
+    void setWeights(const std::vector<std::vector<float>>& weights);
+    void setBiases(const std::vector<float>& biases);
 
-    private:
-        int inputSize;
-        int outputSize;
+  private:
+    int inputSize;
+    int outputSize;
 
-        cublasHandle_t cublasHandle;
+    cublasHandle_t cublasHandle;
 
-        float* d_weights;
-        float* d_biases;
+    float* d_weights;
+    float* d_biases;
 
-        std::vector<float> weights;
-        std::vector<float> biases;
+    std::vector<float> weights;
+    std::vector<float> biases;
 
-        std::string activation;
+    std::string activation;
 
-        void initializeWeights();
-        void initializeBiases();
-        void toCuda();
-    };
+    void initializeWeights();
+    void initializeBiases();
+    void toCuda();
+};
 
-} // namespace Layers
+}  // namespace Layers
 
-#endif // DENSE_LAYER_H
+#endif  // DENSE_LAYER_H

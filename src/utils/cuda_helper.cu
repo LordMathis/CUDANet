@@ -1,8 +1,10 @@
+#include <cublas_v2.h>
+#include <cuda_runtime.h>
+
 #include <cstdio>
 #include <cstdlib>
+
 #include "cuda_helper.cuh"
-#include <cuda_runtime.h>
-#include <cublas_v2.h>
 
 cudaDeviceProp initializeCUDA(cublasHandle_t& cublasHandle) {
     int deviceCount;

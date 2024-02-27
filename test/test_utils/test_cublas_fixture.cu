@@ -1,5 +1,5 @@
-#include "gtest/gtest.h"
 #include "cublas_v2.h"
+#include "gtest/gtest.h"
 #include "test_cublas_fixture.cuh"
 
 cublasHandle_t CublasTestFixture::cublasHandle;
