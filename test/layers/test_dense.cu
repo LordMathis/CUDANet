@@ -132,7 +132,7 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixRelu) {
     int inputSize  = 5;
     int outputSize = 4;
 
-    std::vector<float> input = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
+    std::vector<float> input = {1.0f, 2.0f, 3.0f, 4.0f, -5.0f};
 
     std::vector<std::vector<float>> weights = {
         {0.5f, 1.2f, 0.7f, 0.4f, 1.3f},
@@ -140,7 +140,7 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixRelu) {
         {0.2f, 1.5f, 0.9f, 0.6f, 0.0f},
         {0.8f, 0.4f, 0.1f, 1.1f, 1.7f}
     };
-    std::vector<float> biases = {0.2f, 0.5f, 0.7f, 1.1f};
+    std::vector<float> biases = {0.2f, 0.5f, 0.7f, -1.1f};
 
     float* d_input;
     float* d_output;
@@ -157,10 +157,10 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixRelu) {
     );
     EXPECT_EQ(cublasStatus, CUBLAS_STATUS_SUCCESS);
 
-    // weights * inputs = 13.1, 17.5, 8.3, 14.8
-    // + biases = 13.3, 18, 9, 15.9
+    // weights * inputs = 0.1, 12.5, 8.3, -2.2
+    // + biases = 0.3, 13, 9, -3.3
 
-    std::vector<float> expectedOutput = {13.3f, 18.0f, 9.0f, 15.9f};
+    std::vector<float> expectedOutput = {0.3f, 13.0f, 9.0f, 0.0f};
     for (int i = 0; i < outputSize; ++i) {
         EXPECT_NEAR(
             output[i], expectedOutput[i], 1e-4
