@@ -81,6 +81,8 @@ void Layers::Dense::forward(const float* d_input, float* d_output) {
             d_output, d_output, outputSize
         );
     }
+
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void Layers::Dense::toCuda() {

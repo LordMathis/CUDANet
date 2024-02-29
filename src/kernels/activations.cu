@@ -2,18 +2,6 @@
 
 #include "activations.cuh"
 
-__device__ float sigmoid(float a) {
-    return 1.0 / (1.0 + exp(-a));
-}
-
-__device__ float relu(float a) {
-    return a < 0.0 ? 0.0 : a;
-}
-
-__device__ float linear(float a) {
-    return a;
-}
-
 __global__ void sigmoid_kernel(
     const float* __restrict__ src,
     float* __restrict__ dst,
@@ -23,7 +11,7 @@ __global__ void sigmoid_kernel(
     int tid    = blockDim.x * blockIdx.x + threadIdx.x;
 
     for (int i = tid; i < len; i += stride) {
-        dst[i] = sigmoid(src[i]);
+        dst[i] = 1.0 / (1.0 + exp(-src[i]));
     }
 }
 
@@ -33,7 +21,7 @@ relu_kernel(const float* __restrict__ src, float* __restrict__ dst, int len) {
     int tid    = blockDim.x * blockIdx.x + threadIdx.x;
 
     for (int i = tid; i < len; i += stride) {
-        dst[i] = relu(src[i]);
+        dst[i] = src[i] < 0.0 ? 0.0 : src[i];
     }
 }
 
@@ -43,6 +31,6 @@ linear_kernel(const float* __restrict__ src, float* __restrict__ dst, int len) {
     int tid    = blockDim.x * blockIdx.x + threadIdx.x;
 
     for (int i = tid; i < len; i += stride) {
-        dst[i] = linear(src[i]);
+        dst[i] = src[i];
     }
 }

@@ -1,10 +1,9 @@
 #include <cuda_runtime_api.h>
-#include <driver_types.h>
+#include <gtest/gtest.h>
 
 #include <iostream>
 
 #include "activations.cuh"
-#include "gtest/gtest.h"
 #include "test_cublas_fixture.cuh"
 
 class ActivationsTest : public CublasTestFixture {
