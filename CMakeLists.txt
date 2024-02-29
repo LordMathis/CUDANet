@@ -11,6 +11,7 @@ include_directories(${CUDAToolkit_INCLUDE_DIRS})
 set(LIBRARY_SOURCES
     src/utils/cuda_helper.cu
     src/kernels/activations.cu
+    src/kernels/padding.cu
     src/layers/dense.cu
 )
 

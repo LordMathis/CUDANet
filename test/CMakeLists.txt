@@ -1,7 +1,11 @@
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
-add_executable(test_main layers/test_dense.cu kernels/test_activations.cu)
+add_executable(test_main 
+    layers/test_dense.cu
+    kernels/test_activations.cu
+    kernels/test_padding.cu
+)
 
 add_library(test_utils
     test_utils/test_cublas_fixture.cu
