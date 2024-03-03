@@ -16,7 +16,7 @@ class Dense : public ILayer {
     Dense(
         int            inputSize,
         int            outputSize,
-        std::string    activation,
+        Activation     activation,
         cublasHandle_t cublasHandle
     );
     ~Dense();
@@ -37,7 +37,7 @@ class Dense : public ILayer {
     std::vector<float> weights;
     std::vector<float> biases;
 
-    std::string activation;
+    Activation activation;
 
     void initializeWeights();
     void initializeBiases();

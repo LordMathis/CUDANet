@@ -13,7 +13,7 @@
 Layers::Dense::Dense(
     int            inputSize,
     int            outputSize,
-    std::string    activation,
+    Activation     activation,
     cublasHandle_t cublasHandle
 )
     : inputSize(inputSize),
@@ -68,18 +68,24 @@ void Layers::Dense::forward(const float* d_input, float* d_output) {
     int threadsPerBlock = 256;
     int blocksPerGrid   = (outputSize + threadsPerBlock - 1) / threadsPerBlock;
 
-    if (activation == "sigmoid") {
-        sigmoid_kernel<<<blocksPerGrid, threadsPerBlock>>>(
-            d_output, d_output, outputSize
-        );
-    } else if (activation == "relu") {
-        relu_kernel<<<blocksPerGrid, threadsPerBlock>>>(
-            d_output, d_output, outputSize
-        );
-    } else {
-        linear_kernel<<<blocksPerGrid, threadsPerBlock>>>(
-            d_output, d_output, outputSize
-        );
+    switch (activation) {
+        case SIGMOID:
+            sigmoid_kernel<<<blocksPerGrid, threadsPerBlock>>>(
+                d_output, d_output, outputSize
+            );
+            break;
+
+        case RELU:
+            relu_kernel<<<blocksPerGrid, threadsPerBlock>>>(
+                d_output, d_output, outputSize
+            );
+            break;
+
+        default:
+            linear_kernel<<<blocksPerGrid, threadsPerBlock>>>(
+                d_output, d_output, outputSize
+            );
+            break;
     }
 
     CUDA_CHECK(cudaDeviceSynchronize());

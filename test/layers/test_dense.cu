@@ -17,7 +17,7 @@ class DenseLayerTest : public CublasTestFixture {
         std::vector<float>&              biases,
         float*&                          d_input,
         float*&                          d_output,
-        std::string                      activation
+        Activation                       activation
     ) {
         // Create Dense layer
         Layers::Dense denseLayer(
@@ -63,7 +63,7 @@ TEST_F(DenseLayerTest, Init) {
             // std::cout << "Dense layer: input size = " << inputSize << ",
             // output size = " << outputSize << std::endl;
             Layers::Dense denseLayer(
-                inputSize, outputSize, "sigmoid", cublasHandle
+                inputSize, outputSize, SIGMOID, cublasHandle
             );
         }
     }
@@ -81,7 +81,7 @@ TEST_F(DenseLayerTest, setWeights) {
         {1.3f, 0.5f, 0.0f, 1.7f}
     };
 
-    Layers::Dense denseLayer(inputSize, outputSize, "sigmoid", cublasHandle);
+    Layers::Dense denseLayer(inputSize, outputSize, SIGMOID, cublasHandle);
 
     denseLayer.setWeights(weights);
 }
@@ -108,8 +108,7 @@ TEST_F(DenseLayerTest, ForwardUnitWeightMatrixLinear) {
     float* d_output;
 
     Layers::Dense denseLayer = commonTestSetup(
-        inputSize, outputSize, input, weights, biases, d_input, d_output,
-        "linear"
+        inputSize, outputSize, input, weights, biases, d_input, d_output, LINEAR
     );
     denseLayer.forward(d_input, d_output);
 
@@ -145,7 +144,7 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixRelu) {
     float* d_output;
 
     Layers::Dense denseLayer = commonTestSetup(
-        inputSize, outputSize, input, weights, biases, d_input, d_output, "relu"
+        inputSize, outputSize, input, weights, biases, d_input, d_output, RELU
     );
 
     denseLayer.forward(d_input, d_output);
@@ -188,7 +187,7 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixSigmoid) {
 
     Layers::Dense denseLayer = commonTestSetup(
         inputSize, outputSize, input, weights, biases, d_input, d_output,
-        "sigmoid"
+        SIGMOID
     );
 
     denseLayer.forward(d_input, d_output);
