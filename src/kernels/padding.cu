@@ -1,3 +1,5 @@
+#include <vector>
+
 /*
 Pads matrix width x height x n_channels to width + 2 * padding x height + 2 *
 padding x n_channels Matrix is represented as a pointer to column major vector
@@ -22,10 +24,12 @@ Is represented as:
 
 0 2 4 1 3 5 6 8 10 7 9 11
 
-Padded result:
+Padded result (as a continuous vector):
 
-0 0 0 0 0 0 0 2 4 0 0 1 3 5 0 0 0 0 0 0 0 0 0 0 0 0 6 8 10 0 0 7 9 11 0 0 0 0 0 0
-
+0 0 0 0 0 0 0 2 4 0
+0 1 3 5 0 0 0 0 0 0
+0 0 0 0 0 0 6 8 10 0
+0 7 9 11 0 0 0 0 0 0
 
 Args:
   d_input: Pointer to input vector representing matrix
@@ -41,17 +45,29 @@ __global__ void pad_matrix_kernel(
     int          n,
     int          p
 ) {
-    int stride = gridDim.x * blockDim.x;
-    int tid    = blockDim.x * blockIdx.x + threadIdx.x;
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-	for (int i = tid; i < (w + 2 * p) * (h + 2 * p) * n; i += stride) {
-		
-		// if i is in the padding region
-		if (i < p * (h + 2 * p) * n || i >= (w + p) * (h + 2 * p) * n) {
-			d_padded[i] = 0.0f;
-		} else {
-			// if i is in the original region
-			d_padded[i] = d_input[(i - p * (h + 2 * p) * n) / (h + 2 * p) * w + (i - p * (h + 2 * p) * n) % (h + 2 * p)];
-		}
-	}
+    if (tid >= (w + 2 * p) * (h + 2 * p) * n) {
+        return;
+    }
+
+    int idx = tid;
+
+    // unravel index
+    int i_h = idx % (h + 2 * p);
+    idx /= (h + 2 * p);
+
+    int i_w = idx % (w + 2 * p);
+    idx /= (w + 2 * p);
+
+    int i_n = idx % n;
+
+    // if i is in the padding region
+    if (i_w < p || i_w >= (w + p) || i_h < p || i_h >= (h + p)) {
+        d_padded[tid] = 0.0f;
+    } else {
+        // Get index into input vector
+        int i_orig    = i_n * w * h + (i_w - p) * h + (i_h - p);
+        d_padded[tid] = d_input[i_orig];
+    }
 }

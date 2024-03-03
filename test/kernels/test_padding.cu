@@ -27,9 +27,7 @@ TEST_F(PaddingTest, SimplePaddingTest) {
     cudaStatus = cudaMalloc((void**)&d_input, sizeof(float) * inputSize);
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
-    cudaStatus = cudaMalloc(
-        (void**)&d_padded, sizeof(float) * paddedSize
-    );
+    cudaStatus = cudaMalloc((void**)&d_padded, sizeof(float) * paddedSize);
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
     /*
@@ -54,7 +52,12 @@ TEST_F(PaddingTest, SimplePaddingTest) {
         cublasSetVector(inputSize, sizeof(float), input.data(), 1, d_input, 1);
     EXPECT_EQ(cublasStatus, CUBLAS_STATUS_SUCCESS);
 
-    pad_matrix_kernel<<<1, 1>>>(d_input, d_padded, w, h, n, p);
+    int THREADS_PER_BLOCK = 64;
+    int BLOCKS            = paddedSize / THREADS_PER_BLOCK + 1;
+
+    pad_matrix_kernel<<<BLOCKS, THREADS_PER_BLOCK>>>(
+        d_input, d_padded, w, h, n, p
+    );
     cudaStatus = cudaDeviceSynchronize();
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
@@ -69,12 +72,6 @@ TEST_F(PaddingTest, SimplePaddingTest) {
     cublasStatus = cublasGetVector(
         paddedSize, sizeof(float), d_padded, 1, output.data(), 1
     );
-
-    std::cout << "Actual output: " << std::endl;
-    for (int i = 0; i < paddedSize; i++) {
-        std::cout << output[i] << " ";
-    }
-    std::cout << std::endl;
 
     for (int i = 0; i < paddedSize; i++) {
         EXPECT_NEAR(expectedOutput[i], output[i], 1e-5);
