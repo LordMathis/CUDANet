@@ -13,6 +13,7 @@ set(LIBRARY_SOURCES
     src/kernels/activations.cu
     src/kernels/padding.cu
     src/layers/dense.cu
+    src/layers/conv2d.cu
 )
 
 set(CMAKE_CUDA_ARCHITECTURES 75)
