@@ -35,13 +35,13 @@ TEST(PaddingTest, SimplePaddingTest) {
     8  9
     10 11
 
-    Represented as column major vector:
+    Represented as a vector:
 
-    0 2 4 1 3 5 6 8 10 7 9 11
+    0 1 2 3 4 5 6 7 8 9 10 11
     */
 
-    std::vector<float> input = {0.0f, 2.0f, 4.0f,  1.0f, 3.0f, 5.0f,
-                                6.0f, 8.0f, 10.0f, 7.0f, 9.0f, 11.0f};
+    std::vector<float> input = {0.0f, 1.0f, 2.0f,  3.0f, 4.0f, 5.0f,
+                                6.0f, 7.0f, 8.0f, 9.0f, 10.0f, 11.0f};
 
     cudaStatus = cudaMemcpy(
         d_input, input.data(), sizeof(float) * inputSize, cudaMemcpyHostToDevice
@@ -57,12 +57,22 @@ TEST(PaddingTest, SimplePaddingTest) {
     cudaStatus = cudaDeviceSynchronize();
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
+    // clang-format off
     std::vector<float> expectedOutput = {
-        0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 2.0f, 4.0f,  0.0f,
-        0.0f, 1.0f, 3.0f, 5.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  0.0f,
-        0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 6.0f, 8.0f, 10.0f, 0.0f,
-        0.0f, 7.0f, 9.0f, 11.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  0.0f
+        // channel 0
+        0.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 2.0f, 3.0f, 0.0f,
+        0.0f, 4.0f, 5.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 0.0f,
+        // channel 1
+        0.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 6.0f, 7.0f, 0.0f,
+        0.0f, 8.0f, 9.0f, 0.0f,
+        0.0f, 10.0f, 11.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 0.0f
     };
+    // clang-format on
 
     std::vector<float> output(paddedSize);
 
@@ -75,4 +85,8 @@ TEST(PaddingTest, SimplePaddingTest) {
     for (int i = 0; i < paddedSize; i++) {
         EXPECT_NEAR(expectedOutput[i], output[i], 1e-5);
     }
+
+
+    cudaFree(d_input);
+    cudaFree(d_padded);
 }
