@@ -1,5 +1,5 @@
 # CUDANet
 
 requirements:
-- CUDA, cuBLAS
+- CUDA
 - Google Test 

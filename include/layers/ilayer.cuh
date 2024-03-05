@@ -2,8 +2,6 @@
 #ifndef I_LAYER_H
 #define I_LAYER_H
 
-#include <cublas_v2.h>
-
 #include <vector>
 
 namespace Layers {

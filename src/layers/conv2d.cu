@@ -1,5 +1,3 @@
-#include <cublas_v2.h>
-
 #include <string>
 
 #include "activations.cuh"
@@ -14,15 +12,13 @@ Layers::Conv2d::Conv2d(
     int            stride,
     std::string    padding,
     int            numFilters,
-    Activation     activation,
-    cublasHandle_t cublasHandle
+    Activation     activation
 )
     : inputSize(inputSize),
       inputChannels(inputChannels),
       kernelSize(kernelSize),
       stride(stride),
       numFilters(numFilters),
-      cublasHandle(cublasHandle),
       activation(activation) {
     // Allocate memory for kernels
 

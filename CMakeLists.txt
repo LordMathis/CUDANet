@@ -12,6 +12,7 @@ set(LIBRARY_SOURCES
     src/utils/cuda_helper.cu
     src/kernels/activations.cu
     src/kernels/padding.cu
+    src/kernels/matrix_math.cu
     src/layers/dense.cu
     src/layers/conv2d.cu
 )
@@ -23,8 +24,7 @@ set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -arch=sm_75)
 # Build static library
 add_library(${PROJECT_NAME} STATIC ${LIBRARY_SOURCES})
 
-# Link cuBLAS library to the library
-target_link_libraries(${PROJECT_NAME} CUDA::cublas CUDA::cudart)
+target_link_libraries(${PROJECT_NAME} CUDA::cudart)
 
 # Set include directories for the library
 target_include_directories(${PROJECT_NAME} PUBLIC

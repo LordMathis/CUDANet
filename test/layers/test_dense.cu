@@ -5,9 +5,9 @@
 
 #include "activations.cuh"
 #include "dense.cuh"
-#include "test_cublas_fixture.cuh"
 
-class DenseLayerTest : public CublasTestFixture {
+
+class DenseLayerTest : public::testing::Test {
   protected:
     Layers::Dense commonTestSetup(
         int                              inputSize,
@@ -21,7 +21,7 @@ class DenseLayerTest : public CublasTestFixture {
     ) {
         // Create Dense layer
         Layers::Dense denseLayer(
-            inputSize, outputSize, activation, cublasHandle
+            inputSize, outputSize, activation
         );
 
         // Set weights and biases
@@ -36,10 +36,11 @@ class DenseLayerTest : public CublasTestFixture {
         EXPECT_EQ(cudaStatus, cudaSuccess);
 
         // Copy input to device
-        cublasStatus = cublasSetVector(
-            input.size(), sizeof(float), input.data(), 1, d_input, 1
+        cudaStatus = cudaMemcpy(
+            d_input, input.data(), sizeof(float) * input.size(), cudaMemcpyHostToDevice
         );
-        EXPECT_EQ(cublasStatus, CUBLAS_STATUS_SUCCESS);
+        EXPECT_EQ(cudaStatus, cudaSuccess);
+
 
         return denseLayer;
     }
@@ -51,7 +52,6 @@ class DenseLayerTest : public CublasTestFixture {
     }
 
     cudaError_t    cudaStatus;
-    cublasStatus_t cublasStatus;
 };
 
 TEST_F(DenseLayerTest, Init) {
@@ -60,10 +60,8 @@ TEST_F(DenseLayerTest, Init) {
             int inputSize  = i;
             int outputSize = j;
 
-            // std::cout << "Dense layer: input size = " << inputSize << ",
-            // output size = " << outputSize << std::endl;
             Layers::Dense denseLayer(
-                inputSize, outputSize, SIGMOID, cublasHandle
+                inputSize, outputSize, SIGMOID
             );
         }
     }
@@ -81,7 +79,7 @@ TEST_F(DenseLayerTest, setWeights) {
         {1.3f, 0.5f, 0.0f, 1.7f}
     };
 
-    Layers::Dense denseLayer(inputSize, outputSize, SIGMOID, cublasHandle);
+    Layers::Dense denseLayer(inputSize, outputSize, SIGMOID);
 
     denseLayer.setWeights(weights);
 }
@@ -113,10 +111,10 @@ TEST_F(DenseLayerTest, ForwardUnitWeightMatrixLinear) {
     denseLayer.forward(d_input, d_output);
 
     std::vector<float> output(outputSize);
-    cublasStatus = cublasGetVector(
-        outputSize, sizeof(float), d_output, 1, output.data(), 1
+    cudaStatus = cudaMemcpy(
+        output.data(), d_output, sizeof(float) * outputSize, cudaMemcpyDeviceToHost
     );
-    EXPECT_EQ(cublasStatus, CUBLAS_STATUS_SUCCESS);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
 
     // Check if the output is a zero vector
     EXPECT_FLOAT_EQ(output[0], 2.0f);
@@ -150,10 +148,10 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixRelu) {
     denseLayer.forward(d_input, d_output);
 
     std::vector<float> output(outputSize);
-    cublasStatus = cublasGetVector(
-        outputSize, sizeof(float), d_output, 1, output.data(), 1
+    cudaStatus = cudaMemcpy(
+        output.data(), d_output, sizeof(float) * outputSize, cudaMemcpyDeviceToHost
     );
-    EXPECT_EQ(cublasStatus, CUBLAS_STATUS_SUCCESS);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
 
     // weights * inputs = 0.1, 12.5, 8.3, -2.2
     // + biases = 0.3, 13, 9, -3.3
@@ -193,10 +191,10 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixSigmoid) {
     denseLayer.forward(d_input, d_output);
 
     std::vector<float> output(outputSize);
-    cublasStatus = cublasGetVector(
-        outputSize, sizeof(float), d_output, 1, output.data(), 1
+    cudaStatus = cudaMemcpy(
+        output.data(), d_output, sizeof(float) * outputSize, cudaMemcpyDeviceToHost
     );
-    EXPECT_EQ(cublasStatus, CUBLAS_STATUS_SUCCESS);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
 
     // weights * input = 0.95, 0.43, 0.45, 0.93
     // + biases = 1.05, 0.63, 0.75, 1.33

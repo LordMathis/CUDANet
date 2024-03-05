@@ -1,8 +1,6 @@
 #ifndef DENSE_LAYER_H
 #define DENSE_LAYER_H
 
-#include <cublas_v2.h>
-
 #include <functional>
 #include <string>
 #include <vector>
@@ -16,8 +14,7 @@ class Dense : public ILayer {
     Dense(
         int            inputSize,
         int            outputSize,
-        Activation     activation,
-        cublasHandle_t cublasHandle
+        Activation     activation
     );
     ~Dense();
 
@@ -28,8 +25,6 @@ class Dense : public ILayer {
   private:
     int inputSize;
     int outputSize;
-
-    cublasHandle_t cublasHandle;
 
     float* d_weights;
     float* d_biases;

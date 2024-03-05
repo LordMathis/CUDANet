@@ -1,8 +1,6 @@
 #ifndef CONV_LAYER_H
 #define CONV_LAYER_H
 
-#include <cublas_v2.h>
-
 #include <string>
 #include <vector>
 
@@ -19,8 +17,7 @@ class Conv2d {
         int            stride,
         std::string    padding,
         int            numFilters,
-        Activation     activation,
-        cublasHandle_t cublasHandle
+        Activation     activation
     );
     ~Conv2d();
 
@@ -44,7 +41,6 @@ class Conv2d {
     std::vector<float> kernels;
 
     // Cuda
-    cublasHandle_t cublasHandle;
     float*         d_kernels;
     float*         d_padded;
 

@@ -4,15 +4,10 @@
 #include <iostream>
 
 #include "padding.cuh"
-#include "test_cublas_fixture.cuh"
 
-class PaddingTest : public CublasTestFixture {
-  protected:
-    cudaError_t    cudaStatus;
-    cublasStatus_t cublasStatus;
-};
+TEST(PaddingTest, SimplePaddingTest) {
+    cudaError_t cudaStatus;
 
-TEST_F(PaddingTest, SimplePaddingTest) {
     int w = 2;
     int h = 3;
     int n = 2;
@@ -48,9 +43,10 @@ TEST_F(PaddingTest, SimplePaddingTest) {
     std::vector<float> input = {0.0f, 2.0f, 4.0f,  1.0f, 3.0f, 5.0f,
                                 6.0f, 8.0f, 10.0f, 7.0f, 9.0f, 11.0f};
 
-    cublasStatus =
-        cublasSetVector(inputSize, sizeof(float), input.data(), 1, d_input, 1);
-    EXPECT_EQ(cublasStatus, CUBLAS_STATUS_SUCCESS);
+    cudaStatus = cudaMemcpy(
+        d_input, input.data(), sizeof(float) * inputSize, cudaMemcpyHostToDevice
+    );
+    EXPECT_EQ(cudaStatus, cudaSuccess);
 
     int THREADS_PER_BLOCK = 64;
     int BLOCKS            = paddedSize / THREADS_PER_BLOCK + 1;
@@ -69,9 +65,12 @@ TEST_F(PaddingTest, SimplePaddingTest) {
     };
 
     std::vector<float> output(paddedSize);
-    cublasStatus = cublasGetVector(
-        paddedSize, sizeof(float), d_padded, 1, output.data(), 1
+
+    cudaStatus = cudaMemcpy(
+        output.data(), d_padded, sizeof(float) * paddedSize,
+        cudaMemcpyDeviceToHost
     );
+    EXPECT_EQ(cudaStatus, cudaSuccess);
 
     for (int i = 0; i < paddedSize; i++) {
         EXPECT_NEAR(expectedOutput[i], output[i], 1e-5);

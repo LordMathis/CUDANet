@@ -14,6 +14,8 @@ __global__ void mat_vec_mul_kernel(
         return;
     }
 
+    d_output[tid] = 0.0f;
+
     for (int i = 0; i < w; i++) {
         d_output[tid] += d_matrix[tid * w + i] * d_vector[i];
     }

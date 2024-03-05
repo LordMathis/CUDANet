@@ -1,4 +1,3 @@
-#include <cublas_v2.h>
 #include <cuda_runtime.h>
 
 #include <cstdio>
@@ -6,7 +5,7 @@
 
 #include "cuda_helper.cuh"
 
-cudaDeviceProp initializeCUDA(cublasHandle_t& cublasHandle) {
+cudaDeviceProp initializeCUDA() {
     int deviceCount;
     CUDA_CHECK(cudaGetDeviceCount(&deviceCount));
 
@@ -22,9 +21,6 @@ cudaDeviceProp initializeCUDA(cublasHandle_t& cublasHandle) {
     CUDA_CHECK(cudaGetDeviceProperties(&deviceProp, device));
 
     std::printf("Using CUDA device %d: %s\n", device, deviceProp.name);
-
-    // Initialize cuBLAS
-    CUBLAS_CHECK(cublasCreate(&cublasHandle));
 
     return deviceProp;
 }
