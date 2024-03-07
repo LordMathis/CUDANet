@@ -49,6 +49,10 @@ class Conv2d {
 
     void initializeKernels();
     void toCuda();
+
+    void setKernels(const std::vector<float>& kernels_input);
+
+    void host_conv(const float* input, float* output);
 };
 
 }  // namespace Layers

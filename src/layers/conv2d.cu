@@ -6,13 +6,13 @@
 #include "padding.cuh"
 
 Layers::Conv2d::Conv2d(
-    int            inputSize,
-    int            inputChannels,
-    int            kernelSize,
-    int            stride,
-    std::string    padding,
-    int            numFilters,
-    Activation     activation
+    int         inputSize,
+    int         inputChannels,
+    int         kernelSize,
+    int         stride,
+    std::string padding,
+    int         numFilters,
+    Activation  activation
 )
     : inputSize(inputSize),
       inputChannels(inputChannels),
@@ -43,11 +43,10 @@ Layers::Conv2d::Conv2d(
     d_padded = nullptr;
 
     if (paddingSize > 0) {
-        CUDA_CHECK(
-            cudaMalloc((void**)&d_padded,
-                       sizeof(float) * (inputSize + 2 * paddingSize) *
-                           (inputSize + 2 * paddingSize) * inputChannels)
-        );
+        CUDA_CHECK(cudaMalloc(
+            (void**)&d_padded, sizeof(float) * (inputSize + 2 * paddingSize) *
+                                   (inputSize + 2 * paddingSize) * inputChannels
+        ));
     }
 }
 
@@ -60,6 +59,11 @@ void Layers::Conv2d::initializeKernels() {
     std::fill(kernels.begin(), kernels.end(), 0.0f);
 }
 
+void Layers::Conv2d::setKernels(const std::vector<float>& kernels_input) {
+    std::copy(kernels_input.begin(), kernels_input.end(), kernels.begin());
+    toCuda();
+}
+
 void Layers::Conv2d::toCuda() {
     CUDA_CHECK(cudaMemcpy(
         d_kernels, kernels.data(), sizeof(float) * kernelSize * kernelSize,
@@ -68,15 +72,51 @@ void Layers::Conv2d::toCuda() {
 }
 
 void Layers::Conv2d::forward(const float* d_input, float* d_output) {
-
     // Padd input
     int THREADS_PER_BLOCK = 256;
-    int BLOCKS            = (outputSize * outputSize * inputChannels) / THREADS_PER_BLOCK + 1;
+    int BLOCKS =
+        (outputSize * outputSize * inputChannels) / THREADS_PER_BLOCK + 1;
 
     pad_matrix_kernel<<<BLOCKS, THREADS_PER_BLOCK>>>(
         d_input, d_padded, inputSize, inputSize, inputChannels, paddingSize
     );
 
     // TODO: Implement 2D convolution
+}
 
+/*
+Convolves input vector with kernel and stores result in output
+
+input: matrix (inputSize + paddingSize) x (inputSize + paddingSize) x
+inputChannels represented as a vector output: output matrix outputSize x
+outputSize x numFilters
+
+*/
+void Layers::Conv2d::host_conv(const float* input, float* output) {
+    // Iterate over output matrix
+    for (int f = 0; f < numFilters; f++) {
+        for (int i = 0; i < outputSize; i++) {
+            for (int j = 0; j < outputSize; j++) {
+                
+                float sum = 0.0f;
+
+                // Iterate over kernel and input matrix
+                for (int k = 0; k < kernelSize; k++) {
+                    for (int l = 0; l < kernelSize; l++) {
+                        for (int c = 0; c < inputChannels; c++) {
+
+                            // For now stride = 1
+                            
+                            int kernelIndex = k * (kernelSize * inputChannels * numFilters) + l * (inputChannels * numFilters) + c * (numFilters) + f;
+                            int inputIndex  = i * (inputSize * inputChannels) + j * (inputChannels) + c;
+
+                            sum += kernels[kernelIndex] * input[inputIndex];
+                        }                      
+                    }
+                }
+
+                output[i * (outputSize * numFilters) + j * (numFilters) + f] = sum;
+            }
+        }
+    }
 }
