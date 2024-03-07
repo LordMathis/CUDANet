@@ -108,7 +108,7 @@ void Layers::Conv2d::host_conv(const float* input, float* output) {
                             // For now stride = 1
                             
                             int kernelIndex = k * (kernelSize * inputChannels * numFilters) + l * (inputChannels * numFilters) + c * (numFilters) + f;
-                            int inputIndex  = i * (inputSize * inputChannels) + j * (inputChannels) + c;
+                            int inputIndex  = (i * stride + k) * (inputSize * inputChannels) + (j + stride + l) * (inputChannels) + c;
 
                             sum += kernels[kernelIndex] * input[inputIndex];
                         }                      
