@@ -11,15 +11,18 @@ namespace Layers {
 class Conv2d {
   public:
     Conv2d(
-        int            inputSize,
-        int            inputChannels,
-        int            kernelSize,
-        int            stride,
-        std::string    padding,
-        int            numFilters,
-        Activation     activation
+        int         inputSize,
+        int         inputChannels,
+        int         kernelSize,
+        int         stride,
+        std::string padding,
+        int         numFilters,
+        Activation  activation
     );
     ~Conv2d();
+
+    // Outputs
+    int outputSize;
 
     void forward(const float* d_input, float* d_output);
 
@@ -34,15 +37,12 @@ class Conv2d {
     int paddingSize;
     int numFilters;
 
-    // Outputs
-    int outputSize;
-
     // Kernels
     std::vector<float> kernels;
 
     // Cuda
-    float*         d_kernels;
-    float*         d_padded;
+    float* d_kernels;
+    float* d_padded;
 
     // Kernels
     Activation activation;
