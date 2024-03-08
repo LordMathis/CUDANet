@@ -1,4 +1,5 @@
 #include <string>
+#include <iostream>
 
 #include "activations.cuh"
 #include "conv2d.cuh"
@@ -100,20 +101,24 @@ void Layers::Conv2d::host_conv(const float* input, float* output) {
                 
                 float sum = 0.0f;
 
+                // std::cout << "f: " << f << ", i: " << i << ", j: " << j << std::endl;
+
                 // Iterate over kernel and input matrix
                 for (int k = 0; k < kernelSize; k++) {
                     for (int l = 0; l < kernelSize; l++) {
                         for (int c = 0; c < inputChannels; c++) {
-
-                            // For now stride = 1
                             
                             int kernelIndex = k * (kernelSize * inputChannels * numFilters) + l * (inputChannels * numFilters) + c * (numFilters) + f;
-                            int inputIndex  = (i * stride + k) * (inputSize * inputChannels) + (j + stride + l) * (inputChannels) + c;
+                            int inputIndex  = (i * stride + k) * (inputSize * inputChannels) + (j * stride + l) * (inputChannels) + c;
+
+                            // std::cout << "kernelIndex: " << kernelIndex << ", kernel value: " << kernels[kernelIndex] << ", inputIndex: " << inputIndex << ", input value: " << input[inputIndex] << std::endl;
 
                             sum += kernels[kernelIndex] * input[inputIndex];
                         }                      
                     }
                 }
+
+                // std::cout << "sum: " << sum << std::endl;
 
                 output[i * (outputSize * numFilters) + j * (numFilters) + f] = sum;
             }
