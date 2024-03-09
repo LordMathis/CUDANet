@@ -5,6 +5,7 @@
 #include "conv2d.cuh"
 #include "convolution.cuh"
 #include "cuda_helper.cuh"
+#include "matrix_math.cuh"
 #include "padding.cuh"
 
 Layers::Conv2d::Conv2d(
@@ -33,30 +34,42 @@ Layers::Conv2d::Conv2d(
     }
 
     kernels.resize(kernelSize * kernelSize * inputChannels * numFilters);
-    initializeKernels();
+    initializeKernels();    
 
     d_kernels = nullptr;
-
     CUDA_CHECK(
         cudaMalloc((void**)&d_kernels, sizeof(float) * kernelSize * kernelSize * inputChannels * numFilters)
     );
-    toCuda();
+
+    biases.resize(outputSize * outputSize * numFilters);
+    initializeBiases();
+
+    d_biases = nullptr;
+    CUDA_CHECK(
+        cudaMalloc((void**)&d_biases, sizeof(float) * outputSize * outputSize * numFilters)
+    );
 
     d_padded = nullptr;
-
     CUDA_CHECK(cudaMalloc(
         (void**)&d_padded, sizeof(float) * (inputSize + 2 * paddingSize) *
                                 (inputSize + 2 * paddingSize) * inputChannels
     ));
+
+    toCuda();
 }
 
 Layers::Conv2d::~Conv2d() {
     cudaFree(d_kernels);
+    cudaFree(d_biases);
     cudaFree(d_padded);
 }
 
 void Layers::Conv2d::initializeKernels() {
     std::fill(kernels.begin(), kernels.end(), 0.0f);
+}
+
+void Layers::Conv2d::initializeBiases() {
+    std::fill(biases.begin(), biases.end(), 0.0f);
 }
 
 void Layers::Conv2d::setKernels(const std::vector<float>& kernels_input) {
@@ -67,6 +80,11 @@ void Layers::Conv2d::setKernels(const std::vector<float>& kernels_input) {
 void Layers::Conv2d::toCuda() {
     CUDA_CHECK(cudaMemcpy(
         d_kernels, kernels.data(), sizeof(float) * kernelSize * kernelSize * numFilters,
+        cudaMemcpyHostToDevice
+    ));
+
+    CUDA_CHECK(cudaMemcpy(
+        d_biases, biases.data(), sizeof(float) * outputSize * outputSize * numFilters,
         cudaMemcpyHostToDevice
     ));
 }
@@ -84,6 +102,9 @@ void Layers::Conv2d::forward(const float* d_input, float* d_output) {
     convolution_kernel<<<1, THREADS_PER_BLOCK>>>(
         d_padded, d_kernels, d_output, inputSize + (2 * paddingSize), inputChannels, kernelSize, stride, numFilters, outputSize
     );
+
+    // Add bias
+    vec_vec_add_kernel<<<1, biases.size()>>>(d_biases, d_output, d_output, biases.size());
 
     CUDA_CHECK(cudaDeviceSynchronize());
 }

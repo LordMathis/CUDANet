@@ -42,15 +42,18 @@ class Conv2d {
 
     // Kernels
     std::vector<float> kernels;
+    std::vector<float> biases;
 
     // Cuda
     float* d_kernels;
+    float* d_biases;
     float* d_padded;
 
     // Kernels
     Activation activation;
 
     void initializeKernels();
+    void initializeBiases();
     void toCuda();
 };
 
