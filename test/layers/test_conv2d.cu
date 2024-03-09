@@ -5,70 +5,94 @@
 
 #include "conv2d.cuh"
 
-class Conv2dTest : public::testing::Test {
-    protected:
-        cudaError_t    cudaStatus;
+class Conv2dTest : public ::testing::Test {
+  protected:
+    Layers::Conv2d commonTestSetup(
+        int                 inputSize,
+        int                 inputChannels,
+        int                 kernelSize,
+        int                 stride,
+        std::string         padding,
+        int                 numFilters,
+        Activation          activation,
+        std::vector<float>& input,
+        std::vector<float>& kernels,
+        float*&             d_input,
+        float*&             d_output
+    ) {
+        // Create Conv2d layer
+        Layers::Conv2d conv2d(
+            inputSize, inputChannels, kernelSize, stride, padding, numFilters,
+            activation
+        );
+
+        conv2d.setKernels(kernels);
+
+        // Allocate device memory
+        cudaStatus = cudaMalloc(
+            (void**)&d_input, sizeof(float) * inputSize * inputSize * inputChannels
+        );
+        EXPECT_EQ(cudaStatus, cudaSuccess);
+
+        cudaStatus = cudaMalloc(
+            (void**)&d_output, sizeof(float) * conv2d.outputSize * conv2d.outputSize * numFilters
+        );
+        EXPECT_EQ(cudaStatus, cudaSuccess);
+
+        // // Copy input to device
+        cudaStatus = cudaMemcpy(
+            d_input, input.data(), sizeof(float) * input.size(),
+            cudaMemcpyHostToDevice
+        );
+        EXPECT_EQ(cudaStatus, cudaSuccess);
+
+
+        return conv2d;
+    }
+
+    void commonTestTeardown(float* d_input, float* d_output) {
+        // Free device memory
+        cudaFree(d_input);
+        cudaFree(d_output);
+    }
+
+    cudaError_t cudaStatus;
 };
 
+TEST_F(Conv2dTest, SimpleTest) {
+    int         inputSize     = 4;
+    int         inputChannels = 1;
+    int         kernelSize    = 2;
+    int         stride        = 1;
+    std::string padding       = "VALID";
+    int         numFilters    = 1;
+    Activation  activation    = LINEAR;
 
-TEST_F(Conv2dTest, SimpleExample) {
-
-    int inputSize = 4;
-    int inputChannels = 1;
-    int kernelSize = 2;
-    int stride = 1;
-    std::string padding = "VALID";
-    int numFilters = 1;
-    Activation activation = LINEAR;
-
-    Layers::Conv2d conv2d(
-        inputSize,
-        inputChannels,
-        kernelSize,
-        stride,
-        padding,
-        numFilters,
-        activation
-    );
-
-    int outputSize = (inputSize - kernelSize) / stride + 1;
-    EXPECT_EQ(outputSize, conv2d.outputSize);
-
-    std::vector<float> input = {
-        1.0f, 2.0f, 3.0f, 4.0f,
-        5.0f, 6.0f, 7.0f, 8.0f,
-        9.0f, 10.0f, 11.0f, 12.0f,
-        13.0f, 14.0f, 15.0f, 16.0f
-    };
+    std::vector<float> input   = {1.0f,  2.0f,  3.0f,  4.0f,  5.0f,  6.0f,
+                                  7.0f,  8.0f,  9.0f,  10.0f, 11.0f, 12.0f,
+                                  13.0f, 14.0f, 15.0f, 16.0f};
     std::vector<float> kernels = {
-        1.0f, 2.0f, 3.0f, 4.0f,
+        1.0f,
+        2.0f,
+        3.0f,
+        4.0f,
     };
 
     float* d_input;
     float* d_output;
 
-    conv2d.setKernels(kernels);
-
-            // Allocate device memory
-    cudaStatus = cudaMalloc((void**)&d_input, sizeof(float) * inputSize * inputSize * inputChannels);
-    EXPECT_EQ(cudaStatus, cudaSuccess);
-
-    cudaStatus = cudaMalloc((void**)&d_output, sizeof(float) * outputSize * outputSize * numFilters);
-    EXPECT_EQ(cudaStatus, cudaSuccess);
-
-    // // Copy input to device
-    cudaStatus = cudaMemcpy(
-        d_input, input.data(), sizeof(float) * input.size(), cudaMemcpyHostToDevice
+    Layers::Conv2d conv2d = commonTestSetup(
+        inputSize, inputChannels, kernelSize, stride, padding, numFilters,
+        activation, input, kernels, d_input, d_output
     );
-    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    int outputSize = (inputSize - kernelSize) / stride + 1;
+    EXPECT_EQ(outputSize, conv2d.outputSize);
 
     conv2d.forward(d_input, d_output);
 
-    std::vector<float> expected = {
-        44.0f, 54.0f, 64.0f,
-        84.0f, 94.0f, 104.0f,
-        124.0f, 134.0f, 144.0f
-    };
+    std::vector<float> expected = {44.0f,  54.0f,  64.0f,  84.0f, 94.0f,
+                                   104.0f, 124.0f, 134.0f, 144.0f};
     std::vector<float> output(outputSize * outputSize * numFilters);
 
     cudaStatus = cudaMemcpy(
@@ -81,4 +105,77 @@ TEST_F(Conv2dTest, SimpleExample) {
         EXPECT_FLOAT_EQ(expected[i], output[i]);
     }
 
+    commonTestTeardown(d_input, d_output);
+}
+
+TEST_F(Conv2dTest, ComplexTest) {
+    int         inputSize     = 5;
+    int         inputChannels = 3;
+    int         kernelSize    = 3;
+    int         stride        = 1;
+    std::string padding       = "SAME";
+    int         numFilters    = 2;
+    Activation  activation    = LINEAR;
+
+    std::vector<float> input = {
+        // Channel 1
+        0.823f, 0.217f, 0.435f, 0.981f, 0.742f,
+        0.109f, 0.518f, 0.374f, 0.681f, 0.147f,
+        0.956f, 0.729f, 0.654f, 0.087f, 0.392f,
+        0.784f, 0.921f, 0.543f, 0.231f, 0.816f,
+        0.472f, 0.614f, 0.102f, 0.987f, 0.398f,
+        // Channel 2
+        0.051f, 0.756f, 0.841f, 0.293f, 0.128f,
+        0.417f, 0.632f, 0.095f, 0.184f, 0.529f,
+        0.871f, 0.958f, 0.213f, 0.347f, 0.725f,
+        0.461f, 0.012f, 0.278f, 0.195f, 0.649f,
+        0.853f, 0.707f, 0.988f, 0.988f, 0.322f,
+        // Channel 3
+        0.345f, 0.123f, 0.789f, 0.123f, 0.456f,
+        0.456f, 0.789f, 0.123f, 0.345f, 0.123f,
+        0.789f, 0.123f, 0.345f, 0.123f, 0.456f,
+        0.123f, 0.345f, 0.123f, 0.789f, 0.123f,
+        0.345f, 0.123f, 0.789f, 0.123f, 0.456f
+    };
+
+    std::vector<float> kernels = {
+        // Filter 1 Channel 1
+        0.128f, 0.754f, 0.987f,
+        0.321f, 0.412f, 0.635f,
+        0.298f, 0.017f, 0.845f,
+        // Filter 1 Channel 2
+        0.514f, 0.729f, 0.952f,
+        0.684f, 0.378f, 0.159f,
+        0.823f, 0.547f, 0.216f,
+        // Filter 1 Channel 3
+        0.456f, 0.123f, 0.789f,
+        0.123f, 0.345f, 0.123f,
+        0.789f, 0.123f, 0.345f,
+        // Filter 2 Channel 1
+        0.123f, 0.345f, 0.123f,
+        0.789f, 0.123f, 0.345f,
+        0.123f, 0.345f, 0.123f,
+        // Filter 2 Channel 2
+        0.146f, 0.789f, 0.123f,
+        0.345f, 0.123f, 0.789f,
+        0.123f, 0.345f, 0.123f,
+        // Filter 2 Channel 3
+        0.123f, 0.345f, 0.123f,
+        0.789f, 0.123f, 0.345f,
+        0.123f, 0.345f, 0.123f
+
+
+    };
+
+    float* d_input;
+    float* d_output;
+
+    Layers::Conv2d conv2d = commonTestSetup(
+        inputSize, inputChannels, kernelSize, stride, padding, numFilters,
+        activation, input, kernels, d_input, d_output
+    );
+
+    EXPECT_EQ(inputSize, conv2d.outputSize);
+
+    conv2d.forward(d_input, d_output);
 }
