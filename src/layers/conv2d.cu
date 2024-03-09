@@ -32,13 +32,13 @@ Layers::Conv2d::Conv2d(
         outputSize  = (inputSize - kernelSize) / stride + 1;
     }
 
-    kernels.resize(kernelSize * kernelSize * numFilters);
+    kernels.resize(kernelSize * kernelSize * inputChannels * numFilters);
     initializeKernels();
 
     d_kernels = nullptr;
 
     CUDA_CHECK(
-        cudaMalloc((void**)&d_kernels, sizeof(float) * kernelSize * kernelSize * numFilters)
+        cudaMalloc((void**)&d_kernels, sizeof(float) * kernelSize * kernelSize * inputChannels * numFilters)
     );
     toCuda();
 
@@ -84,6 +84,8 @@ void Layers::Conv2d::forward(const float* d_input, float* d_output) {
     convolution_kernel<<<1, THREADS_PER_BLOCK>>>(
         d_padded, d_kernels, d_output, inputSize + (2 * paddingSize), inputChannels, kernelSize, stride, numFilters, outputSize
     );
+
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 /*
