@@ -75,9 +75,6 @@ void Layers::Dense::forward(const float* d_input, float* d_output) {
             break;
 
         default:
-            linear_kernel<<<1, outputSize>>>(
-                d_output, d_output, outputSize
-            );
             break;
     }
 
