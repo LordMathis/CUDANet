@@ -1,4 +1,5 @@
 #include "convolution.cuh"
+#include <iostream>
 
 __global__ void convolution_kernel(
     const float* d_input,
@@ -19,35 +20,26 @@ __global__ void convolution_kernel(
 
     // Get output index
     int f = tid / (outputSize * outputSize);
-    int i = (tid % (outputSize * outputSize)) / outputSize;
-    int j = (tid % (outputSize * outputSize)) % outputSize;
+    int i = tid % (outputSize * outputSize) / outputSize;
+    int j = tid % outputSize;
 
     float sum = 0.0f;
-
-    // std::cout << "f: " << f << ", i: " << i << ", j: " << j << std::endl;
 
     // Iterate over kernel and input matrix
     for (int k = 0; k < kernelSize; k++) {
         for (int l = 0; l < kernelSize; l++) {
             for (int c = 0; c < nChannels; c++) {
-                int kernelIndex =
-                    k * (kernelSize * nChannels * nFilters) +
-                    l * (nChannels * nFilters) + c * (nFilters) + f;
-                int inputIndex =
-                    (i * stride + k) * (inputSize * nChannels) +
-                    (j * stride + l) * (nChannels) + c;
-
-                // std::cout << "kernelIndex: " << kernelIndex << ", kernel
-                // value: " << kernels[kernelIndex] << ", inputIndex: " <<
-                // inputIndex << ", input value: " << input[inputIndex] <<
-                // std::endl;
+                int kernelIndex = f * kernelSize * kernelSize * nChannels +
+                                  c * kernelSize * kernelSize + k * kernelSize +
+                                  l;
+                int inputIndex = c * inputSize * inputSize +
+                                 (i * stride + k) * inputSize +
+                                 (j * stride + l);
 
                 sum += d_kernel[kernelIndex] * d_input[inputIndex];
             }
         }
     }
 
-    // std::cout << "sum: " << sum << std::endl;
-
-    d_output[i * (outputSize * nFilters) + j * (nFilters) + f] = sum;
+    d_output[tid] = sum;
 }

@@ -5,19 +5,20 @@
 #include <vector>
 
 #include "activations.cuh"
+#include "padding.cuh"
 
 namespace Layers {
 
 class Conv2d {
   public:
     Conv2d(
-        int         inputSize,
-        int         inputChannels,
-        int         kernelSize,
-        int         stride,
-        std::string padding,
-        int         numFilters,
-        Activation  activation
+        int        inputSize,
+        int        inputChannels,
+        int        kernelSize,
+        int        stride,
+        Padding    padding,
+        int        numFilters,
+        Activation activation
     );
     ~Conv2d();
 

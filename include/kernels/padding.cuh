@@ -10,4 +10,9 @@ __global__ void pad_matrix_kernel(
     int          p
 );
 
+enum Padding {
+    SAME,
+    VALID
+};
+
 #endif  // PADDING_H
