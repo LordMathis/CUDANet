@@ -6,10 +6,11 @@
 
 #include "activations.cuh"
 #include "padding.cuh"
+#include "ilayer.cuh"
 
 namespace Layers {
 
-class Conv2d {
+class Conv2d : public ILayer {
   public:
     Conv2d(
         int        inputSize,
@@ -26,8 +27,8 @@ class Conv2d {
     int outputSize;
 
     void forward(const float* d_input, float* d_output);
-    void setKernels(const std::vector<float>& kernels_input);
-
+    void setWeights(const float* weights_input);
+    void setBiases(const float* biases_input);
     void host_conv(const float* input, float* output);
 
   private:
@@ -42,18 +43,18 @@ class Conv2d {
     int numFilters;
 
     // Kernels
-    std::vector<float> kernels;
+    std::vector<float> weights;
     std::vector<float> biases;
 
     // Cuda
-    float* d_kernels;
+    float* d_weights;
     float* d_biases;
     float* d_padded;
 
     // Kernels
     Activation activation;
 
-    void initializeKernels();
+    void initializeWeights();
     void initializeBiases();
     void toCuda();
 };

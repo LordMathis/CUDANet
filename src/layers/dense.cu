@@ -10,14 +10,8 @@
 #include "dense.cuh"
 #include "matrix_math.cuh"
 
-Layers::Dense::Dense(
-    int            inputSize,
-    int            outputSize,
-    Activation     activation
-)
-    : inputSize(inputSize),
-      outputSize(outputSize),
-      activation(activation) {
+Layers::Dense::Dense(int inputSize, int outputSize, Activation activation)
+    : inputSize(inputSize), outputSize(outputSize), activation(activation) {
     // Allocate memory for weights and biases
     weights.resize(outputSize * inputSize);
     biases.resize(outputSize);
@@ -52,7 +46,6 @@ void Layers::Dense::initializeBiases() {
 }
 
 void Layers::Dense::forward(const float* d_input, float* d_output) {
-
     mat_vec_mul_kernel<<<1, outputSize>>>(
         d_weights, d_input, d_output, inputSize, outputSize
     );
@@ -63,15 +56,11 @@ void Layers::Dense::forward(const float* d_input, float* d_output) {
 
     switch (activation) {
         case SIGMOID:
-            sigmoid_kernel<<<1, outputSize>>>(
-                d_output, d_output, outputSize
-            );
+            sigmoid_kernel<<<1, outputSize>>>(d_output, d_output, outputSize);
             break;
 
         case RELU:
-            relu_kernel<<<1, outputSize>>>(
-                d_output, d_output, outputSize
-            );
+            relu_kernel<<<1, outputSize>>>(d_output, d_output, outputSize);
             break;
 
         default:
@@ -92,26 +81,12 @@ void Layers::Dense::toCuda() {
     ));
 }
 
-void Layers::Dense::setWeights(
-    const std::vector<std::vector<float>>& weights_input
-) {
-    int numWeights = inputSize * outputSize;
-
-    if (weights.size() != numWeights) {
-        std::cerr << "Invalid number of weights" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    for (int i = 0; i < outputSize; ++i) {
-        for (int j = 0; j < inputSize; ++j) {
-            weights[i * inputSize + j] = weights_input[i][j];
-        }
-    }
-
+void Layers::Dense::setWeights(const float* weights_input) {
+    std::copy(weights_input, weights_input + weights.size(), weights.begin());
     toCuda();
 }
 
-void Layers::Dense::setBiases(const std::vector<float>& biases_input) {
-    std::copy(biases_input.begin(), biases_input.end(), biases.begin());
+void Layers::Dense::setBiases(const float* biases_input) {
+    std::copy(biases_input, biases_input + biases.size(), biases.begin());
     toCuda();
 }

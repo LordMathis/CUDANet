@@ -6,23 +6,20 @@
 #include "activations.cuh"
 #include "dense.cuh"
 
-
-class DenseLayerTest : public::testing::Test {
+class DenseLayerTest : public ::testing::Test {
   protected:
     Layers::Dense commonTestSetup(
-        int                              inputSize,
-        int                              outputSize,
-        std::vector<float>&              input,
-        std::vector<std::vector<float>>& weights,
-        std::vector<float>&              biases,
-        float*&                          d_input,
-        float*&                          d_output,
-        Activation                       activation
+        int                 inputSize,
+        int                 outputSize,
+        std::vector<float>& input,
+        float*              weights,
+        float*              biases,
+        float*&             d_input,
+        float*&             d_output,
+        Activation          activation
     ) {
         // Create Dense layer
-        Layers::Dense denseLayer(
-            inputSize, outputSize, activation
-        );
+        Layers::Dense denseLayer(inputSize, outputSize, activation);
 
         // Set weights and biases
         denseLayer.setWeights(weights);
@@ -37,10 +34,10 @@ class DenseLayerTest : public::testing::Test {
 
         // Copy input to device
         cudaStatus = cudaMemcpy(
-            d_input, input.data(), sizeof(float) * input.size(), cudaMemcpyHostToDevice
+            d_input, input.data(), sizeof(float) * input.size(),
+            cudaMemcpyHostToDevice
         );
         EXPECT_EQ(cudaStatus, cudaSuccess);
-
 
         return denseLayer;
     }
@@ -51,7 +48,7 @@ class DenseLayerTest : public::testing::Test {
         cudaFree(d_output);
     }
 
-    cudaError_t    cudaStatus;
+    cudaError_t cudaStatus;
 };
 
 TEST_F(DenseLayerTest, Init) {
@@ -60,9 +57,7 @@ TEST_F(DenseLayerTest, Init) {
             int inputSize  = i;
             int outputSize = j;
 
-            Layers::Dense denseLayer(
-                inputSize, outputSize, SIGMOID
-            );
+            Layers::Dense denseLayer(inputSize, outputSize, SIGMOID);
         }
     }
 }
@@ -71,17 +66,19 @@ TEST_F(DenseLayerTest, setWeights) {
     int inputSize  = 4;
     int outputSize = 5;
 
-    std::vector<std::vector<float>> weights = {
-        {0.5f, 1.0f, 0.2f, 0.8f},
-        {1.2f, 0.3f, 1.5f, 0.4f},
-        {0.7f, 1.8f, 0.9f, 0.1f},
-        {0.4f, 2.0f, 0.6f, 1.1f},
-        {1.3f, 0.5f, 0.0f, 1.7f}
+    // clang-format off
+    std::vector<float> weights = {
+        0.5f, 1.0f, 0.2f, 0.8f,
+        1.2f, 0.3f, 1.5f, 0.4f,
+        0.7f, 1.8f, 0.9f, 0.1f,
+        0.4f, 2.0f, 0.6f, 1.1f,
+        1.3f, 0.5f, 0.0f, 1.7f
     };
+    // clang-format on
 
     Layers::Dense denseLayer(inputSize, outputSize, SIGMOID);
 
-    denseLayer.setWeights(weights);
+    denseLayer.setWeights(weights.data());
 }
 
 TEST_F(DenseLayerTest, ForwardUnitWeightMatrixLinear) {
@@ -90,13 +87,11 @@ TEST_F(DenseLayerTest, ForwardUnitWeightMatrixLinear) {
 
     std::vector<float> input = {1.0f, 2.0f, 3.0f};
 
-    std::vector<std::vector<float>> weights(
-        inputSize, std::vector<float>(outputSize, 0.0f)
-    );
+    std::vector<float> weights(outputSize * inputSize, 0.0f);
     for (int i = 0; i < inputSize; ++i) {
         for (int j = 0; j < outputSize; ++j) {
             if (i == j) {
-                weights[i][j] = 1.0f;
+                weights[i * outputSize + j] = 1.0f;
             }
         }
     }
@@ -106,13 +101,15 @@ TEST_F(DenseLayerTest, ForwardUnitWeightMatrixLinear) {
     float* d_output;
 
     Layers::Dense denseLayer = commonTestSetup(
-        inputSize, outputSize, input, weights, biases, d_input, d_output, LINEAR
+        inputSize, outputSize, input, weights.data(), biases.data(), d_input,
+        d_output, LINEAR
     );
     denseLayer.forward(d_input, d_output);
 
     std::vector<float> output(outputSize);
     cudaStatus = cudaMemcpy(
-        output.data(), d_output, sizeof(float) * outputSize, cudaMemcpyDeviceToHost
+        output.data(), d_output, sizeof(float) * outputSize,
+        cudaMemcpyDeviceToHost
     );
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
@@ -130,26 +127,30 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixRelu) {
 
     std::vector<float> input = {1.0f, 2.0f, 3.0f, 4.0f, -5.0f};
 
-    std::vector<std::vector<float>> weights = {
-        {0.5f, 1.2f, 0.7f, 0.4f, 1.3f},
-        {1.0f, 0.3f, 1.8f, 2.0f, 0.5f},
-        {0.2f, 1.5f, 0.9f, 0.6f, 0.0f},
-        {0.8f, 0.4f, 0.1f, 1.1f, 1.7f}
+    // clang-format off
+    std::vector<float> weights = {
+        0.5f, 1.2f, 0.7f, 0.4f,
+        1.3f, 1.0f, 0.3f, 1.8f,
+        2.0f, 0.5f, 0.2f, 1.5f,
+        0.9f, 0.6f, 0.0f, 0.8f,
+        0.4f, 0.1f, 1.1f, 1.7f
     };
     std::vector<float> biases = {0.2f, 0.5f, 0.7f, -1.1f};
+    // clang-format on
 
     float* d_input;
     float* d_output;
 
     Layers::Dense denseLayer = commonTestSetup(
-        inputSize, outputSize, input, weights, biases, d_input, d_output, RELU
+        inputSize, outputSize, input, weights.data(), biases.data(), d_input, d_output, RELU
     );
 
     denseLayer.forward(d_input, d_output);
 
     std::vector<float> output(outputSize);
     cudaStatus = cudaMemcpy(
-        output.data(), d_output, sizeof(float) * outputSize, cudaMemcpyDeviceToHost
+        output.data(), d_output, sizeof(float) * outputSize,
+        cudaMemcpyDeviceToHost
     );
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
@@ -170,21 +171,22 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixSigmoid) {
     int inputSize  = 5;
     int outputSize = 4;
 
+    // clang-format off
     std::vector<float> input = {0.1f, 0.2f, 0.3f, 0.4f, 0.5f};
-
-    std::vector<std::vector<float>> weights = {
-        {0.8f, 0.7f, 0.7f, 0.3f, 0.8f},
-        {0.1f, 0.4f, 0.8f, 0.0f, 0.2f},
-        {0.2f, 0.5f, 0.7f, 0.3f, 0.0f},
-        {0.1f, 0.7f, 0.6f, 1.0f, 0.4f}
+    std::vector<float> weights = {
+        0.8f, 0.7f, 0.7f, 0.3f, 0.8f,
+        0.1f, 0.4f, 0.8f, 0.0f, 0.2f,
+        0.2f, 0.5f, 0.7f, 0.3f, 0.0f,
+        0.1f, 0.7f, 0.6f, 1.0f, 0.4f
     };
     std::vector<float> biases = {0.1f, 0.2f, 0.3f, 0.4f};
+    // clang-format on
 
     float* d_input;
     float* d_output;
 
     Layers::Dense denseLayer = commonTestSetup(
-        inputSize, outputSize, input, weights, biases, d_input, d_output,
+        inputSize, outputSize, input, weights.data(), biases.data(), d_input, d_output,
         SIGMOID
     );
 
@@ -192,7 +194,8 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixSigmoid) {
 
     std::vector<float> output(outputSize);
     cudaStatus = cudaMemcpy(
-        output.data(), d_output, sizeof(float) * outputSize, cudaMemcpyDeviceToHost
+        output.data(), d_output, sizeof(float) * outputSize,
+        cudaMemcpyDeviceToHost
     );
     EXPECT_EQ(cudaStatus, cudaSuccess);
 

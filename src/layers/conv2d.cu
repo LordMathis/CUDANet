@@ -23,7 +23,6 @@ Layers::Conv2d::Conv2d(
       stride(stride),
       numFilters(numFilters),
       activation(activation) {
-    // Allocate memory for kernels
 
     switch (padding)
     {
@@ -41,12 +40,12 @@ Layers::Conv2d::Conv2d(
         break;
     }
 
-    kernels.resize(kernelSize * kernelSize * inputChannels * numFilters);
-    initializeKernels();
+    weights.resize(kernelSize * kernelSize * inputChannels * numFilters);
+    initializeWeights();
 
-    d_kernels = nullptr;
+    d_weights = nullptr;
     CUDA_CHECK(cudaMalloc(
-        (void**)&d_kernels,
+        (void**)&d_weights,
         sizeof(float) * kernelSize * kernelSize * inputChannels * numFilters
     ));
 
@@ -68,27 +67,32 @@ Layers::Conv2d::Conv2d(
 }
 
 Layers::Conv2d::~Conv2d() {
-    cudaFree(d_kernels);
+    cudaFree(d_weights);
     cudaFree(d_biases);
     cudaFree(d_padded);
 }
 
-void Layers::Conv2d::initializeKernels() {
-    std::fill(kernels.begin(), kernels.end(), 0.0f);
+void Layers::Conv2d::initializeWeights() {
+    std::fill(weights.begin(), weights.end(), 0.0f);
 }
 
 void Layers::Conv2d::initializeBiases() {
     std::fill(biases.begin(), biases.end(), 0.0f);
 }
 
-void Layers::Conv2d::setKernels(const std::vector<float>& kernels_input) {
-    std::copy(kernels_input.begin(), kernels_input.end(), kernels.begin());
+void Layers::Conv2d::setWeights(const float* weights_input) {
+    std::copy(weights_input, weights_input + weights.size(), weights.begin());
+    toCuda();
+}
+
+void Layers::Conv2d::setBiases(const float* biases_input) {
+    std::copy(biases_input, biases_input + biases.size(), biases.begin());
     toCuda();
 }
 
 void Layers::Conv2d::toCuda() {
     CUDA_CHECK(cudaMemcpy(
-        d_kernels, kernels.data(),
+        d_weights, weights.data(),
         sizeof(float) * kernelSize * kernelSize * inputChannels * numFilters,
         cudaMemcpyHostToDevice
     ));
@@ -112,7 +116,7 @@ void Layers::Conv2d::forward(const float* d_input, float* d_output) {
     // Convolve
     THREADS_PER_BLOCK = outputSize * outputSize * numFilters;
     convolution_kernel<<<1, THREADS_PER_BLOCK>>>(
-        d_padded, d_kernels, d_output, inputSize + (2 * paddingSize),
+        d_padded, d_weights, d_output, inputSize + (2 * paddingSize),
         inputChannels, kernelSize, stride, numFilters, outputSize
     );
 
@@ -155,7 +159,7 @@ void Layers::Conv2d::host_conv(const float* input, float* output) {
                                         (i * stride + k) * inputSize +
                                         (j * stride + l);
 
-                    sum += kernels[kernelIndex] * input[inputIndex];
+                    sum += weights[kernelIndex] * input[inputIndex];
                 }
             }
         }

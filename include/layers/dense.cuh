@@ -19,8 +19,8 @@ class Dense : public ILayer {
     ~Dense();
 
     void forward(const float* d_input, float* d_output);
-    void setWeights(const std::vector<std::vector<float>>& weights);
-    void setBiases(const std::vector<float>& biases);
+    void setWeights(const float* weights);
+    void setBiases(const float* biases);
 
   private:
     int inputSize;

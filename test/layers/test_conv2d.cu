@@ -16,7 +16,7 @@ class Conv2dTest : public ::testing::Test {
         int                 numFilters,
         Activation          activation,
         std::vector<float>& input,
-        std::vector<float>& kernels,
+        float*              kernels,
         float*&             d_input,
         float*&             d_output
     ) {
@@ -26,7 +26,7 @@ class Conv2dTest : public ::testing::Test {
             activation
         );
 
-        conv2d.setKernels(kernels);
+        conv2d.setWeights(kernels);
 
         // Allocate device memory
         cudaStatus = cudaMalloc(
@@ -84,7 +84,7 @@ TEST_F(Conv2dTest, SimpleTest) {
 
     Layers::Conv2d conv2d = commonTestSetup(
         inputSize, inputChannels, kernelSize, stride, padding, numFilters,
-        activation, input, kernels, d_input, d_output
+        activation, input, kernels.data(), d_input, d_output
     );
 
     int outputSize = (inputSize - kernelSize) / stride + 1;
@@ -173,7 +173,7 @@ TEST_F(Conv2dTest, ComplexTest) {
 
     Layers::Conv2d conv2d = commonTestSetup(
         inputSize, inputChannels, kernelSize, stride, padding, numFilters,
-        activation, input, kernels, d_input, d_output
+        activation, input, kernels.data(), d_input, d_output
     );
 
     EXPECT_EQ(inputSize, conv2d.outputSize);
