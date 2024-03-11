@@ -1,7 +1,9 @@
-#ifndef MATRIX_MATH_H
-#define MATRIX_MATH_H
+#ifndef MATMUL_H
+#define MATMUL_H
 
-__global__ void mat_vec_mul_kernel(
+namespace Kernels {
+
+__global__ void mat_vec_mul(
     const float* d_matrix,
     const float* d_vector,
     float*       d_output,
@@ -9,11 +11,13 @@ __global__ void mat_vec_mul_kernel(
     int          h
 );
 
-__global__ void vec_vec_add_kernel(
+__global__ void vec_vec_add(
     const float* d_vector1,
     const float* d_vector2,
     float*       d_output,
     int          w
 );
 
-#endif  // MATRIX_MATH_H
+}  // namespace Kernels
+
+#endif  // MATMUL_H

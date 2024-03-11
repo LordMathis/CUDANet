@@ -6,6 +6,17 @@
 
 namespace Layers {
 
+enum Activation {
+    SIGMOID,
+    RELU,
+    NONE
+};
+
+enum Padding {
+    SAME,
+    VALID
+};
+
 class ILayer {
   public:
     virtual ~ILayer() {}
@@ -29,7 +40,7 @@ class ILayer {
     std::vector<float> weights;
     std::vector<float> biases;
 
-    Activation activation;
+    Layers::Activation activation;
 };
 
 }  // namespace Layers

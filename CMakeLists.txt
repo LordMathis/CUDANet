@@ -12,8 +12,7 @@ set(LIBRARY_SOURCES
     src/utils/cuda_helper.cu
     src/kernels/activations.cu
     src/kernels/convolution.cu
-    src/kernels/padding.cu
-    src/kernels/matrix_math.cu
+    src/kernels/matmul.cu
     src/layers/dense.cu
     src/layers/conv2d.cu
 )

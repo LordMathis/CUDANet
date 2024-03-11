@@ -1,7 +1,18 @@
 #ifndef CONVOLUTION_H
 #define CONVOLUTION_H
 
-__global__ void convolution_kernel(
+namespace Kernels {
+
+__global__ void padding(
+    const float* d_input,
+    float*       d_padded,
+    int          w,
+    int          h,
+    int          n,
+    int          p
+);
+
+__global__ void convolution(
     const float* d_input,
     const float* d_kernel,
     float*       d_output,
@@ -12,5 +23,7 @@ __global__ void convolution_kernel(
     int          nFilters,
     int          outputSize
 );
+
+}  // namespace Kernels
 
 #endif  // CONVOLUTION_H

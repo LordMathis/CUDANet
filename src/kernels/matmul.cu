@@ -1,6 +1,6 @@
-#include "matrix_math.cuh"
+#include "matmul.cuh"
 
-__global__ void mat_vec_mul_kernel(
+__global__ void Kernels::mat_vec_mul(
     const float* d_matrix,
     const float* d_vector,
     float*       d_output,
@@ -22,7 +22,7 @@ __global__ void mat_vec_mul_kernel(
 
 }
 
-__global__ void vec_vec_add_kernel(
+__global__ void Kernels::vec_vec_add(
     const float* d_vector1,
     const float* d_vector2,
     float*       d_output,

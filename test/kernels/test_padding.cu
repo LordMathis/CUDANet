@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "padding.cuh"
+#include "convolution.cuh"
 
 TEST(PaddingTest, SimplePaddingTest) {
     cudaError_t cudaStatus;
@@ -51,7 +51,7 @@ TEST(PaddingTest, SimplePaddingTest) {
     int THREADS_PER_BLOCK = 64;
     int BLOCKS            = paddedSize / THREADS_PER_BLOCK + 1;
 
-    pad_matrix_kernel<<<BLOCKS, THREADS_PER_BLOCK>>>(
+    Kernels::padding<<<BLOCKS, THREADS_PER_BLOCK>>>(
         d_input, d_padded, w, h, n, p
     );
     cudaStatus = cudaDeviceSynchronize();

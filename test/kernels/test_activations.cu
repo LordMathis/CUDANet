@@ -25,7 +25,7 @@ TEST(ActivationsTest, SigmoidSanityCheck) {
     cudaStatus = cudaMemcpy(d_input, input, sizeof(float) * 3, cudaMemcpyHostToDevice);
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
-    sigmoid_kernel<<<1, 3>>>(d_input, d_output, 3);
+    Kernels::sigmoid<<<1, 3>>>(d_input, d_output, 3);
     cudaStatus = cudaDeviceSynchronize();
     EXPECT_EQ(cudaStatus, cudaSuccess);
 

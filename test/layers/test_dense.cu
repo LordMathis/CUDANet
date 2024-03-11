@@ -16,7 +16,7 @@ class DenseLayerTest : public ::testing::Test {
         float*              biases,
         float*&             d_input,
         float*&             d_output,
-        Activation          activation
+        Layers::Activation  activation
     ) {
         // Create Dense layer
         Layers::Dense denseLayer(inputSize, outputSize, activation);
@@ -57,7 +57,9 @@ TEST_F(DenseLayerTest, Init) {
             int inputSize  = i;
             int outputSize = j;
 
-            Layers::Dense denseLayer(inputSize, outputSize, SIGMOID);
+            Layers::Dense denseLayer(
+                inputSize, outputSize, Layers::Activation::SIGMOID
+            );
         }
     }
 }
@@ -76,7 +78,9 @@ TEST_F(DenseLayerTest, setWeights) {
     };
     // clang-format on
 
-    Layers::Dense denseLayer(inputSize, outputSize, SIGMOID);
+    Layers::Dense denseLayer(
+        inputSize, outputSize, Layers::Activation::SIGMOID
+    );
 
     denseLayer.setWeights(weights.data());
 }
@@ -102,7 +106,7 @@ TEST_F(DenseLayerTest, ForwardUnitWeightMatrixLinear) {
 
     Layers::Dense denseLayer = commonTestSetup(
         inputSize, outputSize, input, weights.data(), biases.data(), d_input,
-        d_output, LINEAR
+        d_output, Layers::Activation::NONE
     );
     denseLayer.forward(d_input, d_output);
 
@@ -142,7 +146,8 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixRelu) {
     float* d_output;
 
     Layers::Dense denseLayer = commonTestSetup(
-        inputSize, outputSize, input, weights.data(), biases.data(), d_input, d_output, RELU
+        inputSize, outputSize, input, weights.data(), biases.data(), d_input,
+        d_output, Layers::Activation::RELU
     );
 
     denseLayer.forward(d_input, d_output);
@@ -186,8 +191,8 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixSigmoid) {
     float* d_output;
 
     Layers::Dense denseLayer = commonTestSetup(
-        inputSize, outputSize, input, weights.data(), biases.data(), d_input, d_output,
-        SIGMOID
+        inputSize, outputSize, input, weights.data(), biases.data(), d_input,
+        d_output, Layers::Activation::SIGMOID
     );
 
     denseLayer.forward(d_input, d_output);

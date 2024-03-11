@@ -8,9 +8,9 @@
 #include "activations.cuh"
 #include "cuda_helper.cuh"
 #include "dense.cuh"
-#include "matrix_math.cuh"
+#include "matmul.cuh"
 
-Layers::Dense::Dense(int inputSize, int outputSize, Activation activation)
+Layers::Dense::Dense(int inputSize, int outputSize, Layers::Activation activation)
     : inputSize(inputSize), outputSize(outputSize), activation(activation) {
     // Allocate memory for weights and biases
     weights.resize(outputSize * inputSize);
@@ -46,21 +46,21 @@ void Layers::Dense::initializeBiases() {
 }
 
 void Layers::Dense::forward(const float* d_input, float* d_output) {
-    mat_vec_mul_kernel<<<1, outputSize>>>(
+    Kernels::mat_vec_mul<<<1, outputSize>>>(
         d_weights, d_input, d_output, inputSize, outputSize
     );
 
-    vec_vec_add_kernel<<<1, outputSize>>>(
+    Kernels::vec_vec_add<<<1, outputSize>>>(
         d_biases, d_output, d_output, outputSize
     );
 
     switch (activation) {
         case SIGMOID:
-            sigmoid_kernel<<<1, outputSize>>>(d_output, d_output, outputSize);
+            Kernels::sigmoid<<<1, outputSize>>>(d_output, d_output, outputSize);
             break;
 
         case RELU:
-            relu_kernel<<<1, outputSize>>>(d_output, d_output, outputSize);
+            Kernels::relu<<<1, outputSize>>>(d_output, d_output, outputSize);
             break;
 
         default:

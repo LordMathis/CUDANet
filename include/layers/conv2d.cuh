@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "activations.cuh"
-#include "padding.cuh"
+#include "convolution.cuh"
 #include "ilayer.cuh"
 
 namespace Layers {
@@ -13,13 +13,13 @@ namespace Layers {
 class Conv2d : public ILayer {
   public:
     Conv2d(
-        int        inputSize,
-        int        inputChannels,
-        int        kernelSize,
-        int        stride,
-        Padding    padding,
-        int        numFilters,
-        Activation activation
+        int                inputSize,
+        int                inputChannels,
+        int                kernelSize,
+        int                stride,
+        Layers::Padding    padding,
+        int                numFilters,
+        Layers::Activation activation
     );
     ~Conv2d();
 
@@ -52,7 +52,7 @@ class Conv2d : public ILayer {
     float* d_padded;
 
     // Kernels
-    Activation activation;
+    Layers::Activation activation;
 
     void initializeWeights();
     void initializeBiases();

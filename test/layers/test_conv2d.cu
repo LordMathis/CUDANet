@@ -12,9 +12,9 @@ class Conv2dTest : public ::testing::Test {
         int                 inputChannels,
         int                 kernelSize,
         int                 stride,
-        Padding             padding,
+        Layers::Padding             padding,
         int                 numFilters,
-        Activation          activation,
+        Layers::Activation          activation,
         std::vector<float>& input,
         float*              kernels,
         float*&             d_input,
@@ -65,9 +65,9 @@ TEST_F(Conv2dTest, SimpleTest) {
     int        inputChannels = 1;
     int        kernelSize    = 2;
     int        stride        = 1;
-    Padding    padding       = VALID;
+    Layers::Padding    padding       = Layers::Padding::VALID;
     int        numFilters    = 1;
-    Activation activation    = LINEAR;
+    Layers::Activation activation    = Layers::Activation::NONE;
 
     std::vector<float> input   = {1.0f,  2.0f,  3.0f,  4.0f,  5.0f,  6.0f,
                                   7.0f,  8.0f,  9.0f,  10.0f, 11.0f, 12.0f,
@@ -114,9 +114,9 @@ TEST_F(Conv2dTest, ComplexTest) {
     int        inputChannels = 3;
     int        kernelSize    = 3;
     int        stride        = 1;
-    Padding    padding       = SAME;
+    Layers::Padding    padding       = Layers::Padding::SAME;
     int        numFilters    = 2;
-    Activation activation    = LINEAR;
+    Layers::Activation activation    = Layers::Activation::NONE;
 
     // clang-format off
     std::vector<float> input = {
