@@ -122,6 +122,19 @@ void Layers::Conv2d::forward(const float* d_input, float* d_output) {
         d_biases, d_output, d_output, biases.size()
     );
 
+    switch (activation) {
+        case SIGMOID:
+            Kernels::sigmoid<<<1, outputSize>>>(d_output, d_output, outputSize);
+            break;
+
+        case RELU:
+            Kernels::relu<<<1, outputSize>>>(d_output, d_output, outputSize);
+            break;
+
+        default:
+            break;
+    }
+
     CUDA_CHECK(cudaDeviceSynchronize());
 }
 
