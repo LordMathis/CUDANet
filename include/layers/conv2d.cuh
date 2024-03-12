@@ -26,10 +26,10 @@ class Conv2d : public ILayer {
     // Outputs
     int outputSize;
 
-    void forward(const float* d_input, float* d_output);
-    void setWeights(const float* weights_input);
-    void setBiases(const float* biases_input);
-    void host_conv(const float* input, float* output);
+    float* forward(const float* d_input);
+    void   setWeights(const float* weights_input);
+    void   setBiases(const float* biases_input);
+    void   host_conv(const float* input, float* output);
 
   private:
     // Inputs
@@ -47,6 +47,7 @@ class Conv2d : public ILayer {
     std::vector<float> biases;
 
     // Cuda
+    float* d_output;
     float* d_weights;
     float* d_biases;
     float* d_padded;

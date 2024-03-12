@@ -2,6 +2,7 @@
 #define CUDA_HELPER_H
 
 #include <cuda_runtime.h>
+#include <cstdio>
 
 // CUDA error checking macro
 #define CUDA_CHECK(call) \

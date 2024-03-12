@@ -15,7 +15,6 @@ class DenseLayerTest : public ::testing::Test {
         float*              weights,
         float*              biases,
         float*&             d_input,
-        float*&             d_output,
         Layers::Activation  activation
     ) {
         // Create Dense layer
@@ -29,9 +28,6 @@ class DenseLayerTest : public ::testing::Test {
         cudaStatus = cudaMalloc((void**)&d_input, sizeof(float) * input.size());
         EXPECT_EQ(cudaStatus, cudaSuccess);
 
-        cudaStatus = cudaMalloc((void**)&d_output, sizeof(float) * outputSize);
-        EXPECT_EQ(cudaStatus, cudaSuccess);
-
         // Copy input to device
         cudaStatus = cudaMemcpy(
             d_input, input.data(), sizeof(float) * input.size(),
@@ -42,10 +38,9 @@ class DenseLayerTest : public ::testing::Test {
         return denseLayer;
     }
 
-    void commonTestTeardown(float* d_input, float* d_output) {
+    void commonTestTeardown(float* d_input) {
         // Free device memory
         cudaFree(d_input);
-        cudaFree(d_output);
     }
 
     cudaError_t cudaStatus;
@@ -106,9 +101,9 @@ TEST_F(DenseLayerTest, ForwardUnitWeightMatrixLinear) {
 
     Layers::Dense denseLayer = commonTestSetup(
         inputSize, outputSize, input, weights.data(), biases.data(), d_input,
-        d_output, Layers::Activation::NONE
+        Layers::Activation::NONE
     );
-    denseLayer.forward(d_input, d_output);
+    d_output = denseLayer.forward(d_input);
 
     std::vector<float> output(outputSize);
     cudaStatus = cudaMemcpy(
@@ -122,7 +117,7 @@ TEST_F(DenseLayerTest, ForwardUnitWeightMatrixLinear) {
     EXPECT_FLOAT_EQ(output[1], 3.0f);
     EXPECT_FLOAT_EQ(output[2], 4.0f);
 
-    commonTestTeardown(d_input, d_output);
+    commonTestTeardown(d_input);
 }
 
 TEST_F(DenseLayerTest, ForwardRandomWeightMatrixRelu) {
@@ -147,10 +142,10 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixRelu) {
 
     Layers::Dense denseLayer = commonTestSetup(
         inputSize, outputSize, input, weights.data(), biases.data(), d_input,
-        d_output, Layers::Activation::RELU
+        Layers::Activation::RELU
     );
 
-    denseLayer.forward(d_input, d_output);
+    d_output = denseLayer.forward(d_input);
 
     std::vector<float> output(outputSize);
     cudaStatus = cudaMemcpy(
@@ -169,7 +164,7 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixRelu) {
         );  // Allow small tolerance for floating-point comparison
     }
 
-    commonTestTeardown(d_input, d_output);
+    commonTestTeardown(d_input);
 }
 
 TEST_F(DenseLayerTest, ForwardRandomWeightMatrixSigmoid) {
@@ -192,10 +187,10 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixSigmoid) {
 
     Layers::Dense denseLayer = commonTestSetup(
         inputSize, outputSize, input, weights.data(), biases.data(), d_input,
-        d_output, Layers::Activation::SIGMOID
+        Layers::Activation::SIGMOID
     );
 
-    denseLayer.forward(d_input, d_output);
+    d_output = denseLayer.forward(d_input);
 
     std::vector<float> output(outputSize);
     cudaStatus = cudaMemcpy(
@@ -216,5 +211,5 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixSigmoid) {
         EXPECT_NEAR(output[i], expectedOutput[i], 1e-5);
     }
 
-    commonTestTeardown(d_input, d_output);
+    commonTestTeardown(d_input);
 }

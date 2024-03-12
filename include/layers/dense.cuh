@@ -18,13 +18,15 @@ class Dense : public ILayer {
     );
     ~Dense();
 
-    void forward(const float* d_input, float* d_output);
+    float* forward(const float* d_input);
     void setWeights(const float* weights);
     void setBiases(const float* biases);
 
   private:
     int inputSize;
     int outputSize;
+
+    float* d_output;
 
     float* d_weights;
     float* d_biases;

@@ -37,6 +37,12 @@ Layers::Conv2d::Conv2d(
             break;
     }
 
+    d_output = nullptr;
+    CUDA_CHECK(cudaMalloc(
+        (void**)&d_output,
+        sizeof(float) * outputSize * outputSize * numFilters
+    ));
+
     weights.resize(kernelSize * kernelSize * inputChannels * numFilters);
     initializeWeights();
 
@@ -64,6 +70,7 @@ Layers::Conv2d::Conv2d(
 }
 
 Layers::Conv2d::~Conv2d() {
+    cudaFree(d_output);
     cudaFree(d_weights);
     cudaFree(d_biases);
     cudaFree(d_padded);
@@ -101,7 +108,7 @@ void Layers::Conv2d::toCuda() {
     ));
 }
 
-void Layers::Conv2d::forward(const float* d_input, float* d_output) {
+float* Layers::Conv2d::forward(const float* d_input) {
     // Pad input
     int THREADS_PER_BLOCK = (inputSize + 2 * paddingSize) *
                             (inputSize + 2 * paddingSize) * inputChannels;
@@ -136,44 +143,6 @@ void Layers::Conv2d::forward(const float* d_input, float* d_output) {
     }
 
     CUDA_CHECK(cudaDeviceSynchronize());
-}
 
-/*
-Convolves input vector with kernel and stores result in output
-
-input: matrix (inputSize + paddingSize) x (inputSize + paddingSize) x
-inputChannels represented as a vector output: output matrix outputSize x
-outputSize x numFilters
-
-*/
-void Layers::Conv2d::host_conv(const float* input, float* output) {
-    // Iterate over output matrix
-    for (int tid = 0; tid < outputSize * outputSize * numFilters; tid++) {
-        // Get output index
-        int f = tid / (outputSize * outputSize);
-        int i = tid % (outputSize * outputSize) / outputSize;
-        int j = tid % outputSize;
-
-        float sum = 0.0f;
-
-        // Iterate over kernel and input matrix
-        for (int k = 0; k < kernelSize; k++) {
-            for (int l = 0; l < kernelSize; l++) {
-                for (int c = 0; c < inputChannels; c++) {
-                    int kernelIndex =
-                        f * kernelSize * kernelSize * inputChannels +
-                        c * kernelSize * kernelSize + k * kernelSize + l;
-                    int inputIndex = c * inputSize * inputSize +
-                                     (i * stride + k) * inputSize +
-                                     (j * stride + l);
-
-                    sum += weights[kernelIndex] * input[inputIndex];
-                }
-            }
-        }
-
-        int outputIndex = f * outputSize * outputSize + i * outputSize + j;
-
-        output[outputIndex] = sum;
-    }
+    return d_output;
 }

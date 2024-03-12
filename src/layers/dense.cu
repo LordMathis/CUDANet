@@ -19,6 +19,10 @@ Layers::Dense::Dense(int inputSize, int outputSize, Layers::Activation activatio
     initializeWeights();
     initializeBiases();
 
+    d_output = nullptr;
+
+    CUDA_CHECK(cudaMalloc((void**)&d_output, sizeof(float) * outputSize));
+
     d_weights = nullptr;
     d_biases  = nullptr;
 
@@ -33,6 +37,7 @@ Layers::Dense::Dense(int inputSize, int outputSize, Layers::Activation activatio
 
 Layers::Dense::~Dense() {
     // Free GPU memory
+    cudaFree(d_output);
     cudaFree(d_weights);
     cudaFree(d_biases);
 }
@@ -45,7 +50,7 @@ void Layers::Dense::initializeBiases() {
     std::fill(biases.begin(), biases.end(), 0.0f);
 }
 
-void Layers::Dense::forward(const float* d_input, float* d_output) {
+float* Layers::Dense::forward(const float* d_input) {
     Kernels::mat_vec_mul<<<1, outputSize>>>(
         d_weights, d_input, d_output, inputSize, outputSize
     );
@@ -68,6 +73,8 @@ void Layers::Dense::forward(const float* d_input, float* d_output) {
     }
 
     CUDA_CHECK(cudaDeviceSynchronize());
+
+    return d_output;
 }
 
 void Layers::Dense::toCuda() {

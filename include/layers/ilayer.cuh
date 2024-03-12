@@ -6,24 +6,17 @@
 
 namespace Layers {
 
-enum Activation {
-    SIGMOID,
-    RELU,
-    NONE
-};
+enum Activation { SIGMOID, RELU, NONE };
 
-enum Padding {
-    SAME,
-    VALID
-};
+enum Padding { SAME, VALID };
 
 class ILayer {
   public:
     virtual ~ILayer() {}
 
-    virtual void forward(const float* input, float* output) = 0;
-    virtual void setWeights(const float* weights)           = 0;
-    virtual void setBiases(const float* biases)             = 0;
+    virtual float* forward(const float* input)      = 0;
+    virtual void   setWeights(const float* weights) = 0;
+    virtual void   setBiases(const float* biases)   = 0;
 
   private:
     virtual void initializeWeights() = 0;
@@ -33,6 +26,8 @@ class ILayer {
 
     int inputSize;
     int outputSize;
+
+    float* d_output;
 
     float* d_weights;
     float* d_biases;
