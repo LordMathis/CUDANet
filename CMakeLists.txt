@@ -7,7 +7,6 @@ project(CUDANet
 find_package(CUDAToolkit REQUIRED)
 include_directories(${CUDAToolkit_INCLUDE_DIRS})
 
-# Add project source files for the library
 set(LIBRARY_SOURCES
     src/utils/cuda_helper.cu
     src/kernels/activations.cu
@@ -15,6 +14,7 @@ set(LIBRARY_SOURCES
     src/kernels/matmul.cu
     src/layers/dense.cu
     src/layers/conv2d.cu
+    src/layers/input.cu
 )
 
 set(CMAKE_CUDA_ARCHITECTURES 75)
