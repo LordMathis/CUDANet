@@ -80,7 +80,7 @@ TEST_F(Conv2dTest, SimpleTest) {
     );
 
     int outputSize = (inputSize - kernelSize) / stride + 1;
-    EXPECT_EQ(outputSize, conv2d.outputSize);
+    EXPECT_EQ(outputSize, conv2d.getOutputSize());
 
     d_output = conv2d.forward(d_input);
 
@@ -168,16 +168,16 @@ TEST_F(Conv2dTest, PaddedTest) {
         activation, input, kernels.data(), d_input
     );
 
-    EXPECT_EQ(inputSize, conv2d.outputSize);
+    EXPECT_EQ(inputSize, conv2d.getOutputSize());
 
     d_output = conv2d.forward(d_input);
 
     std::vector<float> output(
-        conv2d.outputSize * conv2d.outputSize * numFilters
+        conv2d.getOutputSize() * conv2d.getOutputSize() * numFilters
     );
     cudaMemcpy(
         output.data(), d_output,
-        sizeof(float) * conv2d.outputSize * conv2d.outputSize * numFilters,
+        sizeof(float) * conv2d.getOutputSize() * conv2d.getOutputSize() * numFilters,
         cudaMemcpyDeviceToHost
     );
 
@@ -253,16 +253,16 @@ TEST_F(Conv2dTest, StridedPaddedConvolution) {
         activation, input, kernels.data(), d_input
     );
 
-    EXPECT_EQ(inputSize, conv2d.outputSize);
+    EXPECT_EQ(inputSize, conv2d.getOutputSize());
 
     d_output = conv2d.forward(d_input);
 
     std::vector<float> output(
-        conv2d.outputSize * conv2d.outputSize * numFilters
+        conv2d.getOutputSize() * conv2d.getOutputSize() * numFilters
     );
     cudaMemcpy(
         output.data(), d_output,
-        sizeof(float) * conv2d.outputSize * conv2d.outputSize * numFilters,
+        sizeof(float) * conv2d.getOutputSize() * conv2d.getOutputSize() * numFilters,
         cudaMemcpyDeviceToHost
     );
 

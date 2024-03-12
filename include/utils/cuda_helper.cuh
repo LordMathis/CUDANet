@@ -4,7 +4,10 @@
 #include <cuda_runtime.h>
 #include <cstdio>
 
-// CUDA error checking macro
+/**
+ * @brief CUDA error checking macro
+ * 
+ */
 #define CUDA_CHECK(call) \
 do { \
     cudaError_t result = call; \
