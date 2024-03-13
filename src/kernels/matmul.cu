@@ -10,16 +10,22 @@ __global__ void Kernels::mat_vec_mul(
     
     int tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-    if (tid >= w * h) {
-        return;
+    extern __shared__ float shared[];
+    
+    if (tid < w) {
+        shared[tid] = d_vector[tid];
     }
 
-    d_output[tid] = 0.0f;
+    __syncthreads();
 
-    for (int i = 0; i < w; i++) {
-        d_output[tid] += d_matrix[tid * w + i] * d_vector[i];
+    if (tid < h) {
+        d_output[tid] = 0.0f;
+
+        #pragma unroll
+        for (int i = 0; i < w; i++) {
+            d_output[tid] += d_matrix[tid * w + i] * shared[i];
+        }
     }
-
 }
 
 __global__ void Kernels::vec_vec_add(

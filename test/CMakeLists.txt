@@ -7,6 +7,7 @@ add_executable(test_main
     layers/test_input.cu
     kernels/test_activations.cu
     kernels/test_padding.cu
+    kernels/test_matmul.cu
 )
 
 target_link_libraries(test_main ${GTEST_BOTH_LIBRARIES} CUDANet)

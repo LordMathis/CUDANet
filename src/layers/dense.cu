@@ -51,7 +51,7 @@ void Layers::Dense::initializeBiases() {
 }
 
 float* Layers::Dense::forward(const float* d_input) {
-    Kernels::mat_vec_mul<<<1, outputSize>>>(
+    Kernels::mat_vec_mul<<<1, std::max(inputSize, outputSize), sizeof(float) * inputSize>>>(
         d_weights, d_input, d_output, inputSize, outputSize
     );
 
