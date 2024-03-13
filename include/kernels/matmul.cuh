@@ -1,5 +1,5 @@
-#ifndef MATMUL_H
-#define MATMUL_H
+#ifndef CUDANET_MATMUL_H
+#define CUDANET_MATMUL_H
 
 namespace Kernels {
 
@@ -37,4 +37,4 @@ __global__ void vec_vec_add(
 
 }  // namespace Kernels
 
-#endif  // MATMUL_H
+#endif  // CUDANET_MATMUL_H

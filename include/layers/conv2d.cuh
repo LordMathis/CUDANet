@@ -1,5 +1,5 @@
-#ifndef CONV_LAYER_H
-#define CONV_LAYER_H
+#ifndef CUDANET_CONV_LAYER_H
+#define CUDANET_CONV_LAYER_H
 
 #include <string>
 #include <vector>
@@ -127,4 +127,4 @@ class Conv2d : public ILayer {
 
 }  // namespace Layers
 
-#endif  // CONV_LAYER_H
+#endif  // CUDANET_CONV_LAYER_H

@@ -1,5 +1,5 @@
-#ifndef INPUT_LAYER_H
-#define INPUT_LAYER_H
+#ifndef CUDANET_INPUT_LAYER_H
+#define CUDANET_INPUT_LAYER_H
 
 #include <ilayer.cuh>
 
@@ -47,4 +47,4 @@ class Input : public ILayer {
 
 }  // namespace Layers
 
-#endif  // INPUT_LAYER_H
+#endif  // CUDANET_INPUT_LAYER_H

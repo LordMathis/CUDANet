@@ -1,5 +1,5 @@
-#ifndef CUDA_HELPER_H
-#define CUDA_HELPER_H
+#ifndef CUDANET_HELPER_H
+#define CUDANET_HELPER_H
 
 #include <cuda_runtime.h>
 #include <cstdio>
@@ -19,4 +19,4 @@ do { \
     } \
 } while (0)
 
-#endif // CUDA_HELPER_H
+#endif // CUDANET_HELPER_H

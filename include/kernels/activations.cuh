@@ -1,5 +1,5 @@
-#ifndef ACTIVATIONS_H
-#define ACTIVATIONS_H
+#ifndef CUDANET_ACTIVATIONS_H
+#define CUDANET_ACTIVATIONS_H
 
 namespace Kernels {
 
@@ -25,4 +25,4 @@ relu(const float* __restrict__ src, float* __restrict__ dst, int len);
 
 }  // namespace Kernels
 
-#endif  // ACTIVATIONS_H
+#endif  // CUDANET_ACTIVATIONS_H

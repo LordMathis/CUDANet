@@ -1,5 +1,5 @@
-#ifndef DENSE_LAYER_H
-#define DENSE_LAYER_H
+#ifndef CUDANET_DENSE_LAYER_H
+#define CUDANET_DENSE_LAYER_H
 
 #include <functional>
 #include <string>
@@ -87,4 +87,4 @@ class Dense : public ILayer {
 
 }  // namespace Layers
 
-#endif  // DENSE_LAYER_H
+#endif  // CUDANET_DENSE_LAYER_H

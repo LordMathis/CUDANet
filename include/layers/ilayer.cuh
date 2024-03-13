@@ -1,6 +1,6 @@
 
-#ifndef I_LAYER_H
-#define I_LAYER_H
+#ifndef CUDANET_I_LAYER_H
+#define CUDANET_I_LAYER_H
 
 #include <vector>
 
@@ -90,4 +90,4 @@ class ILayer {
 
 }  // namespace Layers
 
-#endif  // I_LAYERH
+#endif  // CUDANET_I_LAYERH

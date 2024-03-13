@@ -1,5 +1,5 @@
-#ifndef CONVOLUTION_H
-#define CONVOLUTION_H
+#ifndef CUDANET_CONVOLUTION_H
+#define CUDANET_CONVOLUTION_H
 
 namespace Kernels {
 
@@ -49,4 +49,4 @@ __global__ void convolution(
 
 }  // namespace Kernels
 
-#endif  // CONVOLUTION_H
+#endif  // CUDANET_CONVOLUTION_H
