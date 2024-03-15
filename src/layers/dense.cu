@@ -10,7 +10,11 @@
 #include "dense.cuh"
 #include "matmul.cuh"
 
-Layers::Dense::Dense(int inputSize, int outputSize, Layers::Activation activation)
+Layers::Dense::Dense(
+    int                inputSize,
+    int                outputSize,
+    Layers::Activation activation
+)
     : inputSize(inputSize), outputSize(outputSize), activation(activation) {
     // Allocate memory for weights and biases
     weights.resize(outputSize * inputSize);
@@ -31,8 +35,12 @@ Layers::Dense::Dense(int inputSize, int outputSize, Layers::Activation activatio
         cudaMalloc((void**)&d_weights, sizeof(float) * inputSize * outputSize)
     );
     CUDA_CHECK(cudaMalloc((void**)&d_biases, sizeof(float) * outputSize));
-
     toCuda();
+
+    // Calculate block and grid sizes
+    forwardGridSize =
+        (std::max(inputSize, outputSize) + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    biasGridSize = (outputSize + BLOCK_SIZE - 1) / BLOCK_SIZE;
 }
 
 Layers::Dense::~Dense() {
@@ -51,21 +59,25 @@ void Layers::Dense::initializeBiases() {
 }
 
 float* Layers::Dense::forward(const float* d_input) {
-    Kernels::mat_vec_mul<<<1, std::max(inputSize, outputSize), sizeof(float) * inputSize>>>(
+    Kernels::mat_vec_mul<<<forwardGridSize, BLOCK_SIZE>>>(
         d_weights, d_input, d_output, inputSize, outputSize
     );
 
-    Kernels::vec_vec_add<<<1, outputSize>>>(
+    Kernels::vec_vec_add<<<biasGridSize, BLOCK_SIZE>>>(
         d_biases, d_output, d_output, outputSize
     );
 
     switch (activation) {
         case SIGMOID:
-            Kernels::sigmoid<<<1, outputSize>>>(d_output, d_output, outputSize);
+            Kernels::sigmoid<<<biasGridSize, BLOCK_SIZE>>>(
+                d_output, d_output, outputSize
+            );
             break;
 
         case RELU:
-            Kernels::relu<<<1, outputSize>>>(d_output, d_output, outputSize);
+            Kernels::relu<<<biasGridSize, BLOCK_SIZE>>>(
+                d_output, d_output, outputSize
+            );
             break;
 
         default:

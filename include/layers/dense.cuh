@@ -66,6 +66,10 @@ class Dense : public ILayer {
 
     Layers::Activation activation;
 
+    // Precompute kernel launch parameters
+    int forwardGridSize;
+    int biasGridSize;
+
     /**
      * @brief Initialize the weights to zeros
      *

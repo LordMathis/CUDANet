@@ -4,6 +4,10 @@
 #include <cuda_runtime.h>
 #include <cstdio>
 
+#ifndef BLOCK_SIZE
+#define BLOCK_SIZE 128
+#endif // BLOCK_SIZE
+
 /**
  * @brief CUDA error checking macro
  * 
