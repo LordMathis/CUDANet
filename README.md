@@ -14,7 +14,7 @@ Convolutional Neural Network inference library running on CUDA.
 - [ ] Concat layer
 - [x] Sigmoid activation
 - [x] ReLU activation
-- [ ] Softmax activation
+- [x] Softmax activation
 - [ ] Load weights from file 
 
 ## Usage
