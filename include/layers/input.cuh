@@ -9,7 +9,7 @@ namespace CUDANet::Layers {
  * @brief Input layer, just copies the input to the device
  *
  */
-class Input : public ILayer {
+class Input {
   public:
     /**
      * @brief Create a new Input layer
@@ -32,15 +32,7 @@ class Input : public ILayer {
      */
     float* forward(const float* input);
 
-    void setWeights(const float* weights);
-    void setBiases(const float* biases);
-
   private:
-    void initializeWeights();
-    void initializeBiases();
-
-    void toCuda();
-
     int    inputSize;
     float* d_output;
 };

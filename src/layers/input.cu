@@ -26,11 +26,3 @@ float* Layers::Input::forward(const float* input) {
 
     return d_output;
 }
-
-void Layers::Input::setWeights(const float* weights) {}
-void Layers::Input::setBiases(const float* biases) {}
-
-void Layers::Input::initializeWeights() {}
-void Layers::Input::initializeBiases() {}
-
-void Layers::Input::toCuda() {}

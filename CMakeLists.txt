@@ -14,6 +14,7 @@ set(LIBRARY_SOURCES
     src/kernels/matmul.cu
     src/layers/dense.cu
     src/layers/conv2d.cu
+    src/layers/concat.cu
     src/layers/input.cu
     src/layers/activation.cu
 )

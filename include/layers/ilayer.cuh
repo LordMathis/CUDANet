@@ -64,18 +64,6 @@ class ILayer {
      * @brief Copy the weights and biases to the device
      */
     virtual void toCuda() = 0;
-
-    int inputSize;
-    int outputSize;
-
-    float* d_output;
-
-    float* d_weights;
-    float* d_biases;
-
-    std::vector<float> weights;
-    std::vector<float> biases;
-
 };
 
 }  // namespace CUDANet::Layers
