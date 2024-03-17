@@ -1,11 +1,11 @@
 #ifndef CUDANET_CONVOLUTION_H
 #define CUDANET_CONVOLUTION_H
 
-namespace Kernels {
+namespace CUDANet::Kernels {
 
 /**
  * @brief Kernel that pads the input matrix with zeros
- * 
+ *
  * @param d_input Device pointer to the input matrix (as vector)
  * @param d_padded Device pointer to the padded matrix (as vector)
  * @param w Width of the input matrix
@@ -14,17 +14,17 @@ namespace Kernels {
  * @param p Padding size
  */
 __global__ void padding(
-    const float* d_input,
-    float*       d_padded,
-    int          w,
-    int          h,
-    int          n,
-    int          p
+    const float* __restrict__ d_input,
+    float* __restrict__ d_padded,
+    const unsigned int w,
+    const unsigned int h,
+    const unsigned int n,
+    const unsigned int p
 );
 
 /**
  * @brief Convolution kernel
- * 
+ *
  * @param d_input Device pointer to the input matrix
  * @param d_kernel Device pointer to the convolution kernel
  * @param d_output Device pointer to the output matrix
@@ -36,17 +36,17 @@ __global__ void padding(
  * @param outputSize Width and height of the output matrix
  */
 __global__ void convolution(
-    const float* d_input,
-    const float* d_kernel,
-    float*       d_output,
-    int          inputSize,
-    int          nChannels,
-    int          kernelSize,
-    int          stride,
-    int          nFilters,
-    int          outputSize
+    const float* __restrict__ d_input,
+    const float* __restrict__ d_kernel,
+    float* __restrict__ d_output,
+    const unsigned int inputSize,
+    const unsigned int nChannels,
+    const unsigned int kernelSize,
+    const unsigned int stride,
+    const unsigned int nFilters,
+    const unsigned int outputSize
 );
 
-}  // namespace Kernels
+}  // namespace CUDANet::Kernels
 
 #endif  // CUDANET_CONVOLUTION_H

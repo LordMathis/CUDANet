@@ -1,5 +1,6 @@
-#include "convolution.cuh"
 #include <iostream>
+
+#include "convolution.cuh"
 
 /*
 Pads matrix width x height x n_channels to width + 2 * padding x height + 2 *
@@ -47,13 +48,13 @@ pre-allocated)
   n: Number of channels in input matrix
   p: Padding
 */
-__global__ void Kernels::padding(
-    const float* d_input,
-    float*       d_padded,
-    int          w,
-    int          h,
-    int          n,
-    int          p
+__global__ void CUDANet::Kernels::padding(
+    const float* __restrict__ d_input,
+    float* __restrict__ d_padded,
+    const unsigned int w,
+    const unsigned int h,
+    const unsigned int n,
+    const unsigned int p
 ) {
     int tid = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -78,16 +79,16 @@ __global__ void Kernels::padding(
     }
 }
 
-__global__ void Kernels::convolution(
-    const float* d_input,
-    const float* d_kernel,
-    float*       d_output,
-    int          inputSize,
-    int          nChannels,
-    int          kernelSize,
-    int          stride,
-    int          nFilters,
-    int          outputSize
+__global__ void CUDANet::Kernels::convolution(
+    const float* __restrict__ d_input,
+    const float* __restrict__ d_kernel,
+    float* __restrict__ d_output,
+    const unsigned int inputSize,
+    const unsigned int nChannels,
+    const unsigned int kernelSize,
+    const unsigned int stride,
+    const unsigned int nFilters,
+    const unsigned int outputSize
 ) {
     int tid = blockDim.x * blockIdx.x + threadIdx.x;
 

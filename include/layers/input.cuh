@@ -3,7 +3,7 @@
 
 #include <ilayer.cuh>
 
-namespace Layers {
+namespace CUDANet::Layers {
 
 /**
  * @brief Input layer, just copies the input to the device
@@ -45,6 +45,6 @@ class Input : public ILayer {
     float* d_output;
 };
 
-}  // namespace Layers
+}  // namespace CUDANet::Layers
 
 #endif  // CUDANET_INPUT_LAYER_H

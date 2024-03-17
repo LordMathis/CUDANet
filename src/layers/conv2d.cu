@@ -7,6 +7,8 @@
 #include "cuda_helper.cuh"
 #include "matmul.cuh"
 
+using namespace CUDANet;
+
 Layers::Conv2d::Conv2d(
     int                inputSize,
     int                inputChannels,

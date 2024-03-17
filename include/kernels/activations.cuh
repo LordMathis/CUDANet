@@ -1,7 +1,7 @@
 #ifndef CUDANET_ACTIVATIONS_H
 #define CUDANET_ACTIVATIONS_H
 
-namespace Kernels {
+namespace CUDANet::Kernels {
 
 /**
  * @brief Sigmoid activation function kernel
@@ -23,6 +23,6 @@ sigmoid(const float* __restrict__ src, float* __restrict__ dst, int len);
 __global__ void
 relu(const float* __restrict__ src, float* __restrict__ dst, int len);
 
-}  // namespace Kernels
+}  // namespace CUDANet::Kernels
 
 #endif  // CUDANET_ACTIVATIONS_H

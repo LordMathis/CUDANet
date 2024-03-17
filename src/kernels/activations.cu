@@ -2,7 +2,7 @@
 
 #include "activations.cuh"
 
-__global__ void Kernels::sigmoid(
+__global__ void CUDANet::Kernels::sigmoid(
     const float* __restrict__ src,
     float* __restrict__ dst,
     int len
@@ -15,8 +15,11 @@ __global__ void Kernels::sigmoid(
     }
 }
 
-__global__ void
-Kernels::relu(const float* __restrict__ src, float* __restrict__ dst, int len) {
+__global__ void CUDANet::Kernels::relu(
+    const float* __restrict__ src,
+    float* __restrict__ dst,
+    int len
+) {
     int stride = gridDim.x * blockDim.x;
     int tid    = blockDim.x * blockIdx.x + threadIdx.x;
 

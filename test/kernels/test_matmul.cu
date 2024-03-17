@@ -44,7 +44,7 @@ TEST(MatMulTest, MatVecMulTest) {
     int THREADS_PER_BLOCK = std::max(w, h);
     int BLOCKS            = 1;
 
-    Kernels::mat_vec_mul<<<BLOCKS, THREADS_PER_BLOCK, sizeof(float) * w>>>(d_matrix, d_vector, d_output, w, h);
+    CUDANet::Kernels::mat_vec_mul<<<BLOCKS, THREADS_PER_BLOCK, sizeof(float) * w>>>(d_matrix, d_vector, d_output, w, h);
     cudaStatus = cudaDeviceSynchronize();
     EXPECT_EQ(cudaStatus, cudaSuccess);
 

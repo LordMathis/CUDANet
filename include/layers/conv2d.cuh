@@ -8,7 +8,7 @@
 #include "convolution.cuh"
 #include "ilayer.cuh"
 
-namespace Layers {
+namespace CUDANet::Layers {
 
 /**
  * @brief 2D convolutional layer
@@ -125,6 +125,6 @@ class Conv2d : public ILayer {
     void toCuda();
 };
 
-}  // namespace Layers
+}  // namespace CUDANet::Layers
 
 #endif  // CUDANET_CONV_LAYER_H

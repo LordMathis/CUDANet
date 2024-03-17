@@ -8,17 +8,17 @@
 
 class DenseLayerTest : public ::testing::Test {
   protected:
-    Layers::Dense commonTestSetup(
-        int                 inputSize,
-        int                 outputSize,
-        std::vector<float>& input,
-        float*              weights,
-        float*              biases,
-        float*&             d_input,
-        Layers::Activation  activation
+    CUDANet::Layers::Dense commonTestSetup(
+        int                         inputSize,
+        int                         outputSize,
+        std::vector<float>&         input,
+        float*                      weights,
+        float*                      biases,
+        float*&                     d_input,
+        CUDANet::Layers::Activation activation
     ) {
         // Create Dense layer
-        Layers::Dense denseLayer(inputSize, outputSize, activation);
+        CUDANet::Layers::Dense denseLayer(inputSize, outputSize, activation);
 
         // Set weights and biases
         denseLayer.setWeights(weights);
@@ -52,8 +52,8 @@ TEST_F(DenseLayerTest, Init) {
             int inputSize  = i;
             int outputSize = j;
 
-            Layers::Dense denseLayer(
-                inputSize, outputSize, Layers::Activation::SIGMOID
+            CUDANet::Layers::Dense denseLayer(
+                inputSize, outputSize, CUDANet::Layers::Activation::SIGMOID
             );
         }
     }
@@ -73,8 +73,8 @@ TEST_F(DenseLayerTest, setWeights) {
     };
     // clang-format on
 
-    Layers::Dense denseLayer(
-        inputSize, outputSize, Layers::Activation::SIGMOID
+    CUDANet::Layers::Dense denseLayer(
+        inputSize, outputSize, CUDANet::Layers::Activation::SIGMOID
     );
 
     denseLayer.setWeights(weights.data());
@@ -99,9 +99,9 @@ TEST_F(DenseLayerTest, ForwardUnitWeightMatrixLinear) {
     float* d_input;
     float* d_output;
 
-    Layers::Dense denseLayer = commonTestSetup(
+    CUDANet::Layers::Dense denseLayer = commonTestSetup(
         inputSize, outputSize, input, weights.data(), biases.data(), d_input,
-        Layers::Activation::NONE
+        CUDANet::Layers::Activation::NONE
     );
     d_output = denseLayer.forward(d_input);
 
@@ -140,9 +140,9 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixRelu) {
     float* d_input;
     float* d_output;
 
-    Layers::Dense denseLayer = commonTestSetup(
+    CUDANet::Layers::Dense denseLayer = commonTestSetup(
         inputSize, outputSize, input, weights.data(), biases.data(), d_input,
-        Layers::Activation::RELU
+        CUDANet::Layers::Activation::RELU
     );
 
     d_output = denseLayer.forward(d_input);
@@ -185,9 +185,9 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixSigmoid) {
     float* d_input;
     float* d_output;
 
-    Layers::Dense denseLayer = commonTestSetup(
+    CUDANet::Layers::Dense denseLayer = commonTestSetup(
         inputSize, outputSize, input, weights.data(), biases.data(), d_input,
-        Layers::Activation::SIGMOID
+        CUDANet::Layers::Activation::SIGMOID
     );
 
     d_output = denseLayer.forward(d_input);

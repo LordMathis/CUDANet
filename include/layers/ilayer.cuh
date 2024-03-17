@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace Layers {
+namespace CUDANet::Layers {
 
 /**
  * @brief Activation functions
@@ -88,6 +88,6 @@ class ILayer {
     Layers::Activation activation;
 };
 
-}  // namespace Layers
+}  // namespace CUDANet::Layers
 
 #endif  // CUDANET_I_LAYERH

@@ -10,6 +10,8 @@
 #include "dense.cuh"
 #include "matmul.cuh"
 
+using namespace CUDANet;
+
 Layers::Dense::Dense(
     int                inputSize,
     int                outputSize,

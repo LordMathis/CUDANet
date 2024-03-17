@@ -1,6 +1,8 @@
 #include "cuda_helper.cuh"
 #include "input.cuh"
 
+using namespace CUDANet;
+
 Layers::Input::Input(int inputSize) : inputSize(inputSize) {
     d_output = nullptr;
     CUDA_CHECK(cudaMalloc((void**)&d_output, sizeof(float) * inputSize));

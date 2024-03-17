@@ -7,7 +7,7 @@
 
 #include "ilayer.cuh"
 
-namespace Layers {
+namespace CUDANet::Layers {
 
 /**
  * @brief Dense (fully connected) layer
@@ -53,8 +53,8 @@ class Dense : public ILayer {
     void setBiases(const float* biases);
 
   private:
-    int inputSize;
-    int outputSize;
+    unsigned int inputSize;
+    unsigned int outputSize;
 
     float* d_output;
 
@@ -67,8 +67,8 @@ class Dense : public ILayer {
     Layers::Activation activation;
 
     // Precompute kernel launch parameters
-    int forwardGridSize;
-    int biasGridSize;
+    unsigned int forwardGridSize;
+    unsigned int biasGridSize;
 
     /**
      * @brief Initialize the weights to zeros
@@ -89,6 +89,6 @@ class Dense : public ILayer {
     void toCuda();
 };
 
-}  // namespace Layers
+}  // namespace CUDANet::Layers
 
 #endif  // CUDANET_DENSE_LAYER_H
