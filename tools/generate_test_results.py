@@ -1,5 +1,4 @@
 import torch
-import numpy as np
 
 def conv2d(in_channels, out_channels, kernel_size, stride, padding, inputs, weights):
 
