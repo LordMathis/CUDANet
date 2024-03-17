@@ -20,9 +20,9 @@ class Dense : public ILayer {
      *
      * @param inputSize Size of the input vector
      * @param outputSize Size of the output vector
-     * @param activation Activation function ('RELU', 'SIGMOID' or 'NONE')
+     * @param activationType Activation function type ('RELU', 'SIGMOID', 'SOFTMAX' or 'NONE')
      */
-    Dense(int inputSize, int outputSize, Layers::Activation activation);
+    Dense(int inputSize, int outputSize, Layers::ActivationType activationType);
 
     /**
      * @brief Destroy the Dense layer

@@ -7,15 +7,6 @@
 namespace CUDANet::Layers {
 
 /**
- * @brief Activation functions
- * 
- * SIGMOID: Sigmoid
- * RELU: Rectified Linear Unit
- *
- */
-enum Activation { SIGMOID, RELU, NONE };
-
-/**
  * @brief Padding types
  * 
  * SAME: Zero padding such that the output size is the same as the input
@@ -85,7 +76,6 @@ class ILayer {
     std::vector<float> weights;
     std::vector<float> biases;
 
-    Layers::Activation activation;
 };
 
 }  // namespace CUDANet::Layers

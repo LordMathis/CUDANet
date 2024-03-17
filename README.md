@@ -24,7 +24,7 @@ Convolutional Neural Network inference library running on CUDA.
 - [CUDA](https://developer.nvidia.com/cuda-downloads)
 - [Google Test](https://github.com/google/googletest) (for testing only)
 
-**build and test**
+**build**
 
 ```sh
 mkdir build
@@ -33,8 +33,9 @@ cmake -S ..
 make
 ```
 
-Run tests
+**build and run tests**
 
 ```sh
+make test_main
 ./test/test_main
 ```

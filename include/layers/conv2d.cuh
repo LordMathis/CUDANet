@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "activations.cuh"
+#include "activation.cuh"
 #include "convolution.cuh"
 #include "ilayer.cuh"
 
@@ -23,18 +23,18 @@ class Conv2d : public ILayer {
      * @param inputChannels Number of channels in the input matrix
      * @param kernelSize Width and height of the convolution kernel
      * @param stride Convolution stride
-     * @param padding Padding type ('SAME' or 'VALID')
      * @param numFilters Number of output filters
-     * @param activation Activation function ('RELU', 'SIGMOID' or 'NONE')
+     * @param padding Padding type ('SAME' or 'VALID')
+     * @param activationType Activation function type ('RELU', 'SIGMOID', 'SOFTMAX' or 'NONE')
      */
     Conv2d(
-        int                inputSize,
-        int                inputChannels,
-        int                kernelSize,
-        int                stride,
-        Layers::Padding    padding,
-        int                numFilters,
-        Layers::Activation activation
+        int                    inputSize,
+        int                    inputChannels,
+        int                    kernelSize,
+        int                    stride,
+        int                    numFilters,
+        Layers::Padding        padding,
+        Layers::ActivationType activationType
     );
 
     /**
@@ -67,17 +67,21 @@ class Conv2d : public ILayer {
 
     /**
      * @brief Get the output width (/ height) of the layer
-     * 
-     * @return int 
+     *
+     * @return int
      */
-    int getOutputSize() { return outputSize; }
+    int getOutputSize() {
+        return outputSize;
+    }
 
     /**
      * @brief Get the padding size of the layer
-     * 
-     * @return int 
+     *
+     * @return int
      */
-    int getPaddingSize() { return paddingSize; }
+    int getPaddingSize() {
+        return paddingSize;
+    }
 
   private:
     // Inputs

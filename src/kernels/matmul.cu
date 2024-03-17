@@ -47,15 +47,3 @@ __global__ void CUDANet::Kernels::vec_vec_add(
     }
     d_output[tid] = d_vector1[tid] + d_vector2[tid];
 }
-
-__global__ void CUDANet::Kernels::reduce_sum(
-    const float* __restrict__ d_vector,
-    float* __restrict__ d_output,
-    const unsigned int w
-) {
-    int tid = blockDim.x * blockIdx.x + threadIdx.x;
-
-    __shared__ float shared[BLOCK_SIZE];
-    shared[threadIdx.x] = d_vector[tid];
-    __syncthreads();
-}

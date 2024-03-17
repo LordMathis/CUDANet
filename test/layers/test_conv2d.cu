@@ -8,21 +8,21 @@
 class Conv2dTest : public ::testing::Test {
   protected:
     CUDANet::Layers::Conv2d commonTestSetup(
-        int                         inputSize,
-        int                         inputChannels,
-        int                         kernelSize,
-        int                         stride,
-        CUDANet::Layers::Padding    padding,
-        int                         numFilters,
-        CUDANet::Layers::Activation activation,
-        std::vector<float>&         input,
-        float*                      kernels,
-        float*&                     d_input
+        int                             inputSize,
+        int                             inputChannels,
+        int                             kernelSize,
+        int                             stride,
+        int                             numFilters,
+        CUDANet::Layers::Padding        padding,
+        CUDANet::Layers::ActivationType activationType,
+        std::vector<float>&             input,
+        float*                          kernels,
+        float*&                         d_input
     ) {
         // Create Conv2d layer
         CUDANet::Layers::Conv2d conv2d(
-            inputSize, inputChannels, kernelSize, stride, padding, numFilters,
-            activation
+            inputSize, inputChannels, kernelSize, stride, numFilters, padding,
+            activationType
         );
 
         conv2d.setWeights(kernels);
@@ -53,13 +53,14 @@ class Conv2dTest : public ::testing::Test {
 };
 
 TEST_F(Conv2dTest, SimpleTest) {
-    int                         inputSize     = 4;
-    int                         inputChannels = 1;
-    int                         kernelSize    = 2;
-    int                         stride        = 1;
-    CUDANet::Layers::Padding    padding       = CUDANet::Layers::Padding::VALID;
-    int                         numFilters    = 1;
-    CUDANet::Layers::Activation activation = CUDANet::Layers::Activation::NONE;
+    int                             inputSize     = 4;
+    int                             inputChannels = 1;
+    int                             kernelSize    = 2;
+    int                             stride        = 1;
+    int                             numFilters    = 1;
+    CUDANet::Layers::Padding        padding = CUDANet::Layers::Padding::VALID;
+    CUDANet::Layers::ActivationType activationType =
+        CUDANet::Layers::ActivationType::NONE;
 
     std::vector<float> input   = {1.0f,  2.0f,  3.0f,  4.0f,  5.0f,  6.0f,
                                   7.0f,  8.0f,  9.0f,  10.0f, 11.0f, 12.0f,
@@ -75,8 +76,8 @@ TEST_F(Conv2dTest, SimpleTest) {
     float* d_output;
 
     CUDANet::Layers::Conv2d conv2d = commonTestSetup(
-        inputSize, inputChannels, kernelSize, stride, padding, numFilters,
-        activation, input, kernels.data(), d_input
+        inputSize, inputChannels, kernelSize, stride, numFilters, padding,
+        activationType, input, kernels.data(), d_input
     );
 
     int outputSize = (inputSize - kernelSize) / stride + 1;
@@ -102,13 +103,14 @@ TEST_F(Conv2dTest, SimpleTest) {
 }
 
 TEST_F(Conv2dTest, PaddedTest) {
-    int                         inputSize     = 5;
-    int                         inputChannels = 3;
-    int                         kernelSize    = 3;
-    int                         stride        = 1;
-    CUDANet::Layers::Padding    padding       = CUDANet::Layers::Padding::SAME;
-    int                         numFilters    = 2;
-    CUDANet::Layers::Activation activation = CUDANet::Layers::Activation::NONE;
+    int                             inputSize     = 5;
+    int                             inputChannels = 3;
+    int                             kernelSize    = 3;
+    int                             stride        = 1;
+    int                             numFilters    = 2;
+    CUDANet::Layers::Padding        padding = CUDANet::Layers::Padding::SAME;
+    CUDANet::Layers::ActivationType activationType =
+        CUDANet::Layers::ActivationType::NONE;
 
     // clang-format off
     std::vector<float> input = {
@@ -164,8 +166,8 @@ TEST_F(Conv2dTest, PaddedTest) {
     float* d_output;
 
     CUDANet::Layers::Conv2d conv2d = commonTestSetup(
-        inputSize, inputChannels, kernelSize, stride, padding, numFilters,
-        activation, input, kernels.data(), d_input
+        inputSize, inputChannels, kernelSize, stride, numFilters, padding,
+        activationType, input, kernels.data(), d_input
     );
 
     EXPECT_EQ(inputSize, conv2d.getOutputSize());
@@ -203,13 +205,14 @@ TEST_F(Conv2dTest, PaddedTest) {
 }
 
 TEST_F(Conv2dTest, StridedPaddedConvolution) {
-    int                         inputSize     = 5;
-    int                         inputChannels = 2;
-    int                         kernelSize    = 3;
-    int                         stride        = 2;
-    int                         numFilters    = 2;
-    CUDANet::Layers::Padding    padding       = CUDANet::Layers::Padding::SAME;
-    CUDANet::Layers::Activation activation = CUDANet::Layers::Activation::RELU;
+    int                             inputSize     = 5;
+    int                             inputChannels = 2;
+    int                             kernelSize    = 3;
+    int                             stride        = 2;
+    int                             numFilters    = 2;
+    CUDANet::Layers::Padding        padding = CUDANet::Layers::Padding::SAME;
+    CUDANet::Layers::ActivationType activationType =
+        CUDANet::Layers::ActivationType::RELU;
 
     // clang-format off
     std::vector<float> input = {
@@ -250,8 +253,8 @@ TEST_F(Conv2dTest, StridedPaddedConvolution) {
     float* d_output;
 
     CUDANet::Layers::Conv2d conv2d = commonTestSetup(
-        inputSize, inputChannels, kernelSize, stride, padding, numFilters,
-        activation, input, kernels.data(), d_input
+        inputSize, inputChannels, kernelSize, stride, numFilters, padding,
+        activationType, input, kernels.data(), d_input
     );
 
     EXPECT_EQ(inputSize, conv2d.getOutputSize());

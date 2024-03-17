@@ -35,19 +35,6 @@ __global__ void vec_vec_add(
     const unsigned int w
 );
 
-/**
- * @brief 
- * 
- * @param d_vector Device pointer to vector
- * @param d_output Device pointer to output vector
- * @param w Length of the vector
- */
-__global__ void reduce_sum(
-    const float* __restrict__ d_vector,
-    float* __restrict__ d_output,
-    const unsigned int w
-);
-
 }  // namespace CUDANet::Kernels
 
 #endif  // CUDANET_MATMUL_H

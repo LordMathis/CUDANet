@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 
-#include "activations.cuh"
+#include "activation.cuh"
 #include "conv2d.cuh"
 #include "convolution.cuh"
 #include "cuda_helper.cuh"
@@ -10,20 +10,19 @@
 using namespace CUDANet;
 
 Layers::Conv2d::Conv2d(
-    int                inputSize,
-    int                inputChannels,
-    int                kernelSize,
-    int                stride,
-    Layers::Padding    padding,
-    int                numFilters,
-    Layers::Activation activation
+    int                    inputSize,
+    int                    inputChannels,
+    int                    kernelSize,
+    int                    stride,
+    int                    numFilters,
+    Layers::Padding        padding,
+    Layers::ActivationType activationType
 )
     : inputSize(inputSize),
       inputChannels(inputChannels),
       kernelSize(kernelSize),
       stride(stride),
-      numFilters(numFilters),
-      activation(activation) {
+      numFilters(numFilters) {
     switch (padding) {
         case SAME:
             outputSize  = inputSize;
@@ -39,10 +38,13 @@ Layers::Conv2d::Conv2d(
             break;
     }
 
+    activation = Layers::Activation(
+        activationType, outputSize * outputSize * numFilters
+    );
+
     d_output = nullptr;
     CUDA_CHECK(cudaMalloc(
-        (void**)&d_output,
-        sizeof(float) * outputSize * outputSize * numFilters
+        (void**)&d_output, sizeof(float) * outputSize * outputSize * numFilters
     ));
 
     weights.resize(kernelSize * kernelSize * inputChannels * numFilters);
@@ -131,18 +133,8 @@ float* Layers::Conv2d::forward(const float* d_input) {
         d_biases, d_output, d_output, biases.size()
     );
 
-    switch (activation) {
-        case SIGMOID:
-            Kernels::sigmoid<<<1, outputSize>>>(d_output, d_output, outputSize);
-            break;
-
-        case RELU:
-            Kernels::relu<<<1, outputSize>>>(d_output, d_output, outputSize);
-            break;
-
-        default:
-            break;
-    }
+    // Apply activation
+    activation.activate(d_output);
 
     CUDA_CHECK(cudaDeviceSynchronize());
 

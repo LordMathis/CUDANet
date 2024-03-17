@@ -9,12 +9,13 @@ include_directories(${CUDAToolkit_INCLUDE_DIRS})
 
 set(LIBRARY_SOURCES
     src/utils/cuda_helper.cu
-    src/kernels/activations.cu
+    src/kernels/activation_functions.cu
     src/kernels/convolution.cu
     src/kernels/matmul.cu
     src/layers/dense.cu
     src/layers/conv2d.cu
     src/layers/input.cu
+    src/layers/activation.cu
 )
 
 set(CMAKE_CUDA_ARCHITECTURES 75)

@@ -5,7 +5,7 @@
 #include <functional>
 #include <iostream>
 
-#include "activations.cuh"
+#include "activation.cuh"
 #include "cuda_helper.cuh"
 #include "dense.cuh"
 #include "matmul.cuh"
@@ -15,12 +15,14 @@ using namespace CUDANet;
 Layers::Dense::Dense(
     int                inputSize,
     int                outputSize,
-    Layers::Activation activation
+    Layers::ActivationType activationType
 )
-    : inputSize(inputSize), outputSize(outputSize), activation(activation) {
+    : inputSize(inputSize), outputSize(outputSize) {
     // Allocate memory for weights and biases
     weights.resize(outputSize * inputSize);
     biases.resize(outputSize);
+
+    activation = Layers::Activation(activationType, outputSize);
 
     initializeWeights();
     initializeBiases();
@@ -69,22 +71,7 @@ float* Layers::Dense::forward(const float* d_input) {
         d_biases, d_output, d_output, outputSize
     );
 
-    switch (activation) {
-        case SIGMOID:
-            Kernels::sigmoid<<<biasGridSize, BLOCK_SIZE>>>(
-                d_output, d_output, outputSize
-            );
-            break;
-
-        case RELU:
-            Kernels::relu<<<biasGridSize, BLOCK_SIZE>>>(
-                d_output, d_output, outputSize
-            );
-            break;
-
-        default:
-            break;
-    }
+    activation.activate(d_output);
 
     CUDA_CHECK(cudaDeviceSynchronize());
 

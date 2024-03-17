@@ -2,10 +2,11 @@ find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
 add_executable(test_main 
+    EXCLUDE_FROM_ALL
     layers/test_dense.cu
     layers/test_conv2d.cu
     layers/test_input.cu
-    kernels/test_activations.cu
+    kernels/test_activation_functions.cu
     kernels/test_padding.cu
     kernels/test_matmul.cu
 )

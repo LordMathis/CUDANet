@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "activations.cuh"
+#include "activation_functions.cuh"
 
 TEST(ActivationsTest, SigmoidSanityCheck) {
 
