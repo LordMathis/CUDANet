@@ -1,4 +1,4 @@
-#include <functional>
+#include <cmath>
 
 #include "activation_functions.cuh"
 #include "cuda_helper.cuh"
@@ -38,7 +38,7 @@ __global__ void CUDANet::Kernels::softmax_exp(
     int tid    = blockDim.x * blockIdx.x + threadIdx.x;
 
     for (int i = tid; i < len; i += stride) {
-        dst[i] = exp(src[i]);
+        dst[i] = std::exp(src[i]);
     }
 }
 

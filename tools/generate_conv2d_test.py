@@ -110,6 +110,14 @@ def gen_strided_test_result():
     output = conv2d(in_channels, out_channels, kernel_size, stride, padding, input, weights)
     print_cpp_vector(output)
 
+def gen_softmax_test_result():
+    input = torch.tensor([
+        0.573, 0.619, 0.732, 0.055, 0.243
+    ])
+
+    output = torch.nn.Softmax(dim=0)(input)
+    print_cpp_vector(output)
+
 
 if __name__ == "__main__":
     print("Generating test results...")
@@ -117,3 +125,5 @@ if __name__ == "__main__":
     gen_padded_test_result()
     print("Strided convolution test:")
     gen_strided_test_result()
+    print("Softmax test:")
+    gen_softmax_test_result()
