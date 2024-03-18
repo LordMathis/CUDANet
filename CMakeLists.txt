@@ -12,6 +12,7 @@ set(LIBRARY_SOURCES
     src/kernels/activation_functions.cu
     src/kernels/convolution.cu
     src/kernels/matmul.cu
+    src/layers/add.cu
     src/layers/dense.cu
     src/layers/conv2d.cu
     src/layers/concat.cu
