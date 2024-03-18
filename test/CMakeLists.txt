@@ -9,7 +9,6 @@ add_executable(test_main
     layers/test_dense.cu
     layers/test_input.cu
     kernels/test_activation_functions.cu
-    kernels/test_padding.cu
     kernels/test_matmul.cu
 )
 

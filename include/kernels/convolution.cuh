@@ -4,25 +4,6 @@
 namespace CUDANet::Kernels {
 
 /**
- * @brief Kernel that pads the input matrix with zeros
- *
- * @param d_input Device pointer to the input matrix (as vector)
- * @param d_padded Device pointer to the padded matrix (as vector)
- * @param w Width of the input matrix
- * @param h Height of the input matrix
- * @param n Number of input channels
- * @param p Padding size
- */
-__global__ void padding(
-    const float* __restrict__ d_input,
-    float* __restrict__ d_padded,
-    const unsigned int w,
-    const unsigned int h,
-    const unsigned int n,
-    const unsigned int p
-);
-
-/**
  * @brief Convolution kernel
  *
  * @param d_input Device pointer to the input matrix

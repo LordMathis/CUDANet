@@ -105,7 +105,6 @@ class Conv2d : public ILayer {
     float* d_output;
     float* d_weights;
     float* d_biases;
-    float* d_padded;
 
     // Kernels
     Layers::Activation activation;

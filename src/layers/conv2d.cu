@@ -23,6 +23,7 @@ Layers::Conv2d::Conv2d(
       kernelSize(kernelSize),
       stride(stride),
       numFilters(numFilters) {
+        
     switch (padding) {
         case SAME:
             outputSize  = inputSize;
@@ -64,12 +65,6 @@ Layers::Conv2d::Conv2d(
         (void**)&d_biases, sizeof(float) * outputSize * outputSize * numFilters
     ));
 
-    d_padded = nullptr;
-    CUDA_CHECK(cudaMalloc(
-        (void**)&d_padded, sizeof(float) * (inputSize + 2 * paddingSize) *
-                               (inputSize + 2 * paddingSize) * inputChannels
-    ));
-
     toCuda();
 }
 
@@ -77,7 +72,6 @@ Layers::Conv2d::~Conv2d() {
     cudaFree(d_output);
     cudaFree(d_weights);
     cudaFree(d_biases);
-    cudaFree(d_padded);
 }
 
 void Layers::Conv2d::initializeWeights() {
@@ -113,18 +107,10 @@ void Layers::Conv2d::toCuda() {
 }
 
 float* Layers::Conv2d::forward(const float* d_input) {
-    // Pad input
-    int THREADS_PER_BLOCK = (inputSize + 2 * paddingSize) *
-                            (inputSize + 2 * paddingSize) * inputChannels;
-
-    Kernels::padding<<<1, THREADS_PER_BLOCK>>>(
-        d_input, d_padded, inputSize, inputSize, inputChannels, paddingSize
-    );
-
     // Convolve
-    THREADS_PER_BLOCK = outputSize * outputSize * numFilters;
+    int THREADS_PER_BLOCK = outputSize * outputSize * numFilters;
     Kernels::convolution<<<1, THREADS_PER_BLOCK>>>(
-        d_padded, d_weights, d_output, inputSize + 2 * paddingSize, inputChannels, paddingSize,
+        d_input, d_weights, d_output, inputSize, inputChannels, paddingSize,
         kernelSize, stride, numFilters, outputSize
     );
 
