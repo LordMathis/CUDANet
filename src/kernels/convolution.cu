@@ -83,12 +83,13 @@ __global__ void CUDANet::Kernels::convolution(
     const float* __restrict__ d_input,
     const float* __restrict__ d_kernel,
     float* __restrict__ d_output,
-    const unsigned int inputSize,
-    const unsigned int nChannels,
-    const unsigned int kernelSize,
-    const unsigned int stride,
-    const unsigned int nFilters,
-    const unsigned int outputSize
+    const int inputSize,
+    const int nChannels,
+    const int paddingSize,
+    const int kernelSize,
+    const int stride,
+    const int nFilters,
+    const int outputSize
 ) {
     int tid = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -104,9 +105,9 @@ __global__ void CUDANet::Kernels::convolution(
     float sum = 0.0f;
 
     // Iterate over kernel and input matrix
-    for (int k = 0; k < kernelSize; k++) {
-        for (int l = 0; l < kernelSize; l++) {
-            for (int c = 0; c < nChannels; c++) {
+    for (int c = 0; c < nChannels; c++) {
+        for (int k = 0; k < kernelSize; k++) {
+            for (int l = 0; l < kernelSize; l++) {
                 int kernelIndex = f * kernelSize * kernelSize * nChannels +
                                   c * kernelSize * kernelSize + k * kernelSize +
                                   l;

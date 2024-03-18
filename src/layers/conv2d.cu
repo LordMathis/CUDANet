@@ -124,8 +124,8 @@ float* Layers::Conv2d::forward(const float* d_input) {
     // Convolve
     THREADS_PER_BLOCK = outputSize * outputSize * numFilters;
     Kernels::convolution<<<1, THREADS_PER_BLOCK>>>(
-        d_padded, d_weights, d_output, inputSize + (2 * paddingSize),
-        inputChannels, kernelSize, stride, numFilters, outputSize
+        d_padded, d_weights, d_output, inputSize + 2 * paddingSize, inputChannels, paddingSize,
+        kernelSize, stride, numFilters, outputSize
     );
 
     // Add bias

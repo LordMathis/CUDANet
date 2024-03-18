@@ -39,12 +39,13 @@ __global__ void convolution(
     const float* __restrict__ d_input,
     const float* __restrict__ d_kernel,
     float* __restrict__ d_output,
-    const unsigned int inputSize,
-    const unsigned int nChannels,
-    const unsigned int kernelSize,
-    const unsigned int stride,
-    const unsigned int nFilters,
-    const unsigned int outputSize
+    const int inputSize,
+    const int nChannels,
+    const int paddingSize,
+    const int kernelSize,
+    const int stride,
+    const int nFilters,
+    const int outputSize
 );
 
 }  // namespace CUDANet::Kernels
