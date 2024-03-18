@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "ilayer.cuh"
+#include "weighted_layer.cuh"
 
 namespace CUDANet::Layers {
 
@@ -13,7 +13,7 @@ namespace CUDANet::Layers {
  * @brief Dense (fully connected) layer
  *
  */
-class Dense : public ILayer {
+class Dense : public WeightedLayer {
   public:
     /**
      * @brief Construct a new Dense layer

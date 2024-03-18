@@ -1,8 +1,6 @@
 #ifndef CUDANET_CONCAT_LAYER_H
 #define CUDANET_CONCAT_LAYER_H
 
-#include <ilayer.cuh>
-
 namespace CUDANet::Layers {
 
 /**
@@ -14,7 +12,8 @@ class Concat {
     /**
      * @brief Create a new Concat layer
      * 
-     * @param layers Layers to concatenate
+     * @param inputASize Size of the first input
+     * @param inputBSize Size of the second input
      */
     Concat(const unsigned int inputASize, const unsigned int inputBSize);
 
@@ -25,10 +24,11 @@ class Concat {
     ~Concat();
 
     /**
-     * @brief Forward pass of the concat layer
+     * @brief Concatenates the two inputs
      *
      * @param d_input_A Device pointer to the first input
      * @param d_input_B Device pointer to the second input
+     * 
      * @return Device pointer to the output
      */
     float* forward(const float* d_input_A, const float* d_input_B);

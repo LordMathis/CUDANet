@@ -18,13 +18,13 @@ enum Padding { SAME, VALID };
 /**
  * @brief Base class for all layers
  */
-class ILayer {
+class WeightedLayer {
   public:
     /**
      * @brief Destroy the ILayer object
      * 
      */
-    virtual ~ILayer() {}
+    virtual ~WeightedLayer() {}
 
     /**
      * @brief Virtual function for forward pass

@@ -6,7 +6,7 @@
 
 #include "activation.cuh"
 #include "convolution.cuh"
-#include "ilayer.cuh"
+#include "weighted_layer.cuh"
 
 namespace CUDANet::Layers {
 
@@ -14,7 +14,7 @@ namespace CUDANet::Layers {
  * @brief 2D convolutional layer
  *
  */
-class Conv2d : public ILayer {
+class Conv2d : public WeightedLayer {
   public:
     /**
      * @brief Construct a new Conv 2d layer
