@@ -1,11 +1,10 @@
-#include "max_pooling.cuh"
+#include "avg_pooling.cuh"
 #include "cuda_helper.cuh"
 #include "pooling.cuh"
 
 using namespace CUDANet::Layers;
 
-
-MaxPooling2D::MaxPooling2D(
+AvgPooling2D::AvgPooling2D(
         int            inputSize,
         int            nChannels,
         int            poolingSize,
@@ -31,13 +30,13 @@ MaxPooling2D::MaxPooling2D(
 }
 
 
-MaxPooling2D::~MaxPooling2D() {
+AvgPooling2D::~AvgPooling2D() {
     cudaFree(d_output);
 }
 
 
-float* MaxPooling2D::forward(const float* d_input) {
-    Kernels::max_pooling<<<gridSize, BLOCK_SIZE>>>(
+float* AvgPooling2D::forward(const float* d_input) {
+    Kernels::avg_pooling<<<gridSize, BLOCK_SIZE>>>(
         d_input, d_output, inputSize, nChannels, poolingSize, stride
     );
 

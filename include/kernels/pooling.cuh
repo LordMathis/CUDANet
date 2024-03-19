@@ -11,8 +11,7 @@ __global__ void max_pooling(
     const int inputSize,
     const int nChannels,
     const int poolingSize,
-    const int stride,
-    const int paddingSize
+    const int stride
 );
 
 __global__ void avg_pooling(
@@ -21,8 +20,7 @@ __global__ void avg_pooling(
     const int inputSize,
     const int nChannels,
     const int poolingSize,
-    const int stride,
-    const int paddingSize
+    const int stride
 );
 
 }  // namespace CUDANet::Kernels
