@@ -25,16 +25,17 @@ class Conv2d : public WeightedLayer {
      * @param stride Convolution stride
      * @param numFilters Number of output filters
      * @param padding Padding type ('SAME' or 'VALID')
-     * @param activationType Activation function type ('RELU', 'SIGMOID', 'SOFTMAX' or 'NONE')
+     * @param activationType Activation function type ('RELU', 'SIGMOID',
+     * 'SOFTMAX' or 'NONE')
      */
     Conv2d(
-        int                    inputSize,
-        int                    inputChannels,
-        int                    kernelSize,
-        int                    stride,
-        int                    numFilters,
-        Layers::Padding        padding,
-        Layers::ActivationType activationType
+        int            inputSize,
+        int            inputChannels,
+        int            kernelSize,
+        int            stride,
+        int            numFilters,
+        Padding        padding,
+        ActivationType activationType
     );
 
     /**
@@ -107,7 +108,7 @@ class Conv2d : public WeightedLayer {
     float* d_biases;
 
     // Kernels
-    Layers::Activation activation;
+    Activation activation;
 
     /**
      * @brief Initialize weights of the convolutional layer with zeros

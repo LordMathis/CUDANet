@@ -1,9 +1,9 @@
 #include "cuda_helper.cuh"
 #include "matmul.cuh"
 
-using namespace CUDANet::Kernels;
+using namespace CUDANet;
 
-__global__ void mat_vec_mul(
+__global__ void Kernels::mat_vec_mul(
     const float* __restrict__ d_matrix,
     const float* __restrict__ d_vector,
     float* __restrict__ d_output,
@@ -37,7 +37,7 @@ __global__ void mat_vec_mul(
     d_output[tid] = temp;
 }
 
-__global__ void vec_vec_add(
+__global__ void Kernels::vec_vec_add(
     const float* __restrict__ d_vector1,
     const float* __restrict__ d_vector2,
     float* __restrict__ d_output,

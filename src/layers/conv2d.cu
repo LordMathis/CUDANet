@@ -39,7 +39,7 @@ Conv2d::Conv2d(
             break;
     }
 
-    activation = Layers::Activation(
+    activation = Activation(
         activationType, outputSize * outputSize * numFilters
     );
 
