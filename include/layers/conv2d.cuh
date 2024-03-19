@@ -6,7 +6,7 @@
 
 #include "activation.cuh"
 #include "convolution.cuh"
-#include "weighted_layer.cuh"
+#include "layer.cuh"
 
 namespace CUDANet::Layers {
 

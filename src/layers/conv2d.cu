@@ -7,16 +7,16 @@
 #include "cuda_helper.cuh"
 #include "matmul.cuh"
 
-using namespace CUDANet;
+using namespace CUDANet::Layers;
 
-Layers::Conv2d::Conv2d(
+Conv2d::Conv2d(
     int                    inputSize,
     int                    inputChannels,
     int                    kernelSize,
     int                    stride,
     int                    numFilters,
-    Layers::Padding        padding,
-    Layers::ActivationType activationType
+    Padding        padding,
+    ActivationType activationType
 )
     : inputSize(inputSize),
       inputChannels(inputChannels),
@@ -68,31 +68,31 @@ Layers::Conv2d::Conv2d(
     toCuda();
 }
 
-Layers::Conv2d::~Conv2d() {
+Conv2d::~Conv2d() {
     cudaFree(d_output);
     cudaFree(d_weights);
     cudaFree(d_biases);
 }
 
-void Layers::Conv2d::initializeWeights() {
+void Conv2d::initializeWeights() {
     std::fill(weights.begin(), weights.end(), 0.0f);
 }
 
-void Layers::Conv2d::initializeBiases() {
+void Conv2d::initializeBiases() {
     std::fill(biases.begin(), biases.end(), 0.0f);
 }
 
-void Layers::Conv2d::setWeights(const float* weights_input) {
+void Conv2d::setWeights(const float* weights_input) {
     std::copy(weights_input, weights_input + weights.size(), weights.begin());
     toCuda();
 }
 
-void Layers::Conv2d::setBiases(const float* biases_input) {
+void Conv2d::setBiases(const float* biases_input) {
     std::copy(biases_input, biases_input + biases.size(), biases.begin());
     toCuda();
 }
 
-void Layers::Conv2d::toCuda() {
+void Conv2d::toCuda() {
     CUDA_CHECK(cudaMemcpy(
         d_weights, weights.data(),
         sizeof(float) * kernelSize * kernelSize * inputChannels * numFilters,
@@ -106,7 +106,7 @@ void Layers::Conv2d::toCuda() {
     ));
 }
 
-float* Layers::Conv2d::forward(const float* d_input) {
+float* Conv2d::forward(const float* d_input) {
     // Convolve
     int THREADS_PER_BLOCK = outputSize * outputSize * numFilters;
     Kernels::convolution<<<1, THREADS_PER_BLOCK>>>(

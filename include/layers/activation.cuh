@@ -13,6 +13,10 @@ namespace CUDANet::Layers {
  */
 enum ActivationType { SIGMOID, RELU, SOFTMAX, NONE };
 
+/**
+ * @brief Utility class that performs activation
+ * 
+ */
 class Activation {
   public:
 

@@ -1,14 +1,14 @@
 #include "cuda_helper.cuh"
 #include "input.cuh"
 
-using namespace CUDANet;
+using namespace CUDANet::Layers;
 
-Layers::Input::Input(int inputSize) : inputSize(inputSize) {
+Input::Input(int inputSize) : inputSize(inputSize) {
     d_output = nullptr;
     CUDA_CHECK(cudaMalloc((void**)&d_output, sizeof(float) * inputSize));
 }
 
-Layers::Input::~Input() {
+Input::~Input() {
     cudaFree(d_output);
 }
 
@@ -19,7 +19,7 @@ Args
     const float* input Host pointer to input data
     float* d_output Device pointer to input data copied to device
 */
-float* Layers::Input::forward(const float* input) {
+float* Input::forward(const float* input) {
     CUDA_CHECK(cudaMemcpy(
         d_output, input, sizeof(float) * inputSize, cudaMemcpyHostToDevice
     ));

@@ -10,19 +10,19 @@
 #include "dense.cuh"
 #include "matmul.cuh"
 
-using namespace CUDANet;
+using namespace CUDANet::Layers;
 
-Layers::Dense::Dense(
+Dense::Dense(
     int                inputSize,
     int                outputSize,
-    Layers::ActivationType activationType
+    ActivationType activationType
 )
     : inputSize(inputSize), outputSize(outputSize) {
     // Allocate memory for weights and biases
     weights.resize(outputSize * inputSize);
     biases.resize(outputSize);
 
-    activation = Layers::Activation(activationType, outputSize);
+    activation = Activation(activationType, outputSize);
 
     initializeWeights();
     initializeBiases();
@@ -47,22 +47,22 @@ Layers::Dense::Dense(
     biasGridSize = (outputSize + BLOCK_SIZE - 1) / BLOCK_SIZE;
 }
 
-Layers::Dense::~Dense() {
+Dense::~Dense() {
     // Free GPU memory
     cudaFree(d_output);
     cudaFree(d_weights);
     cudaFree(d_biases);
 }
 
-void Layers::Dense::initializeWeights() {
+void Dense::initializeWeights() {
     std::fill(weights.begin(), weights.end(), 0.0f);
 }
 
-void Layers::Dense::initializeBiases() {
+void Dense::initializeBiases() {
     std::fill(biases.begin(), biases.end(), 0.0f);
 }
 
-float* Layers::Dense::forward(const float* d_input) {
+float* Dense::forward(const float* d_input) {
     Kernels::mat_vec_mul<<<forwardGridSize, BLOCK_SIZE>>>(
         d_weights, d_input, d_output, inputSize, outputSize
     );
@@ -78,7 +78,7 @@ float* Layers::Dense::forward(const float* d_input) {
     return d_output;
 }
 
-void Layers::Dense::toCuda() {
+void Dense::toCuda() {
     CUDA_CHECK(cudaMemcpy(
         d_weights, weights.data(), sizeof(float) * inputSize * outputSize,
         cudaMemcpyHostToDevice
@@ -89,12 +89,12 @@ void Layers::Dense::toCuda() {
     ));
 }
 
-void Layers::Dense::setWeights(const float* weights_input) {
+void Dense::setWeights(const float* weights_input) {
     std::copy(weights_input, weights_input + weights.size(), weights.begin());
     toCuda();
 }
 
-void Layers::Dense::setBiases(const float* biases_input) {
+void Dense::setBiases(const float* biases_input) {
     std::copy(biases_input, biases_input + biases.size(), biases.begin());
     toCuda();
 }

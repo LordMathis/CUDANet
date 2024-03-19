@@ -19,14 +19,13 @@ class Add {
     ~Add();
 
     /**
-     * @brief Adds the two inputs
+     * @brief Adds first input to second input
      *
      * @param d_inputA Device pointer to the first input
      * @param d_inputB Device pointer to the second input
      *
-     * @return Device pointer to the output
      */
-    float* forward(const float* d_inputA, const float* d_inputB);
+    void forward(const float* d_inputA, const float* d_inputB);
 
   private:
     int inputSize;

@@ -7,22 +7,19 @@ project(CUDANet
 find_package(CUDAToolkit REQUIRED)
 include_directories(${CUDAToolkit_INCLUDE_DIRS})
 
+file(GLOB_RECURSE LIBRARY_SOURCES
+    src/*.cu
+    src/utils/*.cu
+    src/kernels/*.cu
+    src/layers/*.cu)
+
 set(LIBRARY_SOURCES
-    src/utils/cuda_helper.cu
-    src/kernels/activation_functions.cu
-    src/kernels/convolution.cu
-    src/kernels/matmul.cu
-    src/layers/add.cu
-    src/layers/dense.cu
-    src/layers/conv2d.cu
-    src/layers/concat.cu
-    src/layers/input.cu
-    src/layers/activation.cu
+    ${LIBRARY_SOURCES}
 )
 
 set(CMAKE_CUDA_ARCHITECTURES 75)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -arch=sm_75)
+# set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -arch=sm_75)
 
 # Build static library
 add_library(${PROJECT_NAME} STATIC ${LIBRARY_SOURCES})

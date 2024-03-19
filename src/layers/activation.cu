@@ -3,9 +3,9 @@
 #include "cuda_helper.cuh"
 #include "activation_functions.cuh"
 
-using namespace CUDANet;
+using namespace CUDANet::Layers;
 
-Layers::Activation::Activation(ActivationType activation, const unsigned int length)
+Activation::Activation(ActivationType activation, const unsigned int length)
     : activationType(activation), length(length) {
 
     if (activationType == SOFTMAX) {
@@ -16,13 +16,13 @@ Layers::Activation::Activation(ActivationType activation, const unsigned int len
     gridSize = (length + BLOCK_SIZE - 1) / BLOCK_SIZE;
 }
 
-Layers::Activation::~Activation() {
+Activation::~Activation() {
     if (activationType == SOFTMAX) {
         cudaFree(d_softmax_sum);
     }
 }
 
-void Layers::Activation::activate(float* __restrict__ d_input) {
+void Activation::activate(float* __restrict__ d_input) {
 
     switch (activationType) {
         case SIGMOID:

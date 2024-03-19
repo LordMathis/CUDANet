@@ -2,10 +2,10 @@
 #include "matmul.cuh"
 #include "cuda_helper.cuh"
 
-using namespace CUDANet;
+using namespace CUDANet::Layers;
 
 
-Layers::Add::Add(int inputSize)
+Add::Add(int inputSize)
     : inputSize(inputSize) {
 
     d_output = nullptr;
@@ -15,12 +15,12 @@ Layers::Add::Add(int inputSize)
 }
 
 
-Layers::Add::~Add() {
+Add::~Add() {
     cudaFree(d_output);
 }
 
 
-float* Layers::Add::forward(const float* d_inputA, const float* d_inputB) {
+void Add::forward(const float* d_inputA, const float* d_inputB) {
 
     Kernels::vec_vec_add<<<gridSize, BLOCK_SIZE>>>(
         d_inputA, d_inputB, d_output, inputSize
