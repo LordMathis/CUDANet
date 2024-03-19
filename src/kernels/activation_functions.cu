@@ -3,7 +3,9 @@
 #include "activation_functions.cuh"
 #include "cuda_helper.cuh"
 
-__global__ void CUDANet::Kernels::sigmoid(
+using namespace CUDANet::Kernels;
+
+__global__ void sigmoid(
     const float* __restrict__ src,
     float* __restrict__ dst,
     const unsigned int len
@@ -16,7 +18,7 @@ __global__ void CUDANet::Kernels::sigmoid(
     }
 }
 
-__global__ void CUDANet::Kernels::relu(
+__global__ void relu(
     const float* __restrict__ src,
     float* __restrict__ dst,
     const unsigned int len
@@ -29,7 +31,7 @@ __global__ void CUDANet::Kernels::relu(
     }
 }
 
-__global__ void CUDANet::Kernels::softmax_exp(
+__global__ void softmax_exp(
     const float* __restrict__ src,
     float* __restrict__ dst,
     const unsigned int len
@@ -42,7 +44,7 @@ __global__ void CUDANet::Kernels::softmax_exp(
     }
 }
 
-__global__ void CUDANet::Kernels::softmax_sum(
+__global__ void softmax_sum(
     const float* __restrict__ d_vector,
     float* __restrict__ d_output,
     const unsigned int w
@@ -64,7 +66,7 @@ __global__ void CUDANet::Kernels::softmax_sum(
     }
 }
 
-__global__ void CUDANet::Kernels::softmax_div(
+__global__ void softmax_div(
     const float* __restrict__ src,
     float* __restrict__ dst,
     const float* __restrict__        sum,

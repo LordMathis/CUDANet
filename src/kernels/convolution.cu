@@ -2,7 +2,9 @@
 
 #include "convolution.cuh"
 
-__global__ void CUDANet::Kernels::convolution(
+using namespace CUDANet::Kernels;
+
+__global__ void convolution(
     const float* __restrict__ d_input,
     const float* __restrict__ d_kernel,
     float* __restrict__ d_output,
