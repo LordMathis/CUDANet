@@ -1,20 +1,22 @@
 #ifndef CUDANET_INPUT_LAYER_H
 #define CUDANET_INPUT_LAYER_H
 
+#include "layer.cuh"
+
 namespace CUDANet::Layers {
 
 /**
  * @brief Input layer, just copies the input to the device
  *
  */
-class Input {
+class Input : public SequentialLayer {
   public:
     /**
      * @brief Create a new Input layer
      * 
      * @param inputSize Size of the input vector
      */
-    Input(int inputSize);
+    explicit Input(int inputSize);
 
     /**
      * @brief Destroy the Input layer

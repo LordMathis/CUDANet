@@ -12,6 +12,7 @@ file(GLOB_RECURSE LIBRARY_SOURCES
     src/utils/*.cu
     src/kernels/*.cu
     src/layers/*.cu
+    src/model/*.cpp
 )
 
 set(LIBRARY_SOURCES
@@ -32,6 +33,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include/utils
     ${CMAKE_CURRENT_SOURCE_DIR}/include/kernels
     ${CMAKE_CURRENT_SOURCE_DIR}/include/layers
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/model
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
