@@ -19,6 +19,15 @@ class AvgPooling2D : public SequentialLayer {
 
     float* forward(const float* d_input);
 
+    /**
+     * @brief Get the output width (/ height) of the layer
+     *
+     * @return int
+     */
+    int getOutputSize() {
+        return outputSize;
+    }
+
   private:
     int inputSize;
     int nChannels;
@@ -26,7 +35,6 @@ class AvgPooling2D : public SequentialLayer {
     int stride;
 
     int outputSize;
-    int gridSize;
 
     float* d_output;
 

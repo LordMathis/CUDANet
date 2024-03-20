@@ -24,9 +24,6 @@ AvgPooling2D::AvgPooling2D(
     CUDA_CHECK(cudaMalloc(
         (void**)&d_output, sizeof(float) * outputSize * outputSize * nChannels
     ));
-
-    gridSize =
-        (outputSize * outputSize * nChannels + BLOCK_SIZE - 1) / BLOCK_SIZE;
 }
 
 AvgPooling2D::~AvgPooling2D() {

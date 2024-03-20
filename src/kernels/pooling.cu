@@ -49,7 +49,7 @@ __global__ void Kernels::avg_pooling(
     int i = blockDim.y * blockIdx.y + threadIdx.y;
     int c = blockDim.z * blockIdx.z + threadIdx.z;
 
-    if (i >= inputSize || j >= inputSize || c >= nChannels) {
+    if (i >= outputSize || j >= outputSize || c >= outputSize) {
         return;
     }
 

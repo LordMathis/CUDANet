@@ -37,7 +37,6 @@ class MaxPooling2D : public SequentialLayer {
     int stride;
 
     int outputSize;
-    int gridSize;
 
     float* d_output;
 
