@@ -3,8 +3,8 @@
 
 #include <cuda_runtime.h>
 
-#include "layer.cuh"
 #include "activation.cuh"
+#include "layer.cuh"
 
 namespace CUDANet::Layers {
 
@@ -20,6 +20,15 @@ class MaxPooling2D : public SequentialLayer {
     ~MaxPooling2D();
 
     float* forward(const float* d_input);
+
+    /**
+     * @brief Get the output width (/ height) of the layer
+     *
+     * @return int
+     */
+    int getOutputSize() {
+        return outputSize;
+    }
 
   private:
     int inputSize;

@@ -11,7 +11,8 @@ file(GLOB_RECURSE LIBRARY_SOURCES
     src/*.cu
     src/utils/*.cu
     src/kernels/*.cu
-    src/layers/*.cu)
+    src/layers/*.cu
+)
 
 set(LIBRARY_SOURCES
     ${LIBRARY_SOURCES}
@@ -19,7 +20,6 @@ set(LIBRARY_SOURCES
 
 set(CMAKE_CUDA_ARCHITECTURES 75)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-# set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -arch=sm_75)
 
 # Build static library
 add_library(${PROJECT_NAME} STATIC ${LIBRARY_SOURCES})

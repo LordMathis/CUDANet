@@ -15,7 +15,7 @@ MaxPooling2D::MaxPooling2D(
     : inputSize(inputSize), nChannels(nChannels), poolingSize(poolingSize), stride(stride) {
 
 
-    outputSize  = (inputSize - poolingSize) / stride + 1;
+    outputSize  = (inputSize - 1) / stride + 1;
 
     activation = Activation(
         activationType, outputSize * outputSize * nChannels
@@ -46,7 +46,7 @@ float* MaxPooling2D::forward(const float* d_input) {
     );
 
     Kernels::max_pooling<<<grid, block>>>(
-        d_input, d_output, inputSize, nChannels, poolingSize, stride
+        d_input, d_output, inputSize, outputSize, nChannels, poolingSize, stride
     );
 
     return d_output;

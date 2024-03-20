@@ -1,6 +1,6 @@
 import torch
 
-def conv2d(in_channels, out_channels, kernel_size, stride, padding, inputs, weights):
+def _conv2d(in_channels, out_channels, kernel_size, stride, padding, inputs, weights):
 
     conv2d = torch.nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, stride=stride, padding=padding, bias=False)
     conv2d.weight = torch.nn.Parameter(weights)
@@ -11,7 +11,7 @@ def conv2d(in_channels, out_channels, kernel_size, stride, padding, inputs, weig
     output = torch.flatten(output)
     return output
 
-def print_cpp_vector(vector):
+def _print_cpp_vector(vector):
     print("std::vector<float> expected = {", end="")
     for i in range(len(vector)):
         if i != 0:
@@ -20,7 +20,7 @@ def print_cpp_vector(vector):
     print("};")
 
 
-def gen_padded_test_result():
+def gen_convd_padded_test_result():
 
     in_channels = 3
     out_channels = 2
@@ -68,10 +68,10 @@ def gen_padded_test_result():
         0.011, 0.345, 0.678
     ], dtype=torch.float).reshape(2, 3, 3, 3)
 
-    output = conv2d(in_channels, out_channels, kernel_size, stride, padding, inputs, weights)
-    print_cpp_vector(output)
+    output = _conv2d(in_channels, out_channels, kernel_size, stride, padding, inputs, weights)
+    _print_cpp_vector(output)
 
-def gen_strided_test_result():
+def gen_convd_strided_test_result():
 
     in_channels = 2
     out_channels = 2
@@ -106,8 +106,8 @@ def gen_strided_test_result():
         0.939, 0.891, 0.006
     ], dtype=torch.float).reshape(2, 2, 3, 3)
 
-    output = conv2d(in_channels, out_channels, kernel_size, stride, padding, input, weights)
-    print_cpp_vector(output)
+    output = _conv2d(in_channels, out_channels, kernel_size, stride, padding, input, weights)
+    _print_cpp_vector(output)
 
 def gen_softmax_test_result():
     input = torch.tensor([
@@ -115,14 +115,33 @@ def gen_softmax_test_result():
     ])
 
     output = torch.nn.Softmax(dim=0)(input)
-    print_cpp_vector(output)
+    _print_cpp_vector(output)
+
+def gen_max_pool_test_result():
+    input = torch.tensor([
+        0.573, 0.619, 0.732, 0.055,
+        0.243, 0.316, 0.573, 0.619,
+        0.712, 0.055, 0.243, 0.316,
+        0.573, 0.619, 0.742, 0.055,
+        0.473, 0.919, 0.107, 0.073,
+        0.073, 0.362, 0.973, 0.059,
+        0.473, 0.455, 0.283, 0.416,
+        0.532, 0.819, 0.732, 0.850
+    ]).reshape(1, 2, 4, 4)
+
+    output = torch.nn.MaxPool2d(kernel_size=2, stride=2)(input)
+    output = torch.flatten(output)
+
+    _print_cpp_vector(output)
 
 
 if __name__ == "__main__":
-    print("Generating test results...")
-    print("Padded convolution test:")
-    gen_padded_test_result()
-    print("Strided convolution test:")
-    gen_strided_test_result()
-    print("Softmax test:")
-    gen_softmax_test_result()
+    # print("Generating test results...")
+    # print("Padded convolution test:")
+    # gen_convd_padded_test_result()
+    # print("Strided convolution test:")
+    # gen_convd_strided_test_result()
+    # print("Softmax test:")
+    # gen_softmax_test_result()
+    print("Max pool test:")
+    gen_max_pool_test_result()

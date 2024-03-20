@@ -43,7 +43,7 @@ float* AvgPooling2D::forward(const float* d_input) {
     );
 
     Kernels::avg_pooling<<<grid, block>>>(
-        d_input, d_output, inputSize, nChannels, poolingSize, stride
+        d_input, d_output, inputSize, outputSize, nChannels, poolingSize, stride
     );
 
     return d_output;

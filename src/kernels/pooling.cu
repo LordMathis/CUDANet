@@ -7,6 +7,7 @@ __global__ void Kernels::max_pooling(
     const float* __restrict__ d_input,
     float* __restrict__ d_output,
     const int inputSize,
+    const int outputSize,
     const int nChannels,
     const int poolingSize,
     const int stride
@@ -15,7 +16,7 @@ __global__ void Kernels::max_pooling(
     int i = blockDim.y * blockIdx.y + threadIdx.y;
     int c = blockDim.z * blockIdx.z + threadIdx.z;
 
-    if (i >= inputSize || j >= inputSize || c >= nChannels) {
+    if (i >= outputSize || j >= outputSize || c >= nChannels) {
         return;
     }
 
@@ -32,13 +33,14 @@ __global__ void Kernels::max_pooling(
         }
     }
 
-    d_output[c * inputSize * inputSize + i * inputSize + j] = max;
+    d_output[c * outputSize * outputSize + i * outputSize + j] = max;
 }
 
 __global__ void Kernels::avg_pooling(
     const float* __restrict__ d_input,
     float* __restrict__ d_output,
     const int inputSize,
+    const int outputSize,
     const int nChannels,
     const int poolingSize,
     const int stride
@@ -62,6 +64,6 @@ __global__ void Kernels::avg_pooling(
         }
     }
 
-    d_output[c * inputSize * inputSize + i * inputSize + j] =
+    d_output[c * outputSize * outputSize + i * outputSize + j] =
         sum / (poolingSize * poolingSize);
 }
