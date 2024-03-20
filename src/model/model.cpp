@@ -12,19 +12,20 @@ Model::Model(const int inputSize, const int inputChannels)
 
 
     const int inputLayerSize = inputSize * inputSize * inputChannels;
-    Layers::Input* inputLayer = new Layers::Input(inputLayerSize);
-    
-    layers.push_back(inputLayer);
+    inputLayer = new Layers::Input(inputLayerSize);
 };
 
 Model::~Model(){};
 
 float* Model::predict(const float* input) {
+
+    float* d_input = inputLayer->forward(input);
     
     for (auto& layer : layers) {
-        input = layer->forward(input);
+        d_input = layer->forward(d_input);
     }
 
+    return d_input;
 }
 
 void Model::addLayer(const std::string& name, Layers::SequentialLayer* layer) {

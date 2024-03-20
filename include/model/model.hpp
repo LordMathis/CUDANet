@@ -19,6 +19,8 @@ class Model {
 
   private:
 
+    Layers::Input *inputLayer;
+
     int inputSize;
     int inputChannels;
 
