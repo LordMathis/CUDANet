@@ -108,8 +108,14 @@ void Conv2d::toCuda() {
 
 float* Conv2d::forward(const float* d_input) {
     // Convolve
-    int THREADS_PER_BLOCK = outputSize * outputSize * numFilters;
-    Kernels::convolution<<<1, THREADS_PER_BLOCK>>>(
+    dim3 block(8,8,8);
+    dim3 grid(
+        (outputSize + block.x - 1) / block.x,
+        (outputSize + block.y - 1) / block.y,
+        (numFilters + block.z - 1) / block.z
+    );
+
+    Kernels::convolution<<<grid, block>>>(
         d_input, d_weights, d_output, inputSize, inputChannels, paddingSize,
         kernelSize, stride, numFilters, outputSize
     );

@@ -16,16 +16,13 @@ __global__ void Kernels::convolution(
     const int nFilters,
     const int outputSize
 ) {
-    int tid = blockDim.x * blockIdx.x + threadIdx.x;
+    int j = blockDim.x * blockIdx.x + threadIdx.x;
+    int i = blockDim.y * blockIdx.y + threadIdx.y;
+    int f = blockDim.z * blockIdx.z + threadIdx.z;
 
-    if (tid >= outputSize * outputSize * nFilters) {
+    if (i >= outputSize || j >= outputSize || f >= nFilters) {
         return;
     }
-
-    // Get output index
-    int f = tid / (outputSize * outputSize);
-    int i = tid % (outputSize * outputSize) / outputSize;
-    int j = tid % outputSize;
 
     float sum = 0.0f;
 
@@ -54,5 +51,5 @@ __global__ void Kernels::convolution(
         }
     }
 
-    d_output[tid] = sum;
+    d_output[f * outputSize * outputSize + i * outputSize + j] = sum;
 }
