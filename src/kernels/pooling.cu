@@ -1,6 +1,5 @@
-#include "pooling.cuh"
-
 #include "cuda_helper.cuh"
+#include "pooling.cuh"
 
 using namespace CUDANet;
 
@@ -12,24 +11,20 @@ __global__ void Kernels::max_pooling(
     const int poolingSize,
     const int stride
 ) {
-    int tid = blockDim.x * blockIdx.x + threadIdx.x;
-    if (tid >= inputSize * inputSize * nChannels) {
+    int j = blockDim.x * blockIdx.x + threadIdx.x;
+    int i = blockDim.y * blockIdx.y + threadIdx.y;
+    int c = blockDim.z * blockIdx.z + threadIdx.z;
+
+    if (i >= inputSize || j >= inputSize || c >= nChannels) {
         return;
     }
-
-    // Get output index
-    int c = tid / (inputSize * inputSize);
-    int i = tid % (inputSize * inputSize) / inputSize;
-    int j = tid % inputSize;
 
     float max = 0.0f;
 
     for (int k = 0; k < poolingSize; k++) {
         for (int l = 0; l < poolingSize; l++) {
-
             int inputIndex = c * inputSize * inputSize +
-                             (i * stride + k) * inputSize +
-                             (j * stride + l);
+                             (i * stride + k) * inputSize + (j * stride + l);
 
             if (d_input[inputIndex] > max) {
                 max = d_input[inputIndex];
@@ -37,7 +32,7 @@ __global__ void Kernels::max_pooling(
         }
     }
 
-    d_output[tid] = max;
+    d_output[c * inputSize * inputSize + i * inputSize + j] = max;
 }
 
 __global__ void Kernels::avg_pooling(
@@ -48,28 +43,25 @@ __global__ void Kernels::avg_pooling(
     const int poolingSize,
     const int stride
 ) {
-    int tid = blockDim.x * blockIdx.x + threadIdx.x;
-    if (tid >= inputSize * inputSize * nChannels) {
+    int j = blockDim.x * blockIdx.x + threadIdx.x;
+    int i = blockDim.y * blockIdx.y + threadIdx.y;
+    int c = blockDim.z * blockIdx.z + threadIdx.z;
+
+    if (i >= inputSize || j >= inputSize || c >= nChannels) {
         return;
     }
-
-    // Get output index
-    int c = tid / (inputSize * inputSize);
-    int i = tid % (inputSize * inputSize) / inputSize;
-    int j = tid % inputSize;
 
     float sum = 0.0f;
 
     for (int k = 0; k < poolingSize; k++) {
         for (int l = 0; l < poolingSize; l++) {
-
             int inputIndex = c * inputSize * inputSize +
-                             (i * stride + k) * inputSize +
-                             (j * stride + l);
+                             (i * stride + k) * inputSize + (j * stride + l);
 
             sum += d_input[inputIndex];
         }
     }
 
-    d_output[tid] = sum / (poolingSize * poolingSize);
+    d_output[c * inputSize * inputSize + i * inputSize + j] =
+        sum / (poolingSize * poolingSize);
 }

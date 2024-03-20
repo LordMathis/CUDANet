@@ -37,7 +37,15 @@ MaxPooling2D::~MaxPooling2D() {
 
 
 float* MaxPooling2D::forward(const float* d_input) {
-    Kernels::max_pooling<<<gridSize, BLOCK_SIZE>>>(
+
+    dim3 block(8,8,8);
+    dim3 grid(
+        (outputSize + block.x - 1) / block.x,
+        (outputSize + block.y - 1) / block.y,
+        (nChannels + block.z - 1) / block.z
+    );
+
+    Kernels::max_pooling<<<grid, block>>>(
         d_input, d_output, inputSize, nChannels, poolingSize, stride
     );
 
