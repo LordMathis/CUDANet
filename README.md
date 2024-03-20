@@ -9,8 +9,8 @@ Convolutional Neural Network inference library running on CUDA.
 - [x] Input layer
 - [x] Dense (fully-connected) layer
 - [x] Conv2d layer
-- [ ] Max pooling
-- [ ] Average pooling
+- [x] Max pooling
+- [x] Average pooling
 - [x] Concat layer
 - [x] Sigmoid activation
 - [x] ReLU activation
