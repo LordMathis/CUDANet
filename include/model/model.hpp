@@ -3,16 +3,18 @@
 
 #include <string>
 #include <vector>
-#include <map>
+#include <unordered_map>
 
 #include "layer.cuh"
 #include "input.cuh"
+#include "output.cuh"
 
 namespace CUDANet {
 
 class Model {
   public:
-    Model(const int inputSize, const int inputChannels);
+    Model(const int inputSize, const int inputChannels, const int outputSize);
+    Model(const Model& other);
     ~Model();
 
     float* predict(const float* input);
@@ -22,6 +24,7 @@ class Model {
   private:
 
     Layers::Input *inputLayer;
+    Layers::Output *outputLayer;
 
     int inputSize;
     int inputChannels;
@@ -29,7 +32,7 @@ class Model {
     int outputSize;
     
     std::vector<Layers::SequentialLayer*> layers;
-    std::map<std::string, Layers::WeightedLayer*> layerMap;
+    std::unordered_map<std::string, Layers::WeightedLayer*> layerMap;
 
 };
 
