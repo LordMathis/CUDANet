@@ -1,8 +1,6 @@
 #ifndef CUDANET_DENSE_LAYER_H
 #define CUDANET_DENSE_LAYER_H
 
-#include <functional>
-#include <string>
 #include <vector>
 
 #include "layer.cuh"

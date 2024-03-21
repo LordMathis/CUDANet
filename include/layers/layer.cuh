@@ -2,8 +2,6 @@
 #ifndef CUDANET_I_LAYER_H
 #define CUDANET_I_LAYER_H
 
-#include <vector>
-
 namespace CUDANet::Layers {
 
 /**

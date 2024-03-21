@@ -4,7 +4,9 @@
 #include <string>
 #include <vector>
 #include <map>
+
 #include "layer.cuh"
+#include "input.cuh"
 
 namespace CUDANet {
 

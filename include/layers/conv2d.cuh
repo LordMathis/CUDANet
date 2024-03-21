@@ -1,7 +1,6 @@
 #ifndef CUDANET_CONV_LAYER_H
 #define CUDANET_CONV_LAYER_H
 
-#include <string>
 #include <vector>
 
 #include "activation.cuh"

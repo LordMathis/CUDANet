@@ -1,0 +1,39 @@
+#ifndef CUDANET_OUTPUT_LAYER_H
+#define CUDANET_OUTPUT_LAYER_H
+
+#include "layer.cuh"
+
+namespace CUDANet::Layers {
+
+class Output : public SequentialLayer {
+    public:
+        /**
+         * @brief Create a new Output layer
+         * 
+         * @param inputSize Size of the input vector
+         */
+        explicit Output(int inputSize);
+
+        /**
+         * @brief Destroy the Output layer
+         * 
+         */
+        ~Output();
+
+        /**
+         * @brief Forward pass of the output layer. Just copies the input from device to host
+         * 
+         * @param input Device pointer to the input vector
+         * @return Host pointer to the output vector
+         */
+        float* forward(const float* input);
+
+    private:
+        int    inputSize;
+        float* h_output;
+};
+
+
+} // namespace CUDANet::Layers
+
+#endif  // CUDANET_OUTPUT_LAYER_H
