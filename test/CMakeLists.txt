@@ -5,6 +5,7 @@ file(GLOB_RECURSE TEST_SOURCES
     *.cu
     kernels/*.cu
     layers/*.cu
+    model/*.cpp
 )
 
 add_executable(test_main 

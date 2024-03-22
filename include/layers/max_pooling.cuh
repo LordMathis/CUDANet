@@ -1,8 +1,6 @@
 #ifndef CUDANET_MAX_POOLING_H
 #define CUDANET_MAX_POOLING_H
 
-#include <cuda_runtime.h>
-
 #include "activation.cuh"
 #include "layer.cuh"
 
