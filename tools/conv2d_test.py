@@ -1,5 +1,6 @@
 import torch
 
+from utils import print_cpp_vector
 
 def _conv2d(in_channels,
             out_channels,
@@ -22,29 +23,6 @@ def _conv2d(in_channels,
     # Print the output as cpp vector
     output = torch.flatten(output)
     return output
-
-
-def _print_cpp_vector(vector):
-    print("std::vector<float> expected = {", end="")
-    for i in range(len(vector)):
-        if i != 0:
-            print(", ", end="")
-        print(str(round(vector[i].item(), 5)) + "f", end="")
-    print("};")
-
-
-def _get_pool_input():
-    return torch.tensor([
-        0.573, 0.619, 0.732, 0.055,
-        0.243, 0.316, 0.573, 0.619,
-        0.712, 0.055, 0.243, 0.316,
-        0.573, 0.619, 0.742, 0.055,
-        0.473, 0.919, 0.107, 0.073,
-        0.073, 0.362, 0.973, 0.059,
-        0.473, 0.455, 0.283, 0.416,
-        0.532, 0.819, 0.732, 0.850
-    ]).reshape(1, 2, 4, 4)
-
 
 def gen_convd_padded_test_result():
 
@@ -101,7 +79,8 @@ def gen_convd_padded_test_result():
                      padding,
                      inputs,
                      weights)
-    _print_cpp_vector(output)
+    
+    print_cpp_vector(output)
 
 
 def gen_convd_strided_test_result():
@@ -146,36 +125,8 @@ def gen_convd_strided_test_result():
                      padding,
                      input,
                      weights)
-    _print_cpp_vector(output)
-
-
-def gen_softmax_test_result():
-    input = torch.tensor([
-        0.573, 0.619, 0.732, 0.055, 0.243
-    ])
-
-    output = torch.nn.Softmax(dim=0)(input)
-    _print_cpp_vector(output)
-
-
-def gen_max_pool_test_result():
-    input = _get_pool_input()
-
-    output = torch.nn.MaxPool2d(kernel_size=2, stride=2)(input)
-    output = torch.flatten(output)
-
-    _print_cpp_vector(output)
-
-
-def gen_avg_pool_test_result():
-
-    input = _get_pool_input()
-
-    output = torch.nn.AvgPool2d(kernel_size=2, stride=2)(input)
-    output = torch.flatten(output)
-
-    _print_cpp_vector(output)
-
+    
+    print_cpp_vector(output)
 
 if __name__ == "__main__":
     print("Generating test results...")
@@ -183,9 +134,3 @@ if __name__ == "__main__":
     gen_convd_padded_test_result()
     print("Strided convolution test:")
     gen_convd_strided_test_result()
-    print("Softmax test:")
-    gen_softmax_test_result()
-    print("Max pool test:")
-    gen_max_pool_test_result()
-    print("Avg pool test:")
-    gen_avg_pool_test_result()
