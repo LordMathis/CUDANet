@@ -1,5 +1,3 @@
-#include <cmath>
-
 #include "activation_functions.cuh"
 #include "cuda_helper.cuh"
 
@@ -40,7 +38,7 @@ __global__ void Kernels::softmax_exp(
     int tid    = blockDim.x * blockIdx.x + threadIdx.x;
 
     for (int i = tid; i < len; i += stride) {
-        dst[i] = std::exp(src[i]);
+        dst[i] = expf(src[i]);
     }
 }
 
@@ -50,7 +48,7 @@ __global__ void Kernels::softmax_sum(
     const unsigned int w
 ) {
     __shared__ float partial_sum[BLOCK_SIZE];
-    int i = blockIdx.x * blockDim.x * 2 + threadIdx.x;
+    int              i       = blockIdx.x * blockDim.x * 2 + threadIdx.x;
     partial_sum[threadIdx.x] = d_vector[i] + d_vector[i + blockDim.x];
     __syncthreads();
 
@@ -69,7 +67,7 @@ __global__ void Kernels::softmax_sum(
 __global__ void Kernels::softmax_div(
     const float* __restrict__ src,
     float* __restrict__ dst,
-    const float* __restrict__        sum,
+    const float* __restrict__ sum,
     const unsigned int len
 ) {
     int stride = gridDim.x * blockDim.x;
