@@ -2,6 +2,10 @@
 
 #include "cuda_helper.cuh"
 #include "activation_functions.cuh"
+#include "matmul.cuh"
+
+#include <iostream>
+#include <vector>
 
 using namespace CUDANet::Layers;
 
@@ -11,6 +15,9 @@ Activation::Activation(ActivationType activation, const unsigned int length)
     if (activationType == SOFTMAX) {
         d_softmax_sum = nullptr;
         CUDA_CHECK(cudaMalloc((void**)&d_softmax_sum, sizeof(float) * length));
+
+        d_max = nullptr;
+        CUDA_CHECK(cudaMalloc((void**)&d_max, sizeof(float) * length));
     }
 
     gridSize = (length + BLOCK_SIZE - 1) / BLOCK_SIZE;
@@ -37,6 +44,21 @@ void Activation::activate(float* __restrict__ d_input) {
             );
             break;
         case SOFTMAX:
+
+            // Find max value
+            Kernels::max_reduce<<<gridSize, BLOCK_SIZE>>>(
+                d_input, d_max
+            );
+            Kernels::max_reduce<<<1, BLOCK_SIZE>>>(
+                d_max, d_max
+            );
+
+            // Subtract max value to improve numerical stability
+            Kernels::vec_scalar_sub<<<gridSize, BLOCK_SIZE>>>(
+                d_input, d_max, d_input, length
+            );
+
+            // Compute softmax
             Kernels::softmax_exp<<<gridSize, BLOCK_SIZE>>>(
                 d_input, d_input, length
             );

@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "cuda_helper.cuh"
 #include "matmul.cuh"
 
 TEST(MatMulTest, MatVecMulTest) {
@@ -61,3 +62,31 @@ TEST(MatMulTest, MatVecMulTest) {
     }
 }
 
+TEST(MatMulTest, MaxReduceTest) {
+    cudaError_t cudaStatus;
+
+    std::vector<float> input = {0.643f, 0.912f, 0.723f, 0.587f, 0.155f, 0.932f, 0.391f, 0.279f, 0.846f, 0.788f};
+
+    float* d_input;
+    float* d_output;
+
+    cudaStatus = cudaMalloc((void**)&d_input, sizeof(float) * 10);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    cudaStatus = cudaMalloc((void**)&d_output, sizeof(float));
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    cudaStatus = cudaMemcpy(d_input, input.data(), sizeof(float) * 10, cudaMemcpyHostToDevice);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    const int grid_size = (10 + BLOCK_SIZE - 1) / BLOCK_SIZE;
+
+    CUDANet::Kernels::max_reduce<<<grid_size, BLOCK_SIZE>>>(d_input, d_output);
+    CUDANet::Kernels::max_reduce<<<1, BLOCK_SIZE>>>(d_output, d_output);
+
+    std::vector<float> output(10);
+    cudaStatus = cudaMemcpy(output.data(), d_output, sizeof(float), cudaMemcpyDeviceToHost);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    EXPECT_EQ(output[0], 0.932f);
+}

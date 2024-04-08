@@ -50,6 +50,7 @@ class Activation {
     unsigned int gridSize;
 
     float* d_softmax_sum;
+    float* d_max;
 
 };
 

@@ -52,7 +52,7 @@ TEST(Model, TestModelPredict) {
 
     // dense
     CUDANet::Layers::Dense dense(
-        18, 6, CUDANet::Layers::ActivationType::NONE
+        18, 6, CUDANet::Layers::ActivationType::SOFTMAX
     );
     // dense weights 18*6
     std::vector<float> denseWeights = {
@@ -93,13 +93,14 @@ TEST(Model, TestModelPredict) {
 
     // predict
     const float* output = model.predict(input.data());
+    float sum = 0.0f;
 
     // float sum = 0.0f;
     for (int i = 0; i < outputSize; ++i) {
-        // sum += output[i];
+        sum += output[i];
         std::cout << output[i] << " ";
     }
-    // EXPECT_NEAR(sum, 1.0f, 1e-5f);
-
     std::cout << std::endl;
+
+    EXPECT_NEAR(sum, 1.0f, 1e-5f);
 }
