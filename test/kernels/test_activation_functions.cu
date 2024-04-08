@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "activation_functions.cuh"
+#include "cuda_helper.cuh"
 
 TEST(ActivationFunctionsTest, SigmoidSanityCheck) {
     cudaError_t cudaStatus;
@@ -89,12 +90,46 @@ TEST(ActivationFunctionsTest, SoftmaxExpTest) {
 TEST(ActivationFunctionsTest, SoftmaxSumTest) {
     cudaError_t cudaStatus;
 
-    std::vector<float> input = {5886928896.0f,     1.06102872080384e+16f,
-                                28771323215872.0f, 2204012904448.0f,
-                                308226162688.0f,   63922983927808.0f};
+    const int n = 10;
+    std::vector<float> input(n);
+    for (int i = 0; i < n; i++) {
+        input[i] = i;
+    }
+
+    const float expected = n * (n - 1) / 2;
 
     float* d_input;
+    float* d_sum;
 
-    cudaStatus = cudaMalloc((void**)&d_input, sizeof(float) * 6);
+    const int gridSize = (n + BLOCK_SIZE - 1) / BLOCK_SIZE;
+
+    cudaStatus = cudaMalloc((void**)&d_input, sizeof(float) * n);
     EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    cudaStatus = cudaMalloc((void**)&d_sum, sizeof(float) * n);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    cudaStatus =
+        cudaMemcpy(d_input, input.data(), sizeof(float) * n, cudaMemcpyHostToDevice);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    CUDANet::Kernels::softmax_sum<<<gridSize, BLOCK_SIZE>>>(
+        d_input, d_sum
+    );
+
+    CUDANet::Kernels::softmax_sum<<<1, BLOCK_SIZE>>>(
+        d_sum, d_sum
+    );
+
+    CUDANet::Kernels::softmax_sum<<<1, BLOCK_SIZE>>>(
+        d_sum, d_sum
+    );
+
+    std::vector<float> sum(n);
+    cudaStatus = cudaMemcpy(
+        sum.data(), d_sum, sizeof(float) * n, cudaMemcpyDeviceToHost
+    );
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    EXPECT_FLOAT_EQ(expected, sum[0]);    
 }

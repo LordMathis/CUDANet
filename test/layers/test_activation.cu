@@ -58,6 +58,8 @@ TEST(ActivationTest, SoftmaxTest2) {
         EXPECT_NEAR(output[i], expected[i], 1e-5f);
     }
 
+    std::cout << sum << std::endl;
+
     EXPECT_NEAR(sum, 1.0f, 1e-5f);
 
     cudaFree(d_input);

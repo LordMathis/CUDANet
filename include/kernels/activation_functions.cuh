@@ -51,8 +51,7 @@ __global__ void softmax_exp(
  */
 __global__ void softmax_sum(
     const float* __restrict__ d_vector,
-    float* __restrict__ d_output,
-    const unsigned int w
+    float* __restrict__ d_output
 );
 
 /**

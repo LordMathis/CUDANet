@@ -44,15 +44,14 @@ __global__ void Kernels::softmax_exp(
 
 __global__ void Kernels::softmax_sum(
     const float* __restrict__ d_vector,
-    float* __restrict__ d_output,
-    const unsigned int w
+    float* __restrict__ d_output
 ) {
     __shared__ float partial_sum[BLOCK_SIZE];
-    int              i       = blockIdx.x * blockDim.x * 2 + threadIdx.x;
-    partial_sum[threadIdx.x] = d_vector[i] + d_vector[i + blockDim.x];
+    int i       = blockIdx.x * blockDim.x + threadIdx.x;
+    partial_sum[threadIdx.x] = d_vector[i];
     __syncthreads();
 
-    for (unsigned int s = blockDim.x / 2; s > 0; s >>= 1) {
+    for (int s = blockDim.x / 2; s > 0; s >>= 1) {
         if (threadIdx.x < s) {
             partial_sum[threadIdx.x] += partial_sum[threadIdx.x + s];
         }

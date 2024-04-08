@@ -42,12 +42,12 @@ void Activation::activate(float* __restrict__ d_input) {
             );
 
             Kernels::softmax_sum<<<gridSize, BLOCK_SIZE>>>(
-                d_input, d_softmax_sum, length
+                d_input, d_softmax_sum
             );
 
             Kernels::softmax_sum<<<1, BLOCK_SIZE>>>(
-                d_softmax_sum, d_softmax_sum, length
-            );
+                d_softmax_sum, d_softmax_sum
+            ); 
 
             Kernels::softmax_div<<<gridSize, BLOCK_SIZE>>>(
                 d_input, d_input, d_softmax_sum, length
