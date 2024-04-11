@@ -105,11 +105,9 @@ TEST(Model, TestModelPredict) {
     // float sum = 0.0f;
     for (int i = 0; i < outputSize; ++i) {
         sum += output[i];
-        std::cout << output[i] << " ";
     }
-    std::cout << std::endl;
 
-    EXPECT_NEAR(sum, 1.0f, 1e-2f);
+    EXPECT_NEAR(sum, 1.0f, 1e-5f);
 
     cudaDeviceReset();
 }

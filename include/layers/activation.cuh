@@ -28,7 +28,7 @@ class Activation {
      * @param activation Type of activation
      * @param length     Length of the input
      */
-    Activation(ActivationType activation, const unsigned int length);
+    Activation(ActivationType activation, const int length);
 
     /**
      * @brief Destroy the Activation object
@@ -46,8 +46,8 @@ class Activation {
 
   private:
     ActivationType activationType;
-    unsigned int length;
-    unsigned int gridSize;
+    int length;
+    int gridSize;
 
     float* d_softmax_sum;
     float* d_max;

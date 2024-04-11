@@ -47,21 +47,3 @@ TEST(ActivationFunctionsTest, SigmoidSanityCheck) {
 
     cudaDeviceReset();
 }
-
-// void print_vec(float* d_vec, int length) {
-
-//     std::vector<float> h_vec(length);
-//     CUDA_CHECK(cudaMemcpy(
-//         h_vec.data(), d_vec, sizeof(float) * length, cudaMemcpyDeviceToHost
-//     ));
-
-//     float sum = 0.0f;
-
-//     for (int i = 0; i < length; ++i) {
-//         std::cout << h_vec[i] << ", ";
-//         sum += h_vec[i];
-//     }
-
-//     std::cout << std::endl;
-
-// }

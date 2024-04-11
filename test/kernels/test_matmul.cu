@@ -61,7 +61,7 @@ TEST(MatMulTest, MatVecMulTest) {
         for (int j = 0; j < w; j++) {
             sum += matrix[i * w + j] * vector[j];
         }
-        EXPECT_NEAR(sum, output_gpu[i], 1e-5);
+        EXPECT_NEAR(sum, output_gpu[i], 1e-5f);
     }
 
     cudaFree(d_matrix);
@@ -151,7 +151,7 @@ TEST(MatMulTest, VecExpTest) {
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
     for (int i = 0; i < 6; i++) {
-        EXPECT_NEAR(expected[i], output[i], 1e7);
+        EXPECT_NEAR(expected[i], output[i], 1e7f);
     }
 
     cudaFree(d_input);
@@ -193,7 +193,6 @@ TEST(MatMulTest, SumReduceTest) {
 
     int remaining = gridSize;
     while (remaining > 1) {
-        std::cout << remaining << std::endl;
         int blocks_needed = (remaining + BLOCK_SIZE - 1) / BLOCK_SIZE;
         CUDANet::Kernels::sum_reduce<<<blocks_needed, BLOCK_SIZE>>>(d_sum, d_sum, remaining);
         remaining = blocks_needed;

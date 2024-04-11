@@ -50,7 +50,6 @@ void Utils::sum(float* d_vec, float* d_sum, const unsigned int length) {
 
     int remaining = gridSize;
     while (remaining > 1) {
-        std::cout << remaining << std::endl;
         int blocks_needed = (remaining + BLOCK_SIZE - 1) / BLOCK_SIZE;
         CUDANet::Kernels::sum_reduce<<<blocks_needed, BLOCK_SIZE>>>(d_sum, d_sum, remaining);
         remaining = blocks_needed;

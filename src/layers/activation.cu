@@ -1,23 +1,22 @@
-#include "activation.cuh"
-
-#include "cuda_helper.cuh"
-#include "activation_functions.cuh"
-#include "matmul.cuh"
-
 #include <iostream>
 #include <vector>
 
+#include "activation.cuh"
+#include "activation_functions.cuh"
+#include "cuda_helper.cuh"
+#include "matmul.cuh"
+#include "vector.cuh"
+
 using namespace CUDANet::Layers;
 
-Activation::Activation(ActivationType activation, const unsigned int length)
+Activation::Activation(ActivationType activation, const int length)
     : activationType(activation), length(length) {
-
     if (activationType == SOFTMAX) {
-        d_softmax_sum = nullptr;
-        CUDA_CHECK(cudaMalloc((void**)&d_softmax_sum, sizeof(float) * length));
-
         d_max = nullptr;
         CUDA_CHECK(cudaMalloc((void**)&d_max, sizeof(float) * length));
+
+        d_softmax_sum = nullptr;
+        CUDA_CHECK(cudaMalloc((void**)&d_softmax_sum, sizeof(float) * length));
     }
 
     gridSize = (length + BLOCK_SIZE - 1) / BLOCK_SIZE;
@@ -26,10 +25,13 @@ Activation::Activation(ActivationType activation, const unsigned int length)
 Activation::~Activation() {
     if (activationType == SOFTMAX) {
         cudaFree(d_softmax_sum);
+        cudaFree(d_max);
     }
 }
 
-void Activation::activate(float* __restrict__ d_input) {
+void Activation::activate(float* d_input) {
+
+    // float sum = 0.0f;
 
     switch (activationType) {
         case SIGMOID:
@@ -39,44 +41,36 @@ void Activation::activate(float* __restrict__ d_input) {
             break;
 
         case RELU:
-            Kernels::relu<<<gridSize, BLOCK_SIZE>>>(
-                d_input, d_input, length
-            );
+            Kernels::relu<<<gridSize, BLOCK_SIZE>>>(d_input, d_input, length);
             break;
         case SOFTMAX:
 
             // Find max value
-            Kernels::max_reduce<<<gridSize, BLOCK_SIZE>>>(
-                d_input, d_max
-            );
-            Kernels::max_reduce<<<1, BLOCK_SIZE>>>(
-                d_max, d_max
-            );
+            Utils::max(d_input, d_max, length);
 
             // Subtract max value to improve numerical stability
             Kernels::vec_scalar_sub<<<gridSize, BLOCK_SIZE>>>(
-                d_input, d_max, d_input, length
+                d_input, d_input, d_max, length
             );
 
-            // Compute softmax
-            Kernels::softmax_exp<<<gridSize, BLOCK_SIZE>>>(
+            // Compute exponentials
+            Kernels::vec_exp<<<gridSize, BLOCK_SIZE>>>(
                 d_input, d_input, length
             );
 
-            Kernels::softmax_sum<<<gridSize, BLOCK_SIZE>>>(
-                d_input, d_softmax_sum
-            );
+            // Find sum
+            Utils::sum(d_input, d_softmax_sum, length);
 
-            Kernels::softmax_sum<<<1, BLOCK_SIZE>>>(
-                d_softmax_sum, d_softmax_sum
-            ); 
-
-            Kernels::softmax_div<<<gridSize, BLOCK_SIZE>>>(
+            Kernels::vec_scalar_div<<<gridSize, BLOCK_SIZE>>>(
                 d_input, d_input, d_softmax_sum, length
             );
+
             break;
 
         default:
-            break;
+            break;    
     }
+
+    cudaDeviceSynchronize();
 }
+

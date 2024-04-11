@@ -242,20 +242,13 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixSoftmax) {
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
     std::vector<float> expected = {0.17124f, 0.28516f, 0.22208f, 0.32152f};
-    // std::vector<float> expected = {0.46f, 0.97f, 0.72f, 1.09f};
 
     float sum = 0.0f;
 
     for (int i = 0; i < outputSize; ++i) {
-        std::cout << output[i] << ", ";
-    }
-    std::cout << std::endl;
-
-    for (int i = 0; i < outputSize; ++i) {
         sum += output[i];
-        EXPECT_NEAR(output[i], expected[i], 1e-5);
+        EXPECT_NEAR(output[i], expected[i], 1e-5f);
     }
-    std::cout << std::endl;
 
     EXPECT_NEAR(sum, 1.0f, 1e-5f);
 

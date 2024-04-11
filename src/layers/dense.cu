@@ -23,8 +23,6 @@ Dense::Dense(
     weights.resize(outputSize * inputSize);
     biases.resize(outputSize);
 
-    activation = Activation(activationType, outputSize);
-
     initializeWeights();
     initializeBiases();
 
@@ -46,6 +44,8 @@ Dense::Dense(
     forwardGridSize =
         (std::max(inputSize, outputSize) + BLOCK_SIZE - 1) / BLOCK_SIZE;
     biasGridSize = (outputSize + BLOCK_SIZE - 1) / BLOCK_SIZE;
+
+    activation = Activation(activationType, outputSize);
 }
 
 Dense::~Dense() {
