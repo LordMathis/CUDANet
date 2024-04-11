@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "cuda_helper.cuh"
+#include "vector.cuh"
 #include "matmul.cuh"
 
 TEST(MatMulTest, MatVecMulTest) {
@@ -45,7 +46,7 @@ TEST(MatMulTest, MatVecMulTest) {
     int THREADS_PER_BLOCK = std::max(w, h);
     int BLOCKS            = 1;
 
-    CUDANet::Kernels::clear<<<BLOCKS, h>>>(d_output, h);
+    CUDANet::Utils::clear(d_output, h);
 
     CUDANet::Kernels::mat_vec_mul<<<BLOCKS, THREADS_PER_BLOCK, sizeof(float) * w>>>(d_matrix, d_vector, d_output, w, h);
     cudaStatus = cudaDeviceSynchronize();
@@ -197,6 +198,7 @@ TEST(MatMulTest, SumReduceTest) {
         CUDANet::Kernels::sum_reduce<<<blocks_needed, BLOCK_SIZE>>>(d_sum, d_sum, remaining);
         remaining = blocks_needed;
     }
+
 
     std::vector<float> sum(n);
     cudaStatus = cudaMemcpy(

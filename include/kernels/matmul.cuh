@@ -103,12 +103,6 @@ __global__ void sum_reduce(
     const unsigned int len
 );
 
-
-__global__ void clear(
-    float* __restrict__ d_vector,
-    const unsigned int len
-);
-
 }  // namespace CUDANet::Kernels
 
 #endif  // CUDANET_MATMUL_H

@@ -95,18 +95,6 @@ __global__ void Kernels::vec_exp(
 }
 
 
-__global__ void Kernels::clear(
-    float* __restrict__ d_vector,
-    const unsigned int w
-) {
-    int tid = blockDim.x * blockIdx.x + threadIdx.x;
-    if (tid >= w) {
-        return;
-    }
-    d_vector[tid] = 0.0f;
-}
-
-
 __global__ void Kernels::max_reduce(
     const float* __restrict__ d_vector,
     float* __restrict__ d_output,

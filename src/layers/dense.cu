@@ -5,6 +5,7 @@
 #include <functional>
 #include <iostream>
 
+#include "vector.cuh"
 #include "activation.cuh"
 #include "cuda_helper.cuh"
 #include "dense.cuh"
@@ -63,6 +64,9 @@ void Dense::initializeBiases() {
 }
 
 float* Dense::forward(const float* d_input) {
+
+    CUDANet::Utils::clear(d_output, outputSize);
+
     Kernels::mat_vec_mul<<<forwardGridSize, BLOCK_SIZE>>>(
         d_weights, d_input, d_output, inputSize, outputSize
     );
