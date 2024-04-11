@@ -73,33 +73,141 @@ TEST(MatMulTest, MatVecMulTest) {
 TEST(MatMulTest, MaxReduceTest) {
     cudaError_t cudaStatus;
 
-    std::vector<float> input = {0.643f, 0.912f, 0.723f, 0.587f, 0.155f, 0.932f, 0.391f, 0.279f, 0.846f, 0.788f};
+    const int n = 1 << 16;
+
+    std::vector<float> input(n);
+    for (int i = 0; i < n; i++) {
+        input[i] = i;
+    }
 
     float* d_input;
     float* d_output;
 
-    cudaStatus = cudaMalloc((void**)&d_input, sizeof(float) * 10);
+    cudaStatus = cudaMalloc((void**)&d_input, sizeof(float) * n);
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
     cudaStatus = cudaMalloc((void**)&d_output, sizeof(float));
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
-    cudaStatus = cudaMemcpy(d_input, input.data(), sizeof(float) * 10, cudaMemcpyHostToDevice);
+    cudaStatus = cudaMemcpy(d_input, input.data(), sizeof(float) * n, cudaMemcpyHostToDevice);
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
-    const int grid_size = (10 + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    const int grid_size = (n + BLOCK_SIZE - 1) / BLOCK_SIZE;
 
-    CUDANet::Kernels::max_reduce<<<grid_size, BLOCK_SIZE>>>(d_input, d_output);
-    CUDANet::Kernels::max_reduce<<<1, BLOCK_SIZE>>>(d_output, d_output);
+    CUDANet::Kernels::max_reduce<<<grid_size, BLOCK_SIZE>>>(d_input, d_output, n);
 
-    std::vector<float> output(10);
+    int remaining = grid_size;
+    while (remaining > 1) {
+        int blocks_needed = (remaining + BLOCK_SIZE - 1) / BLOCK_SIZE;
+        CUDANet::Kernels::max_reduce<<<blocks_needed, BLOCK_SIZE>>>(d_output, d_output, remaining);
+        remaining = blocks_needed;
+    }
+
+    std::vector<float> output(n);
     cudaStatus = cudaMemcpy(output.data(), d_output, sizeof(float), cudaMemcpyDeviceToHost);
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
-    EXPECT_EQ(output[0], 0.932f);
+    EXPECT_EQ(output[0], 65535.0f);
 
     cudaFree(d_input);
     cudaFree(d_output);
+
+    cudaDeviceReset();
+}
+
+TEST(MatMulTest, VecExpTest) {
+    cudaError_t cudaStatus;
+
+    float input[6] = {22.496f,  36.9006f, 30.9904f,
+                      28.4213f, 26.4541f, 31.7887f};
+
+    std::vector<float> expected = {5886928896.0f,     1.06102872080384e+16f,
+                                   28771323215872.0f, 2204012904448.0f,
+                                   308226162688.0f,   63922983927808.0f};
+
+    float* d_input;
+    float* d_output;
+
+    cudaStatus = cudaMalloc((void**)&d_input, sizeof(float) * 6);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    cudaStatus = cudaMalloc((void**)&d_output, sizeof(float) * 6);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    cudaStatus =
+        cudaMemcpy(d_input, input, sizeof(float) * 6, cudaMemcpyHostToDevice);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    CUDANet::Kernels::vec_exp<<<1, 6>>>(d_input, d_output, 6);
+    cudaStatus = cudaDeviceSynchronize();
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    std::vector<float> output(6);
+
+    cudaStatus = cudaMemcpy(
+        output.data(), d_output, sizeof(float) * 6, cudaMemcpyDeviceToHost
+    );
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    for (int i = 0; i < 6; i++) {
+        EXPECT_NEAR(expected[i], output[i], 1e7);
+    }
+
+    cudaFree(d_input);
+    cudaFree(d_output);
+
+    cudaDeviceReset();
+}
+
+TEST(MatMulTest, SumReduceTest) {
+    cudaError_t cudaStatus;
+
+    const int n = 1 << 16;
+
+    std::vector<float> input(n);
+    for (int i = 0; i < n; i++) {
+        input[i] = 1.0f;
+    }
+
+    const float expected = n;
+
+    float* d_input = nullptr;
+    float* d_sum = nullptr;
+
+    const int gridSize = (n + BLOCK_SIZE - 1) / BLOCK_SIZE;
+
+    cudaStatus = cudaMalloc((void**)&d_input, sizeof(float) * n);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    cudaStatus = cudaMalloc((void**)&d_sum, sizeof(float) * n);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    cudaStatus =
+        cudaMemcpy(d_input, input.data(), sizeof(float) * n, cudaMemcpyHostToDevice);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    CUDANet::Kernels::sum_reduce<<<gridSize, BLOCK_SIZE>>>(
+        d_input, d_sum, n
+    );
+
+    int remaining = gridSize;
+    while (remaining > 1) {
+        std::cout << remaining << std::endl;
+        int blocks_needed = (remaining + BLOCK_SIZE - 1) / BLOCK_SIZE;
+        CUDANet::Kernels::sum_reduce<<<blocks_needed, BLOCK_SIZE>>>(d_sum, d_sum, remaining);
+        remaining = blocks_needed;
+    }
+
+    std::vector<float> sum(n);
+    cudaStatus = cudaMemcpy(
+        sum.data(), d_sum, sizeof(float) * n, cudaMemcpyDeviceToHost
+    );
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    EXPECT_FLOAT_EQ(expected, sum[0]);    
+
+    cudaFree(d_input);
+    cudaFree(d_sum);
 
     cudaDeviceReset();
 }
