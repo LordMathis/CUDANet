@@ -84,3 +84,14 @@ __global__ void Kernels::vec_scalar_sub(
     }
     d_output[tid] = d_vector[tid] - d_scalar[0];
 }
+
+__global__ void Kernels::clear(
+    float* __restrict__ d_vector,
+    const unsigned int w
+) {
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
+    if (tid >= w) {
+        return;
+    }
+    d_vector[tid] = 0.0f;
+}

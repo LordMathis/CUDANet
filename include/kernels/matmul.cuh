@@ -62,6 +62,11 @@ __global__ void vec_scalar_sub(
     const unsigned int w
 );
 
+__global__ void clear(
+    float* __restrict__ d_vector,
+    const unsigned int w
+);
+
 }  // namespace CUDANet::Kernels
 
 #endif  // CUDANET_MATMUL_H
