@@ -67,4 +67,6 @@ TEST(MaxPoolingLayerTest, MaxPoolForwardTest) {
 
     cudaFree(d_input);
     cudaFree(d_output);
+
+    cudaDeviceReset();
 }

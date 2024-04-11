@@ -21,4 +21,7 @@ TEST(OutputLayerTest, OutputForward) {
     for (int i = 0; i < 6; ++i) {
         EXPECT_EQ(input[i], h_output[i]);
     }
+
+    cudaFree(d_input);
+    cudaDeviceReset();
 }

@@ -14,4 +14,6 @@ TEST(InputLayerTest, InputForward) {
     );
     EXPECT_EQ(cudaStatus, cudaSuccess);
     EXPECT_EQ(input, output);
+
+    cudaDeviceReset();
 }

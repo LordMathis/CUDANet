@@ -45,6 +45,8 @@ TEST(MatMulTest, MatVecMulTest) {
     int THREADS_PER_BLOCK = std::max(w, h);
     int BLOCKS            = 1;
 
+    CUDANet::Kernels::clear<<<BLOCKS, h>>>(d_output, h);
+
     CUDANet::Kernels::mat_vec_mul<<<BLOCKS, THREADS_PER_BLOCK, sizeof(float) * w>>>(d_matrix, d_vector, d_output, w, h);
     cudaStatus = cudaDeviceSynchronize();
     EXPECT_EQ(cudaStatus, cudaSuccess);
@@ -60,6 +62,12 @@ TEST(MatMulTest, MatVecMulTest) {
         }
         EXPECT_NEAR(sum, output_gpu[i], 1e-5);
     }
+
+    cudaFree(d_matrix);
+    cudaFree(d_vector);
+    cudaFree(d_output);
+
+    cudaDeviceReset();
 }
 
 TEST(MatMulTest, MaxReduceTest) {
@@ -89,4 +97,9 @@ TEST(MatMulTest, MaxReduceTest) {
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
     EXPECT_EQ(output[0], 0.932f);
+
+    cudaFree(d_input);
+    cudaFree(d_output);
+
+    cudaDeviceReset();
 }

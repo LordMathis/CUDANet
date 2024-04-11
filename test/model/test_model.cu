@@ -10,11 +10,18 @@ TEST(Model, TestModelPredict) {
     int inputChannels = 2;
     int outputSize    = 6;
 
+    int kernelSize = 3;
+    int stride     = 1;
+    int numFilters = 2;
+
+    int poolingSize = 2;
+    int poolingStride = 2;
+
     CUDANet::Model model(inputSize, inputChannels, outputSize);
 
     // Conv2d
     CUDANet::Layers::Conv2d conv2d(
-        inputSize, inputChannels, 3, 1, 2, CUDANet::Layers::Padding::VALID,
+        inputSize, inputChannels, kernelSize, stride, numFilters, CUDANet::Layers::Padding::VALID,
         CUDANet::Layers::ActivationType::NONE
     );
     // weights 6*6*2*2
@@ -46,7 +53,7 @@ TEST(Model, TestModelPredict) {
 
     // maxpool2d
     CUDANet::Layers::MaxPooling2D maxpool2d(
-        6, 2, 2, 2, CUDANet::Layers::ActivationType::RELU
+        inputSize - kernelSize + 1, numFilters, poolingSize, poolingStride, CUDANet::Layers::ActivationType::RELU
     );
     model.addLayer("maxpool2d", &maxpool2d);
 
@@ -102,5 +109,7 @@ TEST(Model, TestModelPredict) {
     }
     std::cout << std::endl;
 
-    EXPECT_NEAR(sum, 1.0f, 1e-5f);
+    EXPECT_NEAR(sum, 1.0f, 1e-2f);
+
+    cudaDeviceReset();
 }

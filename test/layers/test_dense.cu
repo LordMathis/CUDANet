@@ -41,6 +41,7 @@ class DenseLayerTest : public ::testing::Test {
     void commonTestTeardown(float* d_input) {
         // Free device memory
         cudaFree(d_input);
+        cudaDeviceReset();
     }
 
     cudaError_t cudaStatus;
@@ -199,10 +200,6 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixSigmoid) {
     );
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
-    // weights * input = 0.95, 0.43, 0.45, 0.93
-    // + biases = 1.05, 0.63, 0.75, 1.33
-    // sigmoid = 0.740775, 0.652489, 0.679179, 0.790841
-
     std::vector<float> expectedOutput = {
         0.740775f, 0.652489f, 0.679179f, 0.790841f
     };
@@ -212,4 +209,56 @@ TEST_F(DenseLayerTest, ForwardRandomWeightMatrixSigmoid) {
     }
 
     commonTestTeardown(d_input);
+}
+
+TEST_F(DenseLayerTest, ForwardRandomWeightMatrixSoftmax) {
+    int inputSize  = 5;
+    int outputSize = 4;
+
+    std::vector<float> input = {0.1f, 0.2f, 0.3f, 0.4f, 0.5f};
+    std::vector<float> weights = {
+        0.5f, 0.1f, 0.1f, 0.4f, 0.2f,
+        0.4f, 0.3f, 0.9f, 0.0f, 0.8f,
+        0.8f, 0.4f, 0.6f, 0.2f, 0.0f,
+        0.1f, 0.7f, 0.3f, 1.0f, 0.1f
+    };
+    std::vector<float> biases = {0.1f, 0.2f, 0.3f, 0.4f};
+
+    float* d_input;
+    float* d_output;
+
+    CUDANet::Layers::Dense denseLayer = commonTestSetup(
+        inputSize, outputSize, input, weights.data(), biases.data(), d_input,
+        CUDANet::Layers::ActivationType::SOFTMAX
+    );
+
+    d_output = denseLayer.forward(d_input);
+
+    std::vector<float> output(outputSize);
+    cudaStatus = cudaMemcpy(
+        output.data(), d_output, sizeof(float) * outputSize,
+        cudaMemcpyDeviceToHost
+    );
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    std::vector<float> expected = {0.17124f, 0.28516f, 0.22208f, 0.32152f};
+    // std::vector<float> expected = {0.46f, 0.97f, 0.72f, 1.09f};
+
+    float sum = 0.0f;
+
+    for (int i = 0; i < outputSize; ++i) {
+        std::cout << output[i] << ", ";
+    }
+    std::cout << std::endl;
+
+    for (int i = 0; i < outputSize; ++i) {
+        sum += output[i];
+        EXPECT_NEAR(output[i], expected[i], 1e-5);
+    }
+    std::cout << std::endl;
+
+    EXPECT_NEAR(sum, 1.0f, 1e-5f);
+
+    commonTestTeardown(d_input);
+
 }
