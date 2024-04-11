@@ -43,5 +43,7 @@ float* AvgPooling2D::forward(const float* d_input) {
         d_input, d_output, inputSize, outputSize, nChannels, poolingSize, stride
     );
 
+    activation.activate(d_output);
+
     return d_output;
 }
