@@ -25,7 +25,13 @@ Model::Model(const Model& other)
     outputLayer = new Layers::Output(*other.outputLayer);
 }
 
-Model::~Model(){};
+Model::~Model(){
+    delete inputLayer;
+    delete outputLayer;
+    for (auto layer : layers) {
+        delete layer;
+    }
+};
 
 float* Model::predict(const float* input) {
     float* d_input = inputLayer->forward(input);
