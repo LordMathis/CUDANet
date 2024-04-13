@@ -1,6 +1,3 @@
-#include <iostream>
-#include <string>
-
 #include "activation.cuh"
 #include "conv2d.cuh"
 #include "convolution.cuh"

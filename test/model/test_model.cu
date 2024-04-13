@@ -5,60 +5,78 @@
 #include "max_pooling.cuh"
 #include "model.hpp"
 
-TEST(Model, TestModelPredict) {
-    int inputSize     = 6;
-    int inputChannels = 2;
-    int outputSize    = 3;
+class ModelTest : public ::testing::Test {
+    protected:
+        CUDANet::Model* commonTestSetup(
+            int inputSize     = 6,
+            int inputChannels = 2,
+            int outputSize    = 3,
 
-    int kernelSize = 3;
-    int stride     = 1;
-    int numFilters = 2;
+            int kernelSize = 3,
+            int stride     = 1,
+            int numFilters = 2,
 
-    int poolingSize = 2;
-    int poolingStride = 2;
+            int poolingSize = 2,
+            int poolingStride = 2
+        ) {
 
-    CUDANet::Model model(inputSize, inputChannels, outputSize);
+            CUDANet::Model *model = new CUDANet::Model(inputSize, inputChannels, outputSize);
 
-    // Conv2d
-    CUDANet::Layers::Conv2d conv2d(
-        inputSize, inputChannels, kernelSize, stride, numFilters, CUDANet::Layers::Padding::VALID,
-        CUDANet::Layers::ActivationType::NONE
-    );
-    // weights 6*6*2*2
-    std::vector<float> conv2dWeights = {
-        0.18313f, 0.53363f, 0.39527f, 0.27575f, 0.3433f,  0.41746f,
-        0.16831f, 0.61693f, 0.54599f, 0.99692f, 0.77127f, 0.25146f,
-        0.4206f,  0.16291f, 0.93484f, 0.79765f, 0.74982f, 0.78336f,
-        0.6386f,  0.87744f, 0.33587f, 0.9691f,  0.68437f, 0.65098f,
-        0.48153f, 0.97546f, 0.8026f,  0.36689f, 0.98152f, 0.37351f,
-        0.68407f, 0.2684f,  0.2855f,  0.76195f, 0.67828f, 0.603f
-    };
-    conv2d.setWeights(conv2dWeights.data());
-    model.addLayer("conv2d", &conv2d);
+            // Conv2d
+            CUDANet::Layers::Conv2d *conv2d = new CUDANet::Layers::Conv2d(
+                inputSize, inputChannels, kernelSize, stride, numFilters, CUDANet::Layers::Padding::VALID,
+                CUDANet::Layers::ActivationType::NONE
+            );
+            // weights 6*6*2*2
+            std::vector<float> conv2dWeights = {
+                0.18313f, 0.53363f, 0.39527f, 0.27575f, 0.3433f,  0.41746f,
+                0.16831f, 0.61693f, 0.54599f, 0.99692f, 0.77127f, 0.25146f,
+                0.4206f,  0.16291f, 0.93484f, 0.79765f, 0.74982f, 0.78336f,
+                0.6386f,  0.87744f, 0.33587f, 0.9691f,  0.68437f, 0.65098f,
+                0.48153f, 0.97546f, 0.8026f,  0.36689f, 0.98152f, 0.37351f,
+                0.68407f, 0.2684f,  0.2855f,  0.76195f, 0.67828f, 0.603f
+            };
+            conv2d->setWeights(conv2dWeights.data());
+            model->addLayer("conv2d", conv2d);
 
-    // maxpool2d
-    CUDANet::Layers::MaxPooling2D maxpool2d(
-        inputSize - kernelSize + 1, numFilters, poolingSize, poolingStride, CUDANet::Layers::ActivationType::RELU
-    );
-    model.addLayer("maxpool2d", &maxpool2d);
+            // maxpool2d
+            CUDANet::Layers::MaxPooling2D *maxpool2d = new CUDANet::Layers::MaxPooling2D(
+                inputSize - kernelSize + 1, numFilters, poolingSize, poolingStride, CUDANet::Layers::ActivationType::RELU
+            );
+            model->addLayer("maxpool2d", maxpool2d);
 
-    // dense
-    CUDANet::Layers::Dense dense(
-        8, 3, CUDANet::Layers::ActivationType::SOFTMAX
-    );
-    // dense weights 18*6
-    std::vector<float> denseWeights = {
-        0.36032f, 0.33115f, 0.02948f,
-        0.09802f, 0.45072f, 0.56266f,
-        0.43514f, 0.80946f, 0.43439f,
-        0.90916f, 0.08605f, 0.07473f,
-        0.94788f, 0.66168f, 0.34927f,
-        0.09464f, 0.61963f, 0.73775f,
-        0.51559f, 0.81916f, 0.64915f,
-        0.03934f, 0.87608f, 0.68364f,
-    };
-    dense.setWeights(denseWeights.data());
-    model.addLayer("dense", &dense);
+            // dense
+            CUDANet::Layers::Dense *dense = new CUDANet::Layers::Dense(
+                8, 3, CUDANet::Layers::ActivationType::SOFTMAX
+            );
+            // dense weights 18*6
+            std::vector<float> denseWeights = {
+                0.36032f, 0.33115f, 0.02948f,
+                0.09802f, 0.45072f, 0.56266f,
+                0.43514f, 0.80946f, 0.43439f,
+                0.90916f, 0.08605f, 0.07473f,
+                0.94788f, 0.66168f, 0.34927f,
+                0.09464f, 0.61963f, 0.73775f,
+                0.51559f, 0.81916f, 0.64915f,
+                0.03934f, 0.87608f, 0.68364f,
+            };
+            dense->setWeights(denseWeights.data());
+            model->addLayer("dense", dense);
+
+            return model;
+        }
+
+        void commonTestTeardown(float* d_input) {
+            cudaDeviceReset();
+        }
+
+        cudaError_t cudaStatus;
+};
+
+TEST_F(ModelTest, TestModelPredict) {
+    
+    int outputSize = 3;
+    CUDANet::Model *model = commonTestSetup();
 
     // input 6*6*2
     std::vector<float> input = {
@@ -78,7 +96,7 @@ TEST(Model, TestModelPredict) {
     std::vector<float> expected = {2e-05f, 0.00021f, 0.99977f};
 
     // predict
-    const float* output = model.predict(input.data());
+    const float* output = model->predict(input.data());
 
     float sum = 0.0f;
     for (int i = 0; i < outputSize; ++i) {
@@ -87,6 +105,4 @@ TEST(Model, TestModelPredict) {
     }
 
     EXPECT_NEAR(sum, 1.0f, 1e-5f);
-
-    cudaDeviceReset();
 }
