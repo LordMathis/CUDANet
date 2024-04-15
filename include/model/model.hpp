@@ -2,14 +2,23 @@
 #define CUDANET_MODEL_H
 
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
-#include "layer.cuh"
 #include "input.cuh"
+#include "layer.cuh"
 #include "output.cuh"
 
 namespace CUDANet {
+
+enum TensorType { WEIGHT, BIAS, };
+
+struct TensorInfo {
+    std::string name;
+    TensorType  type;
+    int         size;
+    int         offset;
+};
 
 class Model {
   public:
@@ -20,20 +29,19 @@ class Model {
     float* predict(const float* input);
 
     void addLayer(const std::string& name, Layers::SequentialLayer* layer);
+    void loadWeights(const std::string& path);
 
   private:
-
-    Layers::Input *inputLayer;
-    Layers::Output *outputLayer;
+    Layers::Input*  inputLayer;
+    Layers::Output* outputLayer;
 
     int inputSize;
     int inputChannels;
 
     int outputSize;
-    
-    std::vector<Layers::SequentialLayer*> layers;
-    std::unordered_map<std::string, Layers::WeightedLayer*> layerMap;
 
+    std::vector<Layers::SequentialLayer*>                   layers;
+    std::unordered_map<std::string, Layers::WeightedLayer*> layerMap;
 };
 
 }  // namespace CUDANet
