@@ -51,12 +51,7 @@ float* Model::predict(const float* input) {
 
 void Model::addLayer(const std::string& name, Layers::SequentialLayer* layer) {
     layers.push_back(layer);
-
-    Layers::WeightedLayer* wLayer = dynamic_cast<Layers::WeightedLayer*>(layer);
-
-    if (wLayer != nullptr) {
-        layerMap[name] = wLayer;
-    }
+    layerMap[name] = layer;
 }
 
 Layers::SequentialLayer* Model::getLayer(const std::string& name) {
