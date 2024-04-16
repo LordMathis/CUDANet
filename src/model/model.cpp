@@ -16,7 +16,7 @@ Model::Model(const int inputSize, const int inputChannels, const int outputSize)
       inputChannels(inputChannels),
       outputSize(outputSize),
       layers(std::vector<Layers::SequentialLayer*>()),
-      layerMap(std::unordered_map<std::string, Layers::WeightedLayer*>()) {
+      layerMap(std::unordered_map<std::string, Layers::SequentialLayer*>()) {
     inputLayer  = new Layers::Input(inputSize * inputSize * inputChannels);
     outputLayer = new Layers::Output(outputSize);
 };
@@ -26,7 +26,7 @@ Model::Model(const Model& other)
       inputChannels(other.inputChannels),
       outputSize(other.outputSize),
       layers(std::vector<Layers::SequentialLayer*>()),
-      layerMap(std::unordered_map<std::string, Layers::WeightedLayer*>()) {
+      layerMap(std::unordered_map<std::string, Layers::SequentialLayer*>()) {
     inputLayer  = new Layers::Input(*other.inputLayer);
     outputLayer = new Layers::Output(*other.outputLayer);
 }
@@ -57,6 +57,10 @@ void Model::addLayer(const std::string& name, Layers::SequentialLayer* layer) {
     if (wLayer != nullptr) {
         layerMap[name] = wLayer;
     }
+}
+
+Layers::SequentialLayer* Model::getLayer(const std::string& name) {
+    return layerMap[name];
 }
 
 void Model::loadWeights(const std::string& path) {
@@ -115,10 +119,18 @@ void Model::loadWeights(const std::string& path) {
         file.read(reinterpret_cast<char*>(values.data()), tensorInfo.size * sizeof(float));
 
         if (layerMap.find(tensorInfo.name) != layerMap.end()) {
+
+            Layers::WeightedLayer* wLayer = dynamic_cast<Layers::WeightedLayer*>(layerMap[tensorInfo.name]);
+
+            if (wLayer == nullptr) {
+                std::cerr << "Layer: " << tensorInfo.name << "does not have weights, skipping" << std::endl;
+                continue;
+            }
+
             if (tensorInfo.type == TensorType::WEIGHT) {
-                layerMap[tensorInfo.name]->setWeights(values.data());
+                wLayer->setWeights(values.data());
             } else if (tensorInfo.type == TensorType::BIAS) {
-                layerMap[tensorInfo.name]->setBiases(values.data());
+                wLayer->setBiases(values.data());
             }
         }
     }

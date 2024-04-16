@@ -84,9 +84,17 @@ void Conv2d::setWeights(const float* weights_input) {
     toCuda();
 }
 
+std::vector<float> Conv2d::getWeights() {
+    return weights;
+}
+
 void Conv2d::setBiases(const float* biases_input) {
     std::copy(biases_input, biases_input + biases.size(), biases.begin());
     toCuda();
+}
+
+std::vector<float> Conv2d::getBiases() {
+    return biases;
 }
 
 void Conv2d::toCuda() {

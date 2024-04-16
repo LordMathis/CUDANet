@@ -2,6 +2,8 @@
 #ifndef CUDANET_I_LAYER_H
 #define CUDANET_I_LAYER_H
 
+#include <vector>
+
 namespace CUDANet::Layers {
 
 /**
@@ -61,11 +63,23 @@ class WeightedLayer : public SequentialLayer {
     virtual void setWeights(const float* weights) = 0;
 
     /**
+     * @brief Virtual function for getting weights
+     * 
+     */
+    virtual std::vector<float> getWeights() = 0;
+
+    /**
      * @brief Virtual function for setting biases
      *
      * @param biases Pointer to the biases
      */
     virtual void setBiases(const float* biases) = 0;
+
+    /**
+     * @brief Virtual function for getting biases
+     * 
+     */
+    virtual std::vector<float> getBiases() = 0;
 
   private:
     /**

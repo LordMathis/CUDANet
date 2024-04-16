@@ -98,7 +98,15 @@ void Dense::setWeights(const float* weights_input) {
     toCuda();
 }
 
+std::vector<float> Dense::getWeights() {
+    return weights;
+}
+
 void Dense::setBiases(const float* biases_input) {
     std::copy(biases_input, biases_input + biases.size(), biases.begin());
     toCuda();
+}
+
+std::vector<float> Dense::getBiases() {
+    return biases;
 }

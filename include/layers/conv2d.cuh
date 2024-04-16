@@ -59,11 +59,25 @@ class Conv2d : public WeightedLayer {
     void setWeights(const float* weights_input);
 
     /**
+     * @brief Get the weights of the convolutional layer
+     *
+     * @return std::vector<float>
+     */
+    std::vector<float> getWeights();
+
+    /**
      * @brief Set the biases of the convolutional layer
      *
      * @param biases_input Pointer to the biases
      */
     void setBiases(const float* biases_input);
+
+    /**
+     * @brief Get the biases of the convolutional layer
+     *
+     * @return std::vector<float>
+     */
+    std::vector<float> getBiases();
 
     /**
      * @brief Get the output width (/ height) of the layer

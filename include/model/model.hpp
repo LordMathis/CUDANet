@@ -29,6 +29,8 @@ class Model {
     float* predict(const float* input);
 
     void addLayer(const std::string& name, Layers::SequentialLayer* layer);
+    Layers::SequentialLayer* getLayer(const std::string& name);
+
     void loadWeights(const std::string& path);
 
   private:
@@ -41,7 +43,7 @@ class Model {
     int outputSize;
 
     std::vector<Layers::SequentialLayer*>                   layers;
-    std::unordered_map<std::string, Layers::WeightedLayer*> layerMap;
+    std::unordered_map<std::string, Layers::SequentialLayer*> layerMap;
 };
 
 }  // namespace CUDANet

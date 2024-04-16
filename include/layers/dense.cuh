@@ -44,11 +44,25 @@ class Dense : public WeightedLayer {
     void setWeights(const float* weights);
 
     /**
+     * @brief Get the weights of the layer
+     *
+     * @return Vector of weights
+     */
+    std::vector<float> getWeights();
+
+    /**
      * @brief Set the biases of the layer
      *
      * @param biases Pointer to vector of biases
      */
     void setBiases(const float* biases);
+
+    /**
+     * @brief Get the biases of the layer
+     *
+     * @return Vector of biases
+     */
+    std::vector<float> getBiases();
 
   private:
     unsigned int inputSize;
