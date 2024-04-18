@@ -29,7 +29,7 @@ Convolutional Neural Network inference library running on CUDA.
 ```sh
 mkdir build
 cd build
-cmake -S ..
+cmake -S .. -DCMAKE_CUDA_ARCHITECTURES=75  # Replace with you cuda architecture
 make
 ```
 
