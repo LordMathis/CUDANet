@@ -1,6 +1,8 @@
 import torch
 import struct
 
+import numpy as np
+
 
 def print_cpp_vector(vector, name="expected"):
     print("std::vector<float> " + name + " = {", end="")
@@ -16,26 +18,24 @@ def export_model_weights(model: torch.nn.Module, filename):
 
         header = ""
         offset = 0
-
+        tensor_data = b""
 
         for name, param in model.named_parameters():
             if 'weight' not in name and 'bias' not in name:
                 continue
 
-            tensor_values = param.flatten().tolist()
-            tensor_bytes = struct.pack('f' * len(tensor_values), *tensor_values)
-
+            tensor_bytes = param.type(torch.float32).detach().numpy().tobytes()
             tensor_size = param.numel()
 
-            header += f"{name},{tensor_size},{offset}\n"
-            
+            header += f"{name},{tensor_size},{offset}\n"            
             offset += len(tensor_bytes)
 
-            f.write(tensor_bytes)
+            tensor_data += tensor_bytes
 
         f.seek(0)
-        f.write(struct.pack('q', len(header)))            
+        f.write(struct.pack('q', len(header)))           
         f.write(header.encode('utf-8'))
+        f.write(tensor_data)
 
 def print_model_parameters(model: torch.nn.Module):
     for name, param in model.named_parameters():

@@ -43,6 +43,7 @@ float* Model::predict(const float* input) {
     float* d_input = inputLayer->forward(input);
 
     for (auto& layer : layers) {
+        std::cout << layer << std::endl;
         d_input = layer->forward(d_input);
     }
 
