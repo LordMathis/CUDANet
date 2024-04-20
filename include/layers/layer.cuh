@@ -4,32 +4,26 @@
 
 #include <vector>
 
+#define CUDANET_SAME_PADDING(inputSize, kernelSize, stride) ((stride - 1) * inputSize - stride + kernelSize) / 2;
+
+
 namespace CUDANet::Layers {
 
 /**
- * @brief Padding types
- *
- * SAME: Zero padding such that the output size is the same as the input
- * VALID: No padding
- *
- */
-enum Padding { SAME, VALID };
-
-/**
  * @brief Basic Sequential Layer
- * 
+ *
  */
 class SequentialLayer {
   public:
     /**
      * @brief Destroy the Sequential Layer
-     * 
+     *
      */
-    virtual ~SequentialLayer() {};
+    virtual ~SequentialLayer(){};
 
     /**
      * @brief Forward propagation virtual function
-     * 
+     *
      * @param input Device pointer to the input
      * @return float* Device pointer to the output
      */
@@ -45,7 +39,7 @@ class WeightedLayer : public SequentialLayer {
      * @brief Destroy the ILayer object
      *
      */
-    virtual ~WeightedLayer() {};
+    virtual ~WeightedLayer(){};
 
     /**
      * @brief Virtual function for forward pass
@@ -64,7 +58,7 @@ class WeightedLayer : public SequentialLayer {
 
     /**
      * @brief Virtual function for getting weights
-     * 
+     *
      */
     virtual std::vector<float> getWeights() = 0;
 
@@ -77,7 +71,7 @@ class WeightedLayer : public SequentialLayer {
 
     /**
      * @brief Virtual function for getting biases
-     * 
+     *
      */
     virtual std::vector<float> getBiases() = 0;
 

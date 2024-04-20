@@ -23,7 +23,7 @@ class Conv2d : public WeightedLayer {
      * @param kernelSize Width and height of the convolution kernel
      * @param stride Convolution stride
      * @param numFilters Number of output filters
-     * @param padding Padding type ('SAME' or 'VALID')
+     * @param paddingSize Padding size
      * @param activationType Activation function type ('RELU', 'SIGMOID',
      * 'SOFTMAX' or 'NONE')
      */
@@ -33,7 +33,7 @@ class Conv2d : public WeightedLayer {
         int            kernelSize,
         int            stride,
         int            numFilters,
-        Padding        padding,
+        int            paddingSize,
         ActivationType activationType
     );
 

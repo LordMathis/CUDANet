@@ -24,10 +24,12 @@ class ModelTest : public ::testing::Test {
         CUDANet::Model *model =
             new CUDANet::Model(inputSize, inputChannels, outputSize);
 
+        int paddingSize = 0;
+
         // Conv2d
         CUDANet::Layers::Conv2d *conv2d = new CUDANet::Layers::Conv2d(
             inputSize, inputChannels, kernelSize, stride, numFilters,
-            CUDANet::Layers::Padding::VALID,
+            paddingSize,
             CUDANet::Layers::ActivationType::NONE
         );
 

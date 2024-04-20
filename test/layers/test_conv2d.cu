@@ -13,7 +13,7 @@ class Conv2dTest : public ::testing::Test {
         int                             kernelSize,
         int                             stride,
         int                             numFilters,
-        CUDANet::Layers::Padding        padding,
+        int                             paddingSize,
         CUDANet::Layers::ActivationType activationType,
         std::vector<float>&             input,
         float*                          kernels,
@@ -21,8 +21,8 @@ class Conv2dTest : public ::testing::Test {
     ) {
         // Create Conv2d layer
         CUDANet::Layers::Conv2d conv2d(
-            inputSize, inputChannels, kernelSize, stride, numFilters, padding,
-            activationType
+            inputSize, inputChannels, kernelSize, stride, numFilters,
+            paddingSize, activationType
         );
 
         conv2d.setWeights(kernels);
@@ -54,12 +54,13 @@ class Conv2dTest : public ::testing::Test {
 };
 
 TEST_F(Conv2dTest, SimpleTest) {
-    int                             inputSize     = 4;
-    int                             inputChannels = 1;
-    int                             kernelSize    = 2;
-    int                             stride        = 1;
-    int                             numFilters    = 1;
-    CUDANet::Layers::Padding        padding = CUDANet::Layers::Padding::VALID;
+    int inputSize     = 4;
+    int inputChannels = 1;
+    int kernelSize    = 2;
+    int stride        = 1;
+    int numFilters    = 1;
+    int paddingSize   = 0;
+
     CUDANet::Layers::ActivationType activationType =
         CUDANet::Layers::ActivationType::NONE;
 
@@ -77,7 +78,7 @@ TEST_F(Conv2dTest, SimpleTest) {
     float* d_output;
 
     CUDANet::Layers::Conv2d conv2d = commonTestSetup(
-        inputSize, inputChannels, kernelSize, stride, numFilters, padding,
+        inputSize, inputChannels, kernelSize, stride, numFilters, paddingSize,
         activationType, input, kernels.data(), d_input
     );
 
@@ -104,12 +105,12 @@ TEST_F(Conv2dTest, SimpleTest) {
 }
 
 TEST_F(Conv2dTest, PaddedTest) {
-    int                             inputSize     = 5;
-    int                             inputChannels = 3;
-    int                             kernelSize    = 3;
-    int                             stride        = 1;
-    int                             numFilters    = 2;
-    CUDANet::Layers::Padding        padding = CUDANet::Layers::Padding::SAME;
+    int inputSize     = 5;
+    int inputChannels = 3;
+    int kernelSize    = 3;
+    int stride        = 1;
+    int numFilters    = 2;
+    int paddingSize   = CUDANET_SAME_PADDING(inputSize, kernelSize, stride);
     CUDANet::Layers::ActivationType activationType =
         CUDANet::Layers::ActivationType::NONE;
 
@@ -167,7 +168,7 @@ TEST_F(Conv2dTest, PaddedTest) {
     float* d_output;
 
     CUDANet::Layers::Conv2d conv2d = commonTestSetup(
-        inputSize, inputChannels, kernelSize, stride, numFilters, padding,
+        inputSize, inputChannels, kernelSize, stride, numFilters, paddingSize,
         activationType, input, kernels.data(), d_input
     );
 
@@ -206,12 +207,12 @@ TEST_F(Conv2dTest, PaddedTest) {
 }
 
 TEST_F(Conv2dTest, StridedPaddedConvolution) {
-    int                             inputSize     = 5;
-    int                             inputChannels = 2;
-    int                             kernelSize    = 3;
-    int                             stride        = 2;
-    int                             numFilters    = 2;
-    CUDANet::Layers::Padding        padding = CUDANet::Layers::Padding::SAME;
+    int inputSize     = 5;
+    int inputChannels = 2;
+    int kernelSize    = 3;
+    int stride        = 2;
+    int numFilters    = 2;
+    int paddingSize   = CUDANET_SAME_PADDING(inputSize, kernelSize, stride);
     CUDANet::Layers::ActivationType activationType =
         CUDANet::Layers::ActivationType::RELU;
 
@@ -254,7 +255,7 @@ TEST_F(Conv2dTest, StridedPaddedConvolution) {
     float* d_output;
 
     CUDANet::Layers::Conv2d conv2d = commonTestSetup(
-        inputSize, inputChannels, kernelSize, stride, numFilters, padding,
+        inputSize, inputChannels, kernelSize, stride, numFilters, paddingSize,
         activationType, input, kernels.data(), d_input
     );
 

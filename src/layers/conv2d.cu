@@ -12,29 +12,17 @@ Conv2d::Conv2d(
     int                    kernelSize,
     int                    stride,
     int                    numFilters,
-    Padding        padding,
+    int        paddingSize,
     ActivationType activationType
 )
     : inputSize(inputSize),
       inputChannels(inputChannels),
       kernelSize(kernelSize),
       stride(stride),
-      numFilters(numFilters) {
-        
-    switch (padding) {
-        case SAME:
-            outputSize  = inputSize;
-            paddingSize = ((stride - 1) * inputSize - stride + kernelSize) / 2;
-            break;
+      numFilters(numFilters),
+      paddingSize(paddingSize) {
 
-        case VALID:
-            paddingSize = 0;
-            outputSize  = (inputSize - kernelSize) / stride + 1;
-            break;
-
-        default:
-            break;
-    }
+    outputSize = (inputSize - kernelSize + 2 * paddingSize) / stride + 1;
 
     activation = Activation(
         activationType, outputSize * outputSize * numFilters
