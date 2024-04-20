@@ -4,6 +4,7 @@
 #include <opencv2/opencv.hpp>
 
 #include <model.hpp>
+#include <conv2d.cuh>
 
 std::vector<float> readAndNormalizeImage(const std::string& imagePath, int width, int height) {
     // Read the image using OpenCV
@@ -28,6 +29,17 @@ std::vector<float> readAndNormalizeImage(const std::string& imagePath, int width
 CUDANet::Model* createModel(const int inputSize, const int inputChannels, const int outputSize) {
     CUDANet::Model *model =
         new CUDANet::Model(inputSize, inputChannels, outputSize);
+
+    // AlexNet
+    CUDANet::Layers::Conv2d *conv1 = new CUDANet::Layers::Conv2d(
+        inputSize, inputChannels, 11, 4, 96, CUDANet::Layers::Padding::SAME, CUDANet::Layers::ActivationType::RELU
+    );
+    model->addLayer("conv1", conv1);
+    CUDANet::Layers::MaxPooling *pool1 = new CUDANet::Layers::MaxPooling(
+        3, 2
+    )
+
+
     return model;
 }
 

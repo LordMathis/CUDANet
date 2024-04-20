@@ -105,4 +105,4 @@ where `header` is a csv format
 
 To load weights call `load_weights` function on Model object.
 
-To export weights from pytorch you can use `tools/export_model_weights.py` script
+To export weights from pytorch you can use the `export_model_weights` function from `tools/utils.py`  script
