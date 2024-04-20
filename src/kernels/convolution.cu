@@ -7,6 +7,7 @@ using namespace CUDANet;
 __global__ void Kernels::convolution(
     const float* __restrict__ d_input,
     const float* __restrict__ d_kernel,
+    const float* __restrict__ d_bias,
     float* __restrict__ d_output,
     const int inputSize,
     const int nChannels,
@@ -51,5 +52,5 @@ __global__ void Kernels::convolution(
         }
     }
 
-    d_output[f * outputSize * outputSize + i * outputSize + j] = sum;
+    d_output[f * outputSize * outputSize + i * outputSize + j] = sum + d_bias[f];
 }

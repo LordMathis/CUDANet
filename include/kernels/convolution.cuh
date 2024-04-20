@@ -10,6 +10,7 @@ namespace CUDANet::Kernels {
  *
  * @param d_input Device pointer to the input matrix
  * @param d_kernel Device pointer to the convolution kernel
+ * @param d_bias Device pointer to the bias
  * @param d_output Device pointer to the output matrix
  * @param inputSize Width and height of the input matrix
  * @param nChannels Number of channels in the input matrix
@@ -21,6 +22,7 @@ namespace CUDANet::Kernels {
 __global__ void convolution(
     const float* __restrict__ d_input,
     const float* __restrict__ d_kernel,
+    const float* __restrict__ d_bias,
     float* __restrict__ d_output,
     const int inputSize,
     const int nChannels,

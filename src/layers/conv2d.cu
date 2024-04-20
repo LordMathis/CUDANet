@@ -42,12 +42,12 @@ Conv2d::Conv2d(
         sizeof(float) * kernelSize * kernelSize * inputChannels * numFilters
     ));
 
-    biases.resize(outputSize * outputSize * numFilters);
+    biases.resize(numFilters);
     initializeBiases();
 
     d_biases = nullptr;
     CUDA_CHECK(cudaMalloc(
-        (void**)&d_biases, sizeof(float) * outputSize * outputSize * numFilters
+        (void**)&d_biases, sizeof(float) * numFilters
     ));
 
     toCuda();
@@ -94,7 +94,7 @@ void Conv2d::toCuda() {
 
     CUDA_CHECK(cudaMemcpy(
         d_biases, biases.data(),
-        sizeof(float) * outputSize * outputSize * numFilters,
+        sizeof(float) * numFilters,
         cudaMemcpyHostToDevice
     ));
 }
@@ -109,13 +109,8 @@ float* Conv2d::forward(const float* d_input) {
     );
 
     Kernels::convolution<<<grid, block>>>(
-        d_input, d_weights, d_output, inputSize, inputChannels, paddingSize,
+        d_input, d_weights, d_biases, d_output, inputSize, inputChannels, paddingSize,
         kernelSize, stride, numFilters, outputSize
-    );
-
-    // Add bias
-    Kernels::vec_vec_add<<<1, biases.size()>>>(
-        d_biases, d_output, d_output, biases.size()
     );
 
     // Apply activation
