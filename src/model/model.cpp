@@ -110,7 +110,7 @@ void Model::loadWeights(const std::string& path) {
     for (const auto& tensorInfo : tensorInfos) {
         std::vector<float> values(tensorInfo.size);
 
-        file.seekg(tensorInfo.offset);
+        file.seekg(sizeof(int64_t) + header.size() + tensorInfo.offset);
         file.read(reinterpret_cast<char*>(values.data()), tensorInfo.size * sizeof(float));
 
         if (layerMap.find(tensorInfo.name) != layerMap.end()) {
