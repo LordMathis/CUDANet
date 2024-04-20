@@ -36,7 +36,7 @@ CUDANet::Model* createModel(const int inputSize, const int inputChannels, const 
     );
     model->addLayer("conv1", conv1);
     CUDANet::Layers::MaxPooling *pool1 = new CUDANet::Layers::MaxPooling(
-        3, 2
+        3, 3, 2
     )
 
 
