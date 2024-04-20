@@ -1,6 +1,8 @@
 #ifndef CUDANET_CONVOLUTION_H
 #define CUDANET_CONVOLUTION_H
 
+#include <cuda_runtime.h>
+
 namespace CUDANet::Kernels {
 
 /**

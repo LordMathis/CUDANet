@@ -1,6 +1,8 @@
 #ifndef CUDANET_MATMUL_H
 #define CUDANET_MATMUL_H
 
+#include <cuda_runtime.h>
+
 namespace CUDANet::Kernels {
 
 /**

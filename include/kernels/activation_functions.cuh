@@ -1,6 +1,8 @@
 #ifndef CUDANET_ACTIVATION_FUNCTIONS_H
 #define CUDANET_ACTIVATION_FUNCTIONS_H
 
+#include <cuda_runtime.h>
+
 namespace CUDANet::Kernels {
 
 /**
