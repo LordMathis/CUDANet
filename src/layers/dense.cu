@@ -65,21 +65,15 @@ void Dense::initializeBiases() {
 
 float* Dense::forward(const float* d_input) {
 
-    // CUDANet::Utils::clear(d_output, outputSize);
-
-    // CUDA_CHECK(cudaPeekAtLastError());
-
-    std::cout << "Dense::forward" << std::endl;
-
     Kernels::mat_vec_mul<<<forwardGridSize, BLOCK_SIZE>>>(
         d_weights, d_input, d_output, inputSize, outputSize
     );
-    CUDA_CHECK(cudaPeekAtLastError());
+    CUDA_CHECK(cudaGetLastError());
 
     Kernels::vec_vec_add<<<biasGridSize, BLOCK_SIZE>>>(
         d_biases, d_output, d_output, outputSize
     );
-    CUDA_CHECK(cudaPeekAtLastError());
+    CUDA_CHECK(cudaGetLastError());
 
     activation.activate(d_output);
     CUDA_CHECK(cudaDeviceSynchronize());
