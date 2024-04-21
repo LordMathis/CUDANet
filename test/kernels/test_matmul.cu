@@ -43,12 +43,12 @@ TEST(MatMulTest, MatVecMulTest) {
     cudaStatus = cudaMemcpy(d_vector, vector.data(), sizeof(float) * w, cudaMemcpyHostToDevice);
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
-    int THREADS_PER_BLOCK = std::max(w, h);
-    int BLOCKS            = 1;
+    int grid_size = (std::max(w, h) + BLOCK_SIZE - 1) / BLOCK_SIZE;
+
 
     CUDANet::Utils::clear(d_output, h);
 
-    CUDANet::Kernels::mat_vec_mul<<<BLOCKS, THREADS_PER_BLOCK, sizeof(float) * w>>>(d_matrix, d_vector, d_output, w, h);
+    CUDANet::Kernels::mat_vec_mul<<<grid_size, BLOCK_SIZE>>>(d_matrix, d_vector, d_output, w, h);
     cudaStatus = cudaDeviceSynchronize();
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
@@ -87,7 +87,7 @@ TEST(MatMulTest, MaxReduceTest) {
     cudaStatus = cudaMalloc((void**)&d_input, sizeof(float) * n);
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
-    cudaStatus = cudaMalloc((void**)&d_output, sizeof(float));
+    cudaStatus = cudaMalloc((void**)&d_output, sizeof(float) * n);
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
     cudaStatus = cudaMemcpy(d_input, input.data(), sizeof(float) * n, cudaMemcpyHostToDevice);

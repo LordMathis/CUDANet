@@ -3,7 +3,6 @@
 
 using namespace CUDANet;
 
-
 __global__ void Kernels::mat_vec_mul(
     const float* __restrict__ d_matrix,
     const float* __restrict__ d_vector,
@@ -13,31 +12,16 @@ __global__ void Kernels::mat_vec_mul(
 ) {
     int tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-    __shared__ float shared[BLOCK_SIZE];
+    if (tid < h) {
+        float temp = 0.0f;
 
-    float temp = 0.0f;
-
-#pragma unroll
-    for (unsigned int i = 0; i < (w + BLOCK_SIZE - 1) / BLOCK_SIZE; i++) {
-        if (i * BLOCK_SIZE + threadIdx.x < w) {
-            shared[threadIdx.x] = d_vector[i * BLOCK_SIZE + threadIdx.x];
-        } else {
-            shared[threadIdx.x] = 0.0f;
+        for (unsigned int j = 0; j < w; j++) {
+            temp += d_matrix[tid * w + j] * d_vector[j];
         }
 
-        __syncthreads();
-
-#pragma unroll
-        for (unsigned int j = 0; j < BLOCK_SIZE; j++) {
-            temp += d_matrix[tid * w + i * BLOCK_SIZE + j] * shared[j];
-        }
-
-        __syncthreads();
+        d_output[tid] = temp;
     }
-
-    d_output[tid] = temp;
 }
-
 
 __global__ void Kernels::vec_vec_add(
     const float* __restrict__ d_vector1,
@@ -52,7 +36,6 @@ __global__ void Kernels::vec_vec_add(
     d_output[tid] = d_vector1[tid] + d_vector2[tid];
 }
 
-
 __global__ void Kernels::vec_scalar_sub(
     const float* __restrict__ d_src,
     float* __restrict__ d_out,
@@ -66,20 +49,18 @@ __global__ void Kernels::vec_scalar_sub(
     d_out[tid] = d_src[tid] - d_scalar[0];
 }
 
-
 __global__ void Kernels::vec_scalar_div(
     const float* __restrict__ d_src,
     float* __restrict__ d_out,
     const float* __restrict__ d_scalar,
     const unsigned int len
 ) {
-    int tid    = blockDim.x * blockIdx.x + threadIdx.x;
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
     if (tid >= len) {
         return;
     }
     d_out[tid] = d_src[tid] / d_scalar[0];
 }
-
 
 __global__ void Kernels::vec_exp(
     const float* __restrict__ src,
@@ -107,7 +88,7 @@ __global__ void Kernels::max_reduce(
         shared_max[threadIdx.x] = d_vector[i];
     } else {
         shared_max[threadIdx.x] = -INFINITY;
-    }
+    }    
 
     __syncthreads();
 
@@ -129,7 +110,7 @@ __global__ void Kernels::sum_reduce(
     const unsigned int len
 ) {
     __shared__ float partial_sum[BLOCK_SIZE];
-    int i       = blockIdx.x * blockDim.x + threadIdx.x;
+    int              i = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (i < len) {
         partial_sum[threadIdx.x] = d_vector[i];

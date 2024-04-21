@@ -3,6 +3,7 @@
 #include <cuda_runtime.h>
 #include <vector>
 
+
 TEST(ActivationTest, SoftmaxTest1) {
     const int inputSize = 5;
     cudaError_t cudaStatus;
@@ -39,6 +40,9 @@ TEST(ActivationTest, SoftmaxTest1) {
 
     cudaFree(d_input);
     cudaDeviceReset();
+
+    cudaStatus = cudaGetLastError();
+    EXPECT_EQ(cudaStatus, cudaSuccess);
 }
 
 TEST(ActivationTest, SoftmaxTest2) {

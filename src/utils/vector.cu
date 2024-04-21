@@ -27,17 +27,7 @@ void Utils::clear(float* d_vec, const unsigned int length) {
 void Utils::max(float* d_vec, float* d_max, const unsigned int length) {
     
     const int grid_size = (length + BLOCK_SIZE - 1) / BLOCK_SIZE;
-
-    std::cout << "grid_size: " << grid_size << ", length: " << length << std::endl;
-    CUDA_CHECK(cudaGetLastError());
-
     Kernels::max_reduce<<<grid_size, BLOCK_SIZE>>>(d_vec, d_max, length);
-
-    std::cout << "input: " << std::endl;
-    print_vec(d_vec, length);
-    std::cout << "max: " << std::endl;
-    print_vec(d_max, length);
-
     CUDA_CHECK(cudaGetLastError());
 
     int remaining = grid_size;
