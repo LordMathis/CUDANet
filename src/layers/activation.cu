@@ -38,10 +38,12 @@ void Activation::activate(float* d_input) {
             Kernels::sigmoid<<<gridSize, BLOCK_SIZE>>>(
                 d_input, d_input, length
             );
+            CUDA_CHECK(cudaGetLastError());
             break;
 
         case RELU:
             Kernels::relu<<<gridSize, BLOCK_SIZE>>>(d_input, d_input, length);
+            CUDA_CHECK(cudaGetLastError());
             break;
         case SOFTMAX:
 
@@ -52,11 +54,13 @@ void Activation::activate(float* d_input) {
             Kernels::vec_scalar_sub<<<gridSize, BLOCK_SIZE>>>(
                 d_input, d_input, d_max, length
             );
+            CUDA_CHECK(cudaGetLastError());
 
             // Compute exponentials
             Kernels::vec_exp<<<gridSize, BLOCK_SIZE>>>(
                 d_input, d_input, length
             );
+            CUDA_CHECK(cudaGetLastError());
 
             // Find sum
             Utils::sum(d_input, d_softmax_sum, length);
@@ -64,6 +68,7 @@ void Activation::activate(float* d_input) {
             Kernels::vec_scalar_div<<<gridSize, BLOCK_SIZE>>>(
                 d_input, d_input, d_softmax_sum, length
             );
+            CUDA_CHECK(cudaGetLastError());
 
             break;
 
@@ -71,6 +76,6 @@ void Activation::activate(float* d_input) {
             break;    
     }
 
-    cudaDeviceSynchronize();
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 

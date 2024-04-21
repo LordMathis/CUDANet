@@ -42,8 +42,10 @@ float* AvgPooling2D::forward(const float* d_input) {
     Kernels::avg_pooling<<<grid, block>>>(
         d_input, d_output, inputSize, outputSize, nChannels, poolingSize, stride
     );
+    CUDA_CHECK(cudaGetLastError());
 
     activation.activate(d_output);
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     return d_output;
 }

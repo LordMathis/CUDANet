@@ -25,5 +25,7 @@ void Add::forward(const float* d_inputA, const float* d_inputB) {
     Kernels::vec_vec_add<<<gridSize, BLOCK_SIZE>>>(
         d_inputA, d_inputB, d_output, inputSize
     );
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
 }

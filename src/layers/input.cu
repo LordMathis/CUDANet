@@ -12,17 +12,11 @@ Input::~Input() {
     cudaFree(d_output);
 }
 
-/*
-Copies host input to device d_output
-
-Args
-    const float* input Host pointer to input data
-    float* d_output Device pointer to input data copied to device
-*/
 float* Input::forward(const float* input) {
     CUDA_CHECK(cudaMemcpy(
         d_output, input, sizeof(float) * inputSize, cudaMemcpyHostToDevice
     ));
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     return d_output;
 }

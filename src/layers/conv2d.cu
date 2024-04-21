@@ -3,6 +3,11 @@
 #include "convolution.cuh"
 #include "cuda_helper.cuh"
 #include "matmul.cuh"
+#include "layer.cuh"
+#include "vector.cuh"
+
+#include <iostream>
+#include <vector>
 
 using namespace CUDANet::Layers;
 
@@ -100,6 +105,7 @@ void Conv2d::toCuda() {
 }
 
 float* Conv2d::forward(const float* d_input) {
+
     // Convolve
     dim3 block(8,8,8);
     dim3 grid(
@@ -108,11 +114,14 @@ float* Conv2d::forward(const float* d_input) {
         (numFilters + block.z - 1) / block.z
     );
 
+    CUDANet::Utils::clear(d_output, outputSize * outputSize * numFilters);
+
     Kernels::convolution<<<grid, block>>>(
         d_input, d_weights, d_biases, d_output, inputSize, inputChannels, paddingSize,
         kernelSize, stride, numFilters, outputSize
     );
-
+    CUDA_CHECK(cudaGetLastError());
+ 
     // Apply activation
     activation.activate(d_output);
 
