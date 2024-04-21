@@ -17,6 +17,8 @@ Activation::Activation(ActivationType activation, const int length)
 
         d_softmax_sum = nullptr;
         CUDA_CHECK(cudaMalloc((void**)&d_softmax_sum, sizeof(float) * length));
+
+        std::cout << "Activation: Softmax " << length << std::endl;
     }
 
     gridSize = (length + BLOCK_SIZE - 1) / BLOCK_SIZE;
