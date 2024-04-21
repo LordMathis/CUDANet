@@ -41,7 +41,7 @@ class DenseLayerTest : public ::testing::Test {
     void commonTestTeardown(float* d_input) {
         // Free device memory
         cudaFree(d_input);
-        cudaDeviceReset();
+        
     }
 
     cudaError_t cudaStatus;

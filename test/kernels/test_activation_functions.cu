@@ -45,5 +45,5 @@ TEST(ActivationFunctionsTest, SigmoidSanityCheck) {
     cudaFree(d_input);
     cudaFree(d_output);
 
-    cudaDeviceReset();
+    
 }

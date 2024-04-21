@@ -34,6 +34,4 @@ TEST(ConcatLayerTest, Init) {
         EXPECT_EQ(output[i + 5], inputB[i]);
     }
     cudaFree(d_output);
-
-    cudaDeviceReset();
 }

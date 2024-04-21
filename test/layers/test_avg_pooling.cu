@@ -67,6 +67,4 @@ TEST(AvgPoolingLayerTest, AvgPoolForwardTest) {
 
     cudaFree(d_input);
     cudaFree(d_output);
-
-    cudaDeviceReset();
 }

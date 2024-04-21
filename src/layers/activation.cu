@@ -12,13 +12,11 @@ using namespace CUDANet::Layers;
 Activation::Activation(ActivationType activation, const int length)
     : activationType(activation), length(length) {
     if (activationType == SOFTMAX) {
-        d_max = nullptr;
-        CUDA_CHECK(cudaMalloc((void**)&d_max, sizeof(float) * length));
-
         d_softmax_sum = nullptr;
         CUDA_CHECK(cudaMalloc((void**)&d_softmax_sum, sizeof(float) * length));
 
-        std::cout << "Activation: Softmax " << length << std::endl;
+        d_max = nullptr;
+        CUDA_CHECK(cudaMalloc((void**)&d_max, sizeof(float) * length));
     }
 
     gridSize = (length + BLOCK_SIZE - 1) / BLOCK_SIZE;
@@ -26,8 +24,8 @@ Activation::Activation(ActivationType activation, const int length)
 
 Activation::~Activation() {
     if (activationType == SOFTMAX) {
-        cudaFree(d_softmax_sum);
-        cudaFree(d_max);
+        CUDA_CHECK(cudaFree(d_softmax_sum));
+        CUDA_CHECK(cudaFree(d_max));
     }
 }
 
@@ -63,7 +61,7 @@ void Activation::activate(float* d_input) {
                 d_input, d_input, length
             );
             CUDA_CHECK(cudaGetLastError());
-
+            
             // Find sum
             Utils::sum(d_input, d_softmax_sum, length);
 
@@ -71,7 +69,6 @@ void Activation::activate(float* d_input) {
                 d_input, d_input, d_softmax_sum, length
             );
             CUDA_CHECK(cudaGetLastError());
-
             break;
 
         default:

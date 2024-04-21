@@ -23,5 +23,5 @@ TEST(OutputLayerTest, OutputForward) {
     }
 
     cudaFree(d_input);
-    cudaDeviceReset();
+    
 }

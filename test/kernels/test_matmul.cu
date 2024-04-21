@@ -68,7 +68,7 @@ TEST(MatMulTest, MatVecMulTest) {
     cudaFree(d_vector);
     cudaFree(d_output);
 
-    cudaDeviceReset();
+    
 }
 
 TEST(MatMulTest, MaxReduceTest) {
@@ -113,7 +113,7 @@ TEST(MatMulTest, MaxReduceTest) {
     cudaFree(d_input);
     cudaFree(d_output);
 
-    cudaDeviceReset();
+    
 }
 
 TEST(MatMulTest, VecExpTest) {
@@ -157,7 +157,7 @@ TEST(MatMulTest, VecExpTest) {
     cudaFree(d_input);
     cudaFree(d_output);
 
-    cudaDeviceReset();
+    
 }
 
 TEST(MatMulTest, SumReduceTest) {
@@ -210,5 +210,5 @@ TEST(MatMulTest, SumReduceTest) {
     cudaFree(d_input);
     cudaFree(d_sum);
 
-    cudaDeviceReset();
+    
 }
