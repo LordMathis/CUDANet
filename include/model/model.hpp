@@ -11,7 +11,10 @@
 
 namespace CUDANet {
 
-enum TensorType { WEIGHT, BIAS, };
+enum TensorType {
+    WEIGHT,
+    BIAS,
+};
 
 struct TensorInfo {
     std::string name;
@@ -42,8 +45,8 @@ class Model {
 
     int outputSize;
 
-    std::vector<Layers::SequentialLayer*>                   layers;
-    std::unordered_map<std::string, Layers::SequentialLayer*> layerMap;
+    std::vector<std::pair<std::string, Layers::SequentialLayer*>> layers;
+    std::unordered_map<std::string, Layers::SequentialLayer*>     layerMap;
 };
 
 }  // namespace CUDANet
