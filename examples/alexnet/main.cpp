@@ -10,18 +10,25 @@
 
 std::vector<float> readAndNormalizeImage(const std::string& imagePath, int width, int height) {
     // Read the image using OpenCV
-    cv::Mat image = cv::imread(imagePath, cv::IMREAD_GRAYSCALE);
+    cv::Mat image = cv::imread(imagePath, cv::IMREAD_COLOR);
 
     // Resize and normalize the image
     cv::resize(image, image, cv::Size(width, height));
-    image.convertTo(image, CV_32F);
-    cv::normalize(image, image, 0.0, 1.0, cv::NORM_MINMAX);
+    image.convertTo(image, CV_32FC3, 1.0 / 255.0);
 
-    // Convert the 2D image matrix to a 1D array of floats
+    // Normalize the image https://pytorch.org/hub/pytorch_vision_alexnet/
+    cv::Mat mean(image.size(), CV_32FC3, cv::Scalar(0.485, 0.456, 0.406));
+    cv::Mat std(image.size(), CV_32FC3, cv::Scalar(0.229, 0.224, 0.225));
+    cv::subtract(image, mean, image);
+    cv::divide(image, std, image);
+
+    // Convert the 3D image matrix to a 1D array of floats
     std::vector<float> imageData;
-    for (int i = 0; i < image.rows; ++i) {
-        for (int j = 0; j < image.cols; ++j) {
-            imageData.push_back(image.at<float>(i, j));
+    for (int c = 0; c < image.channels(); ++c) {
+        for (int i = 0; i < image.rows; ++i) {
+            for (int j = 0; j < image.cols; ++j) {
+                imageData.push_back(image.at<cv::Vec3f>(i, j)[c]);
+            }
         }
     }
 
