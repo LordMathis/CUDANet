@@ -38,7 +38,7 @@ class AvgPooling2D : public SequentialLayer {
 
     float* d_output;
 
-    Activation activation;
+    Activation* activation;
 };
 
 }  // namespace CUDANet::Layers

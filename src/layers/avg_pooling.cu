@@ -18,7 +18,7 @@ AvgPooling2D::AvgPooling2D(
     outputSize = (inputSize - poolingSize) / stride + 1;
 
     activation =
-        Activation(activationType, outputSize * outputSize * nChannels);
+        new Activation(activationType, outputSize * outputSize * nChannels);
 
     d_output = nullptr;
     CUDA_CHECK(cudaMalloc(
@@ -28,6 +28,7 @@ AvgPooling2D::AvgPooling2D(
 
 AvgPooling2D::~AvgPooling2D() {
     cudaFree(d_output);
+    delete activation;
 }
 
 float* AvgPooling2D::forward(const float* d_input) {
@@ -44,7 +45,7 @@ float* AvgPooling2D::forward(const float* d_input) {
     );
     CUDA_CHECK(cudaGetLastError());
 
-    activation.activate(d_output);
+    activation->activate(d_output);
     CUDA_CHECK(cudaDeviceSynchronize());
 
     return d_output;

@@ -31,6 +31,7 @@ void Utils::max(float* d_vec, float* d_max, const unsigned int length) {
     CUDA_CHECK(cudaGetLastError());
 
     int remaining = grid_size;
+
     while (remaining > 1) {
         int blocks_needed = (remaining + BLOCK_SIZE - 1) / BLOCK_SIZE;
         CUDANet::Kernels::max_reduce<<<blocks_needed, BLOCK_SIZE>>>(d_max, d_max, remaining);

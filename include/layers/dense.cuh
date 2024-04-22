@@ -77,7 +77,7 @@ class Dense : public WeightedLayer {
     std::vector<float> weights;
     std::vector<float> biases;
 
-    Layers::Activation activation;
+    Layers::Activation* activation;
 
     // Precompute kernel launch parameters
     unsigned int forwardGridSize;

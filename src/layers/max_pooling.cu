@@ -17,7 +17,7 @@ MaxPooling2D::MaxPooling2D(
 
     outputSize  = (inputSize - 1) / stride + 1;
 
-    activation = Activation(
+    activation = new Activation(
         activationType, outputSize * outputSize * nChannels
     );
 
@@ -30,6 +30,7 @@ MaxPooling2D::MaxPooling2D(
 
 MaxPooling2D::~MaxPooling2D() {
     cudaFree(d_output);
+    delete activation;
 }
 
 
@@ -47,7 +48,7 @@ float* MaxPooling2D::forward(const float* d_input) {
     );
     CUDA_CHECK(cudaGetLastError());
 
-    activation.activate(d_output);
+    activation->activate(d_output);
     CUDA_CHECK(cudaDeviceSynchronize());
 
     return d_output;

@@ -29,7 +29,7 @@ Conv2d::Conv2d(
 
     outputSize = (inputSize - kernelSize + 2 * paddingSize) / stride + 1;
 
-    activation = Activation(
+    activation = new Activation(
         activationType, outputSize * outputSize * numFilters
     );
 
@@ -62,6 +62,7 @@ Conv2d::~Conv2d() {
     cudaFree(d_output);
     cudaFree(d_weights);
     cudaFree(d_biases);
+    delete activation;
 }
 
 void Conv2d::initializeWeights() {
@@ -123,7 +124,7 @@ float* Conv2d::forward(const float* d_input) {
     CUDA_CHECK(cudaGetLastError());
  
     // Apply activation
-    activation.activate(d_output);
+    activation->activate(d_output);
 
     CUDA_CHECK(cudaDeviceSynchronize());
 

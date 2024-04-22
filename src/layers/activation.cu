@@ -77,4 +77,3 @@ void Activation::activate(float* d_input) {
 
     CUDA_CHECK(cudaDeviceSynchronize());
 }
-

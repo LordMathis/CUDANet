@@ -45,14 +45,14 @@ Dense::Dense(
         (std::max(inputSize, outputSize) + BLOCK_SIZE - 1) / BLOCK_SIZE;
     biasGridSize = (outputSize + BLOCK_SIZE - 1) / BLOCK_SIZE;
 
-    activation = Activation(activationType, outputSize);
+    activation = new Activation(activationType, outputSize);
 }
 
 Dense::~Dense() {
-    // Free GPU memory
     cudaFree(d_output);
     cudaFree(d_weights);
     cudaFree(d_biases);
+    delete activation;
 }
 
 void Dense::initializeWeights() {
@@ -75,7 +75,7 @@ float* Dense::forward(const float* d_input) {
     );
     CUDA_CHECK(cudaGetLastError());
 
-    activation.activate(d_output);
+    activation->activate(d_output);
     CUDA_CHECK(cudaDeviceSynchronize());
 
     return d_output;

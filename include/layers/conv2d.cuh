@@ -120,8 +120,7 @@ class Conv2d : public WeightedLayer {
     float* d_weights;
     float* d_biases;
 
-    // Kernels
-    Activation activation;
+    Activation* activation;
 
     /**
      * @brief Initialize weights of the convolutional layer with zeros
