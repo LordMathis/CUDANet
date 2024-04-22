@@ -15,7 +15,7 @@ MaxPooling2D::MaxPooling2D(
     : inputSize(inputSize), nChannels(nChannels), poolingSize(poolingSize), stride(stride) {
 
 
-    outputSize  = (inputSize - 1) / stride + 1;
+    outputSize  = (inputSize - poolingSize) / stride + 1;
 
     activation = new Activation(
         activationType, outputSize * outputSize * nChannels
