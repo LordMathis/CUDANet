@@ -80,13 +80,18 @@ class Conv2d : public WeightedLayer {
     std::vector<float> getBiases();
 
     /**
-     * @brief Get the output width (/ height) of the layer
+     * @brief Get output size
      *
-     * @return int
+     * @return int output size
      */
-    int getOutputSize() {
-        return outputSize;
-    }
+    int getOutputSize();
+
+    /**
+     * @brief Get input size
+     *
+     * @return int input size
+     */
+    int getInputSize();
 
     /**
      * @brief Get the padding size of the layer

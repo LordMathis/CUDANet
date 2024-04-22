@@ -130,3 +130,11 @@ float* Conv2d::forward(const float* d_input) {
 
     return d_output;
 }
+
+int Conv2d::getOutputSize() {
+    return outputSize * outputSize * numFilters;
+}
+
+int Conv2d::getInputSize() {
+    return inputSize * inputSize * inputChannels;
+}

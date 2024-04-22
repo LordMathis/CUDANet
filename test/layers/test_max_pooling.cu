@@ -51,10 +51,10 @@ TEST(MaxPoolingLayerTest, MaxPoolForwardTest) {
 
     int outputSize = maxPoolingLayer.getOutputSize();
 
-    std::vector<float> output(outputSize * outputSize * nChannels);
+    std::vector<float> output(outputSize);
     cudaStatus = cudaMemcpy(
         output.data(), d_output,
-        sizeof(float) * outputSize * outputSize * nChannels,
+        sizeof(float) * outputSize,
         cudaMemcpyDeviceToHost
     );
     EXPECT_EQ(cudaStatus, cudaSuccess);

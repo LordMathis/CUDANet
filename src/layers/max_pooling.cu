@@ -53,3 +53,11 @@ float* MaxPooling2D::forward(const float* d_input) {
 
     return d_output;
 }
+
+int MaxPooling2D::getOutputSize() {
+    return outputSize * outputSize * nChannels;
+}
+
+int MaxPooling2D::getInputSize() {
+    return inputSize * inputSize * nChannels;
+}

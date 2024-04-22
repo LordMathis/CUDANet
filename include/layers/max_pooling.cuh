@@ -20,13 +20,18 @@ class MaxPooling2D : public SequentialLayer {
     float* forward(const float* d_input);
 
     /**
-     * @brief Get the output width (/ height) of the layer
+     * @brief Get output size
      *
-     * @return int
+     * @return int output size
      */
-    int getOutputSize() {
-        return outputSize;
-    }
+    int getOutputSize();
+
+    /**
+     * @brief Get input size
+     * 
+     * @return int input size
+     */
+    int getInputSize();
 
   private:
     int inputSize;

@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include "layer.cuh"
 #include "activation.cuh"
+#include "layer.cuh"
 
 namespace CUDANet::Layers {
 
@@ -19,7 +19,8 @@ class Dense : public WeightedLayer {
      *
      * @param inputSize Size of the input vector
      * @param outputSize Size of the output vector
-     * @param activationType Activation function type ('RELU', 'SIGMOID', 'SOFTMAX' or 'NONE')
+     * @param activationType Activation function type ('RELU', 'SIGMOID',
+     * 'SOFTMAX' or 'NONE')
      */
     Dense(int inputSize, int outputSize, Layers::ActivationType activationType);
 
@@ -64,6 +65,20 @@ class Dense : public WeightedLayer {
      * @return Vector of biases
      */
     std::vector<float> getBiases();
+
+    /**
+     * @brief Get output size
+     *
+     * @return int output size
+     */
+    int getOutputSize();
+
+    /**
+     * @brief Get input size
+     *
+     * @return int input size
+     */
+    int getInputSize();
 
   private:
     unsigned int inputSize;

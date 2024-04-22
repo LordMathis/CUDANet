@@ -109,3 +109,11 @@ void Dense::setBiases(const float* biases_input) {
 std::vector<float> Dense::getBiases() {
     return biases;
 }
+
+int Dense::getOutputSize() {
+    return outputSize;
+}
+
+int Dense::getInputSize() {
+    return inputSize;
+}

@@ -20,3 +20,12 @@ float* Input::forward(const float* input) {
 
     return d_output;
 }
+
+int Input::getOutputSize() {
+    return inputSize;
+}
+
+
+int Input::getInputSize() {
+    return inputSize;
+}

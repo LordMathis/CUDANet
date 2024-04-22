@@ -187,6 +187,8 @@ TEST(MatMulTest, SumReduceTest) {
         cudaMemcpy(d_input, input.data(), sizeof(float) * n, cudaMemcpyHostToDevice);
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
+    CUDANet::Utils::clear(d_sum, n);
+
     CUDANet::Kernels::sum_reduce<<<gridSize, BLOCK_SIZE>>>(
         d_input, d_sum, n
     );
@@ -208,7 +210,5 @@ TEST(MatMulTest, SumReduceTest) {
     EXPECT_FLOAT_EQ(expected, sum[0]);    
 
     cudaFree(d_input);
-    cudaFree(d_sum);
-
-    
+    cudaFree(d_sum);    
 }

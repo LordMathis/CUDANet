@@ -50,3 +50,11 @@ float* AvgPooling2D::forward(const float* d_input) {
 
     return d_output;
 }
+
+int AvgPooling2D::getOutputSize() {
+    return outputSize * outputSize * nChannels;
+}
+
+int AvgPooling2D::getInputSize() {
+    return inputSize * inputSize * nChannels;
+}

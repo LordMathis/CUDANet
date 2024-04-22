@@ -4,8 +4,8 @@
 
 #include <vector>
 
-#define CUDANET_SAME_PADDING(inputSize, kernelSize, stride) ((stride - 1) * inputSize - stride + kernelSize) / 2;
-
+#define CUDANET_SAME_PADDING(inputSize, kernelSize, stride) \
+    ((stride - 1) * inputSize - stride + kernelSize) / 2;
 
 namespace CUDANet::Layers {
 
@@ -28,6 +28,20 @@ class SequentialLayer {
      * @return float* Device pointer to the output
      */
     virtual float* forward(const float* input) = 0;
+
+    /**
+     * @brief Get output size
+     *
+     * @return int output size
+     */
+    virtual int getOutputSize() = 0;
+
+    /**
+     * @brief Get input size
+     * 
+     * @return int input size
+     */
+    virtual int getInputSize() = 0;
 };
 
 /**
