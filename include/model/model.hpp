@@ -36,6 +36,8 @@ class Model {
 
     void loadWeights(const std::string& path);
 
+    bool validate();
+
   private:
     Layers::Input*  inputLayer;
     Layers::Output* outputLayer;

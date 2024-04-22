@@ -148,3 +148,22 @@ void Model::loadWeights(const std::string& path) {
 
     file.close();
 }
+
+bool Model::validate() {
+    
+    bool valid = true;
+    int size = inputLayer->getInputSize();
+
+    for (const auto& layer : layers) {
+        if (layer.second->getInputSize() != size) {
+            valid = false;
+            std::cerr << "Layer: " << layer.first << " has incorrect input size, expected " << size << " but got "
+                      << layer.second->getInputSize() << std::endl;
+            break;
+        }
+
+        size = layer.second->getOutputSize();
+    }
+
+    return valid;
+}

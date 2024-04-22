@@ -109,6 +109,9 @@ int main(int argc, const char* const argv[]) {
     const int outputSize = 1000;
 
     CUDANet::Model *model = createModel(inputSize, inputChannels, outputSize);
+
+    model->validate();
+
     model->loadWeights(modelWeightsPath);
 
     // Read and normalize the image
