@@ -1,14 +1,14 @@
+#include <conv2d.cuh>
+#include <dense.cuh>
 #include <iostream>
+#include <max_pooling.cuh>
+#include <model.hpp>
+#include <opencv2/opencv.hpp>
 #include <string>
 #include <vector>
-#include <opencv2/opencv.hpp>
 
-#include <model.hpp>
-#include <conv2d.cuh>
-#include <max_pooling.cuh>
-#include <dense.cuh>
-
-std::vector<float> readAndNormalizeImage(const std::string& imagePath, int width, int height) {
+std::vector<float>
+readAndNormalizeImage(const std::string &imagePath, int width, int height) {
     // Read the image using OpenCV
     cv::Mat image = cv::imread(imagePath, cv::IMREAD_COLOR);
 
@@ -35,15 +35,20 @@ std::vector<float> readAndNormalizeImage(const std::string& imagePath, int width
     return imageData;
 }
 
-CUDANet::Model* createModel(const int inputSize, const int inputChannels, const int outputSize) {
+CUDANet::Model *createModel(
+    const int inputSize,
+    const int inputChannels,
+    const int outputSize
+) {
     CUDANet::Model *model =
         new CUDANet::Model(inputSize, inputChannels, outputSize);
 
     // Block 1
     CUDANet::Layers::Conv2d *conv1 = new CUDANet::Layers::Conv2d(
-        inputSize, inputChannels, 11, 4, 64, 2, CUDANet::Layers::ActivationType::RELU
+        inputSize, inputChannels, 11, 4, 64, 2,
+        CUDANet::Layers::ActivationType::RELU
     );
-    model->addLayer("features.0", conv1); // Match pytorch naming
+    model->addLayer("features.0", conv1);  // Match pytorch naming
     CUDANet::Layers::MaxPooling2D *pool1 = new CUDANet::Layers::MaxPooling2D(
         56, 64, 3, 2, CUDANet::Layers::ActivationType::NONE
     );
@@ -100,20 +105,20 @@ CUDANet::Model* createModel(const int inputSize, const int inputChannels, const 
     return model;
 }
 
-int main(int argc, const char* const argv[]) {
-
+int main(int argc, const char *const argv[]) {
     if (argc != 3) {
-        std::cerr << "Usage: " << argv[0] << "<model_weights_path> <image_path>" << std::endl;
-        return 1; // Return error code indicating incorrect usage
+        std::cerr << "Usage: " << argv[0] << "<model_weights_path> <image_path>"
+                  << std::endl;
+        return 1;  // Return error code indicating incorrect usage
     }
 
     // Path to the image file
     std::string modelWeightsPath = argv[1];
-    std::string imagePath = argv[2];
+    std::string imagePath        = argv[2];
 
-    const int inputSize = 227;
+    const int inputSize     = 227;
     const int inputChannels = 3;
-    const int outputSize = 1000;
+    const int outputSize    = 1000;
 
     CUDANet::Model *model = createModel(inputSize, inputChannels, outputSize);
 
@@ -122,10 +127,11 @@ int main(int argc, const char* const argv[]) {
     model->loadWeights(modelWeightsPath);
 
     // Read and normalize the image
-    std::vector<float> imageData = readAndNormalizeImage(imagePath, inputSize, inputSize);
+    std::vector<float> imageData =
+        readAndNormalizeImage(imagePath, inputSize, inputSize);
 
     // Print the size of the image data
-    float* output = model->predict(imageData.data());
+    float *output = model->predict(imageData.data());
 
     // Get max index
     int maxIndex = 0;
