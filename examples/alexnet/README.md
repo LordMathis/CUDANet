@@ -12,7 +12,7 @@ python alexnet.py
 
 2. Follow the instructions from repository root to build CUDANet library.
 
-3. Build AlexNet
+3. Build AlexNet (requires [OpenCV](https://opencv.org/) for image loading and normalization)
 
 ```sh
 mkdir build
