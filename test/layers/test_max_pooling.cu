@@ -65,8 +65,6 @@ TEST(MaxPoolingLayerTest, MaxPoolForwardTest) {
         EXPECT_FLOAT_EQ(expected[i], output[i]);
     }
 
-    cudaFree(d_input);
-    cudaFree(d_output);
-
-    
+    cudaStatus = cudaFree(d_input);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
 }

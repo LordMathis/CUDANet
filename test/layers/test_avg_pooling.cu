@@ -65,5 +65,6 @@ TEST(AvgPoolingLayerTest, AvgPoolForwardTest) {
         EXPECT_NEAR(expected[i], output[i], 1e-4);
     }
 
-    cudaFree(d_input);
+    cudaStatus = cudaFree(d_input);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
 }
