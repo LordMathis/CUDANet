@@ -4,20 +4,7 @@
 
 Convolutional Neural Network inference library running on CUDA.
 
-## Features
-
-- [x] Input layer
-- [x] Dense (fully-connected) layer
-- [x] Conv2d layer
-- [x] Max pooling
-- [x] Average pooling
-- [x] Concat layer
-- [x] Sigmoid activation
-- [x] ReLU activation
-- [x] Softmax activation
-- [x] Load weights from file 
-
-## Usage
+## Quickstart Guide
 
 **requirements**
 - [cmake](https://cmake.org/)
@@ -94,7 +81,7 @@ float* MyModel::predict(const float* input) {
 CUDANet uses format similar to safetensors to load weights and biases.
 
 ```
-[int64 header size, header, tensor values]
+[u_short version, u_int64 header size, header, tensor values]
 ```
 
 where `header` is a csv format
@@ -103,6 +90,4 @@ where `header` is a csv format
 <tensor_name>,<tensor_size>,<tensor_offset>
 ```
 
-To load weights call `load_weights` function on Model object.
-
-To export weights from pytorch you can use the `export_model_weights` function from `tools/utils.py`  script
+To load weights call `load_weights` function on Model object. To export weights from pytorch you can use the `export_model_weights` function from `tools/utils.py`  script. Currently only float32 weights are supported
