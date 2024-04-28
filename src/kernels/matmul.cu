@@ -36,6 +36,32 @@ __global__ void Kernels::vec_vec_add(
     d_output[tid] = d_vector1[tid] + d_vector2[tid];
 }
 
+__global__ void Kernels::vec_vec_sub(
+    const float* __restrict__ d_vector1,
+    const float* __restrict__ d_vector2,
+    float* __restrict__ d_output,
+    const unsigned int w
+) {
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
+    if (tid >= w) {
+        return;
+    }
+    d_output[tid] = d_vector1[tid] - d_vector2[tid];
+}
+
+__global__ void Kernels::vec_vec_mul(
+    const float* __restrict__ d_vector1,
+    const float* __restrict__ d_vector2,
+    float* __restrict__ d_output,
+    const unsigned int w
+) {
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
+    if (tid >= w) {
+        return;
+    }
+    d_output[tid] = d_vector1[tid] * d_vector2[tid];
+}
+
 __global__ void Kernels::vec_scalar_sub(
     const float* __restrict__ d_src,
     float* __restrict__ d_out,

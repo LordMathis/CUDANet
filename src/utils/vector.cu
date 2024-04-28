@@ -60,3 +60,15 @@ void Utils::sum(float* d_vec, float* d_sum, const unsigned int length) {
         remaining = blocks_needed;
     }
 }
+
+void Utils::mean(float* d_vec, float* d_mean, const unsigned int length) {
+    float sum;
+    Utils::sum(d_vec, &sum, length);
+    *d_mean = sum / length;
+}
+
+void Utils::var(float* d_vec, float* d_mean, float* d_var, const unsigned int length) {
+    
+    // TODO:
+
+}

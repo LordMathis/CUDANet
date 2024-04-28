@@ -38,6 +38,29 @@ __global__ void vec_vec_add(
 );
 
 /**
+ * @brief Vector vector subtraction kernel
+ * 
+ * @param d_vector1 
+ * @param d_vector2 
+ * @param d_output 
+ * @param w 
+ * @return __global__ 
+ */
+__global__ void vec_vec_sub(
+    const float* __restrict__ d_vector1,
+    const float* __restrict__ d_vector2,
+    float* __restrict__ d_output,
+    const unsigned int w
+);
+
+__global__ void vec_vec_mul(
+    const float* __restrict__ d_vector1,
+    const float* __restrict__ d_vector2,
+    float* __restrict__ d_output,
+    const unsigned int w
+);
+
+/**
  * @brief Sub scalar from each element of the vector
  * 
  * @param d_vector 
