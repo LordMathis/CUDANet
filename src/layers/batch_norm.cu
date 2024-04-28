@@ -129,6 +129,7 @@ float *BatchNorm::forward(const float *d_input) {
             &d_mean[i],
             inputSize * inputSize
         );
+        CUDA_CHECK(cudaGetLastError());
 
         Kernels::vec_scalar_div<<<gridSize, BLOCK_SIZE>>>(
             d_output + i * inputSize * inputSize,
@@ -136,6 +137,7 @@ float *BatchNorm::forward(const float *d_input) {
             &d_sqrt_var[i],
             inputSize * inputSize
         );
+        CUDA_CHECK(cudaGetLastError());
 
         Kernels::vec_scalar_mul<<<gridSize, BLOCK_SIZE>>>(
             d_output + i * inputSize * inputSize,
@@ -143,6 +145,7 @@ float *BatchNorm::forward(const float *d_input) {
             &d_weights[i],
             inputSize * inputSize
         );
+        CUDA_CHECK(cudaGetLastError());
 
         Kernels::vec_scalar_add<<<gridSize, BLOCK_SIZE>>>(
             d_output + i * inputSize * inputSize,
@@ -150,6 +153,7 @@ float *BatchNorm::forward(const float *d_input) {
             &d_biases[i],
             inputSize * inputSize
         );
+        CUDA_CHECK(cudaGetLastError());
     }
 
     return d_output;
