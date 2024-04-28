@@ -1,7 +1,5 @@
 # CUDANet
 
-:warning: Work in progress
-
 Convolutional Neural Network inference library running on CUDA.
 
 ## Quickstart Guide
