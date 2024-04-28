@@ -52,7 +52,7 @@ void Activation::activate(float* d_input) {
 
             // Subtract max value to improve numerical stability
             Kernels::vec_scalar_sub<<<gridSize, BLOCK_SIZE>>>(
-                d_input, d_input, d_max, length
+                d_input, d_input, &d_max[0], length
             );
             CUDA_CHECK(cudaGetLastError());
 
@@ -66,7 +66,7 @@ void Activation::activate(float* d_input) {
             Utils::sum(d_input, d_softmax_sum, length);
 
             Kernels::vec_scalar_div<<<gridSize, BLOCK_SIZE>>>(
-                d_input, d_input, d_softmax_sum, length
+                d_input, d_input, &d_softmax_sum[0], length
             );
             CUDA_CHECK(cudaGetLastError());
             break;

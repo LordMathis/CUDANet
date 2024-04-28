@@ -46,7 +46,7 @@ __global__ void Kernels::vec_scalar_sub(
     if (tid >= len) {
         return;
     }
-    d_out[tid] = d_src[tid] - d_scalar[0];
+    d_out[tid] = d_src[tid] - *d_scalar;
 }
 
 __global__ void Kernels::vec_scalar_div(
@@ -59,7 +59,7 @@ __global__ void Kernels::vec_scalar_div(
     if (tid >= len) {
         return;
     }
-    d_out[tid] = d_src[tid] / d_scalar[0];
+    d_out[tid] = d_src[tid] / *d_scalar;
 }
 
 __global__ void Kernels::vec_exp(
