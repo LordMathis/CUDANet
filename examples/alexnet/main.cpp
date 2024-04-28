@@ -1,6 +1,7 @@
 #include <conv2d.cuh>
 #include <dense.cuh>
 #include <iostream>
+#include <imagenet.hpp>
 #include <max_pooling.cuh>
 #include <model.hpp>
 #include <opencv2/opencv.hpp>
@@ -141,6 +142,8 @@ int main(int argc, const char *const argv[]) {
         }
     }
 
-    std::cout << "Prediction: " << maxIndex << std::endl;
+    std::string classLabel = CUDANet::Utils::IMAGENET_CLASS_MAP.at(maxIndex);
+
+    std::cout << "Prediction: " << maxIndex << " " << classLabel << std::endl;
     return 0;
 }
