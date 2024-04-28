@@ -49,6 +49,19 @@ __global__ void Kernels::vec_scalar_sub(
     d_out[tid] = d_src[tid] - *d_scalar;
 }
 
+__global__ void Kernels::vec_scalar_add(
+    const float* __restrict__ d_src,
+    float* __restrict__ d_out,
+    const float* __restrict__ d_scalar,
+    const unsigned int len
+) {
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
+    if (tid >= len) {
+        return;
+    }
+    d_out[tid] = d_src[tid] + *d_scalar;
+}
+
 __global__ void Kernels::vec_scalar_div(
     const float* __restrict__ d_src,
     float* __restrict__ d_out,
@@ -60,6 +73,19 @@ __global__ void Kernels::vec_scalar_div(
         return;
     }
     d_out[tid] = d_src[tid] / *d_scalar;
+}
+
+__global__ void Kernels::vec_scalar_mul(
+    const float* __restrict__ d_src,
+    float* __restrict__ d_out,
+    const float* __restrict__ d_scalar,
+    const unsigned int len
+) {
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
+    if (tid >= len) {
+        return;
+    }
+    d_out[tid] = d_src[tid] * *d_scalar;
 }
 
 __global__ void Kernels::vec_exp(

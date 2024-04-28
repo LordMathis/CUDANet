@@ -38,7 +38,7 @@ __global__ void vec_vec_add(
 );
 
 /**
- * @brief Add scalar to each element of the vector
+ * @brief Sub scalar from each element of the vector
  * 
  * @param d_vector 
  * @param d_scalar 
@@ -54,7 +54,23 @@ __global__ void vec_scalar_sub(
 );
 
 /**
- * @brief Softmax activation function kernel
+ * @brief Add scalar to each element of the vector
+ * 
+ * @param d_src 
+ * @param d_out 
+ * @param d_scalar 
+ * @param len 
+ * @return __global__ 
+ */
+__global__ void vec_scalar_add(
+    const float* __restrict__ d_src,
+    float* __restrict__ d_out,
+    const float* __restrict__ d_scalar,
+    const unsigned int len
+);
+
+/**
+ * @brief Divide each element of the vector by a scalar
  *
  * @param src Pointer to the source array
  * @param dst Pointer to the destination array
@@ -68,7 +84,23 @@ __global__ void vec_scalar_div(
 );
 
 /**
- * @brief Softmax activation exponentiation kernel
+ * @brief Multiply each element of the vector by a scalar
+ * 
+ * @param d_src 
+ * @param d_out 
+ * @param d_scalar 
+ * @param len 
+ * @return __global__ 
+ */
+__global__ void vec_scalar_mul(
+    const float* __restrict__ d_src,
+    float* __restrict__ d_out,
+    const float* __restrict__ d_scalar,
+    const unsigned int len
+);
+
+/**
+ * @brief Exponentiate each element of the vector
  *
  * @param src Pointer to the source array
  * @param dst Pointer to the destination array
