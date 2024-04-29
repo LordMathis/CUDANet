@@ -7,7 +7,7 @@
 
 using namespace CUDANet;
 
-void Utils::print_vec(float* d_vec, const unsigned int length) {
+void Utils::print_vec(const float* d_vec, const unsigned int length) {
     std::vector<float> h_vec(length);
     CUDA_CHECK(cudaMemcpy(
         h_vec.data(), d_vec, sizeof(float) * length, cudaMemcpyDeviceToHost
@@ -24,7 +24,7 @@ void Utils::clear(float* d_vec, const unsigned int length) {
     CUDA_CHECK(cudaMemset(d_vec, 0, sizeof(float) * length));
 }
 
-void Utils::max(float* d_vec, float* d_max, const unsigned int length) {
+void Utils::max(const float* d_vec, float* d_max, const unsigned int length) {
     
     const int grid_size = (length + BLOCK_SIZE - 1) / BLOCK_SIZE;
     Kernels::max_reduce<<<grid_size, BLOCK_SIZE>>>(d_vec, d_max, length);
@@ -42,7 +42,7 @@ void Utils::max(float* d_vec, float* d_max, const unsigned int length) {
 
 }
 
-void Utils::sum(float* d_vec, float* d_sum, const unsigned int length) {
+void Utils::sum(const float* d_vec, float* d_sum, const unsigned int length) {
     
     const int gridSize = (length + BLOCK_SIZE - 1) / BLOCK_SIZE;
 
@@ -61,14 +61,14 @@ void Utils::sum(float* d_vec, float* d_sum, const unsigned int length) {
     }
 }
 
-void Utils::mean(float* d_vec, float* d_mean, const unsigned int length) {
-    float sum;
-    Utils::sum(d_vec, &sum, length);
-    *d_mean = sum / length;
-}
+// __device__ float Utils::mean(float* d_vec, const unsigned int length) {
+//     float sum = 0;
+//     for (int i = 0; i < length; ++i) {
+//         sum += d_vec[i];
+//     }
 
-void Utils::var(float* d_vec, float* d_mean, float* d_var, const unsigned int length) {
+// void Utils::var(float* d_vec, float* d_mean, float* d_var, const unsigned int length) {
     
-    // TODO:
+//     // TODO:
 
-}
+// }

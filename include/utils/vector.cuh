@@ -10,7 +10,7 @@ namespace CUDANet::Utils {
  * @param d_vec Pointer to the vector on device
  * @param length Length of the vector
  */
-void print_vec(float *d_vec, const unsigned int length);
+void print_vec(const float *d_vec, const unsigned int length);
 
 /**
  * @brief Utility function that clears a vector
@@ -27,7 +27,7 @@ void clear(float *d_vector, const unsigned int len);
  * @param d_vec Pointer to the vector
  * @param length Length of the vector
  */
-void sum(float *d_vec, float *d_sum, const unsigned int length);
+void sum(const float *d_vec, float *d_sum, const unsigned int length);
 
 
 /**
@@ -36,25 +36,16 @@ void sum(float *d_vec, float *d_sum, const unsigned int length);
  * @param d_vec Pointer to the vector
  * @param length Length of the vector
  */
-void max(float *d_vec, float *d_max, const unsigned int length);
+void max(const float *d_vec, float *d_max, const unsigned int length);
 
-/**
- * @brief Compute the mean of a vector
- * 
- * @param d_vec 
- * @param d_mean 
- * @param length 
- */
-void mean(float *d_vec, float *d_mean, const unsigned int length);
-
-/**
- * @brief Compute the variance of a vector
- * 
- * @param d_vec 
- * @param d_var 
- * @param length 
- */
-void var(float *d_vec, float *d_var, const unsigned int length);
+// /**
+//  * @brief Compute the variance of a vector
+//  * 
+//  * @param d_vec 
+//  * @param d_var 
+//  * @param length 
+//  */
+// void var(float *d_vec, float *d_var, const unsigned int length);
 
 }  // namespace CUDANet::Utils
 

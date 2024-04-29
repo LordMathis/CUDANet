@@ -127,6 +127,19 @@ __global__ void Kernels::vec_exp(
     }
 }
 
+__global__ void Kernels::vec_sqrt(
+    const float* __restrict__ src,
+    float* __restrict__ dst,
+    const unsigned int len
+) {
+    int stride = gridDim.x * blockDim.x;
+    int tid    = blockDim.x * blockIdx.x + threadIdx.x; 
+
+    for (int i = tid; i < len; i += stride) {
+        dst[i] = sqrtf(src[i]);
+    }
+}
+
 
 __global__ void Kernels::max_reduce(
     const float* __restrict__ d_vector,

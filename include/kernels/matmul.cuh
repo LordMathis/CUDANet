@@ -136,6 +136,20 @@ __global__ void vec_exp(
 );
 
 /**
+ * @brief Compute the square root of each element of the vector
+ * 
+ * @param src Device pointer to source vector
+ * @param dst Device pointer to destination vector
+ * @param len Length of the vector
+ * @return __global__ 
+ */
+__global__ void vec_sqrt(
+    const float* __restrict__ src,
+    float* __restrict__ dst,
+    const unsigned int len
+);
+
+/**
  * @brief Max reduction kernel
  *
  * @param d_vector Device pointer to vector

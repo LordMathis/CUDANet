@@ -74,7 +74,11 @@ class BatchNorm : public WeightedLayer {
     float* d_output;
 
     float* d_mean;
+    float* d_mean_sub;
     float* d_sqrt_var;
+
+    float* d_length;
+    float* d_epsilon;
 
     float* d_weights;
     float* d_biases;
