@@ -61,14 +61,16 @@ void Utils::sum(const float* d_vec, float* d_sum, const unsigned int length) {
     }
 }
 
-// __device__ float Utils::mean(float* d_vec, const unsigned int length) {
-//     float sum = 0;
-//     for (int i = 0; i < length; ++i) {
-//         sum += d_vec[i];
-//     }
+void Utils::mean(const float* d_vec, float* d_mean, float *d_length, int length) {
+    Utils::sum(d_vec, d_mean, length);
 
-// void Utils::var(float* d_vec, float* d_mean, float* d_var, const unsigned int length) {
-    
-//     // TODO:
+    const int gridSize = (length + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    Kernels::vec_scalar_div<<<gridSize, BLOCK_SIZE>>>(
+        d_mean,
+        d_mean,
+        d_length,
+        length
+    );
 
-// }
+    CUDA_CHECK(cudaGetLastError());
+}

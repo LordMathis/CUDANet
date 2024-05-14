@@ -38,6 +38,17 @@ void sum(const float *d_vec, float *d_sum, const unsigned int length);
  */
 void max(const float *d_vec, float *d_max, const unsigned int length);
 
+
+/**
+ * @brief Compute the mean of the vector
+ * 
+ * @param d_vec Device pointer to the vector
+ * @param d_mean Device pointer to the mean
+ * @param d_length Device pointer to the length
+ * @param length Length of the vector
+ */
+void mean(const float *d_vec, float *d_mean, float *d_length, int length);
+
 // /**
 //  * @brief Compute the variance of a vector
 //  * 
