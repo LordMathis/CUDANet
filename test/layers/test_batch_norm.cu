@@ -71,7 +71,7 @@ TEST(BatchNormLayerTest, BatchNormSmallForwardTest) {
 
     // std::cout << "BatchNorm: " << std::endl;
     for (int i = 0; i < output.size(); i++) {
-        EXPECT_EQ(output[i], expected[i]);
+        EXPECT_NEAR(output[i], expected[i], 1e-5);
         // std::cout << output[i] << " ";
     }
     // std::cout << std::endl;

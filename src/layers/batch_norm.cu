@@ -42,8 +42,9 @@ BatchNorm::BatchNorm(
     CUDA_CHECK(cudaMalloc((void **)&d_biases, sizeof(float) * inputChannels));
 
     d_length = nullptr;
+    float length = (float) inputSize * inputSize;
     CUDA_CHECK(cudaMalloc((void **)&d_length, sizeof(float)));
-    CUDA_CHECK(cudaMemset(d_length, inputSize * inputSize, sizeof(float)));
+    CUDA_CHECK(cudaMemcpy(d_length, &length, sizeof(float), cudaMemcpyHostToDevice));
 
     d_epsilon = nullptr;
     float epsilon = 1e-5f;
@@ -124,21 +125,12 @@ float *BatchNorm::forward(const float *d_input) {
     for (int i = 0; i < inputChannels; i++) {
 
         // Compute mean
-        // Sum over all values
-        Utils::sum(
+        Utils::mean(
             d_input + i * inputSize * inputSize,
-            d_mean,
-            inputSize * inputSize
-        );
-
-        // Divide sum by length -> mean
-        Kernels::vec_scalar_div<<<gridSize, BLOCK_SIZE>>>(
-            d_mean,
             d_mean,
             d_length,
             inputSize * inputSize
         );
-        CUDA_CHECK(cudaGetLastError());
 
         // Subtract mean from input
         Kernels::vec_scalar_sub<<<gridSize, BLOCK_SIZE>>>(
