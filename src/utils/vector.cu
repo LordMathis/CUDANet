@@ -74,3 +74,34 @@ void Utils::mean(const float* d_vec, float* d_mean, float *d_length, int length)
 
     CUDA_CHECK(cudaGetLastError());
 }
+
+
+void Utils::var(float* d_vec, float* d_var, float *d_length, const unsigned int length) {
+
+    const int gridSize = (length + BLOCK_SIZE - 1) / BLOCK_SIZE;
+
+    Kernels::vec_vec_mul<<<gridSize, BLOCK_SIZE>>>(
+        d_vec,
+        d_vec,
+        d_var,
+        length
+    );
+    CUDA_CHECK(cudaGetLastError());
+
+    // Sum over all differences
+    Utils::sum(
+        d_var,
+        d_var,
+        length
+    );
+
+    // Divide by difference sum / length -> variance
+    Kernels::vec_scalar_div<<<gridSize, BLOCK_SIZE>>>(
+        d_var,
+        d_var,
+        d_length,
+        length
+    );
+    CUDA_CHECK(cudaGetLastError());
+
+}

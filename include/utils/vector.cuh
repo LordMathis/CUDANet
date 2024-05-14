@@ -49,14 +49,14 @@ void max(const float *d_vec, float *d_max, const unsigned int length);
  */
 void mean(const float *d_vec, float *d_mean, float *d_length, int length);
 
-// /**
-//  * @brief Compute the variance of a vector
-//  * 
-//  * @param d_vec 
-//  * @param d_var 
-//  * @param length 
-//  */
-// void var(float *d_vec, float *d_var, const unsigned int length);
+/**
+ * @brief Compute the variance of a vector
+ * 
+ * @param d_vec 
+ * @param d_var 
+ * @param length 
+ */
+void var(float *d_vec, float *d_var, float *d_length, const unsigned int length);
 
 }  // namespace CUDANet::Utils
 

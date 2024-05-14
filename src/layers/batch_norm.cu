@@ -142,30 +142,12 @@ float *BatchNorm::forward(const float *d_input) {
         CUDA_CHECK(cudaGetLastError());
 
         // Compute variance
-        // Square differences of input - mean
-        Kernels::vec_vec_mul<<<gridSize, BLOCK_SIZE>>>(
+        Utils::var(
             d_mean_sub,
-            d_mean_sub,
-            d_sqrt_var,
-            inputSize * inputSize
-        );
-        CUDA_CHECK(cudaGetLastError());
-
-        // Sum over all differences
-        Utils::sum(
-            d_sqrt_var,
-            d_sqrt_var,
-            inputSize * inputSize
-        );
-
-        // Divide by difference sum / length -> variance
-        Kernels::vec_scalar_div<<<gridSize, BLOCK_SIZE>>>(
-            d_sqrt_var,
             d_sqrt_var,
             d_length,
             inputSize * inputSize
         );
-        CUDA_CHECK(cudaGetLastError());
 
         // Add epsilon to variance to avoid division by zero
         Kernels::vec_scalar_add<<<gridSize, BLOCK_SIZE>>>(
@@ -193,6 +175,7 @@ float *BatchNorm::forward(const float *d_input) {
         );
         CUDA_CHECK(cudaGetLastError());
 
+        // Multiply by weights
         Kernels::vec_scalar_mul<<<gridSize, BLOCK_SIZE>>>(
             d_output + i * inputSize * inputSize,
             d_output + i * inputSize * inputSize,
@@ -201,6 +184,7 @@ float *BatchNorm::forward(const float *d_input) {
         );
         CUDA_CHECK(cudaGetLastError());
 
+        // Add biases
         Kernels::vec_scalar_add<<<gridSize, BLOCK_SIZE>>>(
             d_output + i * inputSize * inputSize,
             d_output + i * inputSize * inputSize,
