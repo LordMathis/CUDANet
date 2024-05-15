@@ -7,6 +7,7 @@
 
 #include "input.cuh"
 #include "layer.cuh"
+#include "module.hpp"
 #include "output.cuh"
 
 namespace CUDANet {

@@ -50,6 +50,18 @@ float* Model::predict(const float* input) {
 }
 
 void Model::addLayer(const std::string& name, Layers::SequentialLayer* layer) {
+
+    Module* module = dynamic_cast<Module*>(layer);
+
+    if (module != nullptr) {
+        layers.push_back({ name, module });
+        for (const auto& moduleLayer : module->getLayers()) {
+            layerMap[moduleLayer.first] = moduleLayer.second;
+        }
+
+        return;
+    }
+
     layers.push_back({ name, layer });
     layerMap[name] = layer;
 }
