@@ -1,9 +1,4 @@
-#include <conv2d.cuh>
-#include <dense.cuh>
-#include <iostream>
-#include <imagenet.hpp>
-#include <max_pooling.cuh>
-#include <model.hpp>
+#include <cudanet.cuh>
 #include <opencv2/opencv.hpp>
 #include <string>
 #include <vector>

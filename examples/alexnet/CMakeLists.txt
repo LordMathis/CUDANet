@@ -4,7 +4,7 @@ project(AlexNet
         LANGUAGES CXX CUDA
 )
 
-add_executable(alexnet main.cpp)
+add_executable(alexnet alexnet.cpp)
 
 find_library(CUDANet_LIBRARY NAMES CUDANet HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../build)
 find_package(OpenCV REQUIRED COMPONENTS core imgcodecs imgproc)
