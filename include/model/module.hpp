@@ -23,7 +23,7 @@ class Module : public Layers::SequentialLayer {
 
     const std::unordered_map<std::string, Layers::SequentialLayer*>& getLayers() const;
 
-  private:
+  protected:
     int inputSize;
     int inputChannels;
 

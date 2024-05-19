@@ -39,7 +39,7 @@ class Model {
 
     bool validate();
 
-  private:
+  protected:
     Layers::Input*  inputLayer;
     Layers::Output* outputLayer;
 
