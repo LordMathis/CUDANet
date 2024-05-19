@@ -4,20 +4,18 @@
 using namespace CUDANet::Layers;
 
 
-Concat::Concat(const unsigned int inputASize, const unsigned int inputBSize)
+Concat::Concat(const int inputASize, const int inputBSize)
     : inputASize(inputASize), inputBSize(inputBSize) {
 
     d_output = nullptr;
     CUDA_CHECK(cudaMalloc(
         (void**)&d_output, sizeof(float) * (inputASize + inputBSize)
     ));
-
 }
 
 Concat::~Concat() {
     cudaFree(d_output);
 }
-
 
 float* Concat::forward(const float* d_input_A, const float* d_input_B) {
     CUDA_CHECK(cudaMemcpy(
@@ -33,3 +31,7 @@ float* Concat::forward(const float* d_input_A, const float* d_input_B) {
 
     return d_output;
 }
+
+int Concat::getOutputSize() {
+    return inputASize + inputBSize;
+};

@@ -15,7 +15,7 @@ class Concat {
      * @param inputASize Size of the first input
      * @param inputBSize Size of the second input
      */
-    Concat(const unsigned int inputASize, const unsigned int inputBSize);
+    Concat(const int inputASize, const int inputBSize);
 
     /**
      * @brief Destroy the Concat layer
@@ -33,9 +33,11 @@ class Concat {
      */
     float* forward(const float* d_input_A, const float* d_input_B);
 
+    int getOutputSize();
+
   private:
-    unsigned int inputASize;
-    unsigned int inputBSize;
+    int inputASize;
+    int inputBSize;
 
     float* d_output;
 };
