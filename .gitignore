@@ -40,4 +40,9 @@ docs
 
 __pycache__
 
+# Model weights
 *.bin
+
+# Test files
+*.jpg
+*.txt
