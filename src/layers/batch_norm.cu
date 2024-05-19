@@ -12,6 +12,7 @@ using namespace CUDANet::Layers;
 BatchNorm::BatchNorm(
     int            inputSize,
     int            inputChannels,
+    float          epsilon,
     ActivationType activationType
 )
     : inputSize(inputSize), inputChannels(inputChannels) {
@@ -47,7 +48,6 @@ BatchNorm::BatchNorm(
     CUDA_CHECK(cudaMemcpy(d_length, &length, sizeof(float), cudaMemcpyHostToDevice));
 
     d_epsilon = nullptr;
-    float epsilon = 1e-5f;
     CUDA_CHECK(cudaMalloc((void **)&d_epsilon, sizeof(float)));
     CUDA_CHECK(cudaMemcpy(d_epsilon, &epsilon, sizeof(float), cudaMemcpyHostToDevice));
 

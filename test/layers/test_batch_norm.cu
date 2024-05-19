@@ -13,7 +13,7 @@ TEST(BatchNormLayerTest, BatchNormSmallForwardTest) {
     cudaError_t cudaStatus;
 
     CUDANet::Layers::BatchNorm batchNorm(
-        inputSize, nChannels, CUDANet::Layers::ActivationType::NONE
+        inputSize, nChannels, 1e-5f, CUDANet::Layers::ActivationType::NONE
     );
 
     std::vector<float> weights = {0.63508f, 0.64903f};

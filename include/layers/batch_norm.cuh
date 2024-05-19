@@ -10,7 +10,7 @@ namespace CUDANet::Layers {
 
 class BatchNorm : public WeightedLayer {
   public:
-    BatchNorm(int inputSize, int inputChannels, ActivationType activationType);
+    BatchNorm(int inputSize, int inputChannels, float epsilon, ActivationType activationType);
 
     ~BatchNorm();
 
