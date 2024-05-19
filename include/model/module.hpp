@@ -11,8 +11,7 @@ namespace CUDANet {
 
 class Module : public Layers::SequentialLayer {
   public:
-    Module(const int inputSize, const int inputChannels, const int outputSize, const int outputChannels);
-    ~Module();
+    virtual ~Module() = 0;
 
     virtual float* forward(const float* d_input) = 0;
 
@@ -30,8 +29,6 @@ class Module : public Layers::SequentialLayer {
 
     int outputSize;
     int outputChannels;
-
-    float *d_output;
 
     std::vector<std::pair<std::string, Layers::SequentialLayer*>> layers;
     std::unordered_map<std::string, Layers::SequentialLayer*>     layerMap;
