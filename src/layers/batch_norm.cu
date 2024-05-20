@@ -9,7 +9,7 @@
 
 using namespace CUDANet::Layers;
 
-BatchNorm2D::BatchNorm2D(
+BatchNorm2d::BatchNorm2d(
     dim2d          inputSize,
     int            inputChannels,
     float          epsilon,
@@ -72,7 +72,7 @@ BatchNorm2D::BatchNorm2D(
         (inputSize.first * inputSize.second + BLOCK_SIZE - 1) / BLOCK_SIZE;
 }
 
-BatchNorm2D::~BatchNorm2D() {
+BatchNorm2d::~BatchNorm2d() {
     cudaFree(d_output);
     cudaFree(d_mean);
     cudaFree(d_mean_sub);
@@ -83,33 +83,33 @@ BatchNorm2D::~BatchNorm2D() {
     cudaFree(d_epsilon);
 }
 
-void BatchNorm2D::initializeWeights() {
+void BatchNorm2d::initializeWeights() {
     std::fill(weights.begin(), weights.end(), 1.0f);
 }
 
-void BatchNorm2D::initializeBiases() {
+void BatchNorm2d::initializeBiases() {
     std::fill(biases.begin(), biases.end(), 0.0f);
 }
 
-void BatchNorm2D::setWeights(const float *weights_input) {
+void BatchNorm2d::setWeights(const float *weights_input) {
     std::copy(weights_input, weights_input + weights.size(), weights.begin());
     toCuda();
 }
 
-std::vector<float> BatchNorm2D::getWeights() {
+std::vector<float> BatchNorm2d::getWeights() {
     return weights;
 }
 
-void BatchNorm2D::setBiases(const float *biases_input) {
+void BatchNorm2d::setBiases(const float *biases_input) {
     std::copy(biases_input, biases_input + biases.size(), biases.begin());
     toCuda();
 }
 
-std::vector<float> BatchNorm2D::getBiases() {
+std::vector<float> BatchNorm2d::getBiases() {
     return biases;
 }
 
-void BatchNorm2D::toCuda() {
+void BatchNorm2d::toCuda() {
     CUDA_CHECK(cudaMemcpy(
         d_weights, weights.data(), sizeof(float) * inputChannels,
         cudaMemcpyHostToDevice
@@ -120,15 +120,15 @@ void BatchNorm2D::toCuda() {
     ));
 }
 
-int BatchNorm2D::getInputSize() {
+int BatchNorm2d::getInputSize() {
     return inputSize.first * inputSize.second * inputChannels;
 }
 
-int BatchNorm2D::getOutputSize() {
+int BatchNorm2d::getOutputSize() {
     return inputSize.first * inputSize.second * inputChannels;
 }
 
-float *BatchNorm2D::forward(const float *d_input) {
+float *BatchNorm2d::forward(const float *d_input) {
     // Compute per-channel batch normalization
     for (int i = 0; i < inputChannels; i++) {
         // Compute mean

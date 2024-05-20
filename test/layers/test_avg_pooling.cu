@@ -28,7 +28,7 @@ TEST(AvgPoolingLayerTest, AvgPoolForwardTest) {
         // clang-format on
     };
 
-    CUDANet::Layers::AvgPooling2D avgPoolingLayer(
+    CUDANet::Layers::AvgPooling2d avgPoolingLayer(
         inputSize, nChannels, poolingSize, stride,
         CUDANet::Layers::ActivationType::NONE
     );

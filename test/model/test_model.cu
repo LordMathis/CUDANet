@@ -42,8 +42,8 @@ class ModelTest : public ::testing::Test {
             inputSize.first - kernelSize.first + 1,
             inputSize.second - kernelSize.second + 1
         };
-        CUDANet::Layers::MaxPooling2D *maxpool2d =
-            new CUDANet::Layers::MaxPooling2D(
+        CUDANet::Layers::MaxPooling2d *maxpool2d =
+            new CUDANet::Layers::MaxPooling2d(
                 poolingInput, numFilters, poolingSize,
                 poolingStride, CUDANet::Layers::ActivationType::RELU
             );

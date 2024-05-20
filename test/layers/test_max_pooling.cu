@@ -28,7 +28,7 @@ TEST(MaxPoolingLayerTest, MaxPoolForwardTest) {
         // clang-format on
     };
 
-    CUDANet::Layers::MaxPooling2D maxPoolingLayer(
+    CUDANet::Layers::MaxPooling2d maxPoolingLayer(
         inputSize, nChannels, poolingSize, stride,
         CUDANet::Layers::ActivationType::NONE
     );

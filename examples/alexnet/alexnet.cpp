@@ -45,7 +45,7 @@ CUDANet::Model *createModel(
         CUDANet::Layers::ActivationType::RELU
     );
     model->addLayer("features.0", conv1);  // Match pytorch naming
-    CUDANet::Layers::MaxPooling2D *pool1 = new CUDANet::Layers::MaxPooling2D(
+    CUDANet::Layers::MaxPooling2d *pool1 = new CUDANet::Layers::MaxPooling2d(
         56, 64, 3, 2, CUDANet::Layers::ActivationType::NONE
     );
     model->addLayer("pool1", pool1);
@@ -55,7 +55,7 @@ CUDANet::Model *createModel(
         27, 64, 5, 1, 192, 2, CUDANet::Layers::ActivationType::RELU
     );
     model->addLayer("features.3", conv2);
-    CUDANet::Layers::MaxPooling2D *pool2 = new CUDANet::Layers::MaxPooling2D(
+    CUDANet::Layers::MaxPooling2d *pool2 = new CUDANet::Layers::MaxPooling2d(
         27, 192, 3, 2, CUDANet::Layers::ActivationType::NONE
     );
     model->addLayer("pool2", pool2);
@@ -77,7 +77,7 @@ CUDANet::Model *createModel(
         13, 256, 3, 1, 256, 1, CUDANet::Layers::ActivationType::RELU
     );
     model->addLayer("features.10", conv5);
-    CUDANet::Layers::MaxPooling2D *pool5 = new CUDANet::Layers::MaxPooling2D(
+    CUDANet::Layers::MaxPooling2d *pool5 = new CUDANet::Layers::MaxPooling2d(
         13, 256, 3, 2, CUDANet::Layers::ActivationType::NONE
     );
     model->addLayer("pool5", pool5);

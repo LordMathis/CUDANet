@@ -6,16 +6,16 @@
 
 namespace CUDANet::Layers {
 
-class AvgPooling2D : public SequentialLayer {
+class AvgPooling2d : public SequentialLayer {
   public:
-    AvgPooling2D(
+    AvgPooling2d(
         dim2d           inputSize,
         int            nChannels,
         dim2d           poolingSize,
         dim2d           stride,
         ActivationType activationType
     );
-    ~AvgPooling2D();
+    ~AvgPooling2d();
 
     float* forward(const float* d_input);
 

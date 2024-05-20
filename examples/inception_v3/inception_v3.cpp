@@ -30,7 +30,7 @@ class BasicConv2d : public CUDANet::Module {
 
         int batchNormSize = conv->getOutputSize();
 
-        CUDANet::Layers::BatchNorm2D *batchNorm = new CUDANet::Layers::BatchNorm2D(
+        CUDANet::Layers::BatchNorm2d *batchNorm = new CUDANet::Layers::BatchNorm2d(
             batchNormSize, outputChannels, 1e-3f,
             CUDANet::Layers::ActivationType::RELU
         );

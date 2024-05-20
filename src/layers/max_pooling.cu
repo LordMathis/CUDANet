@@ -4,7 +4,7 @@
 
 using namespace CUDANet::Layers;
 
-MaxPooling2D::MaxPooling2D(
+MaxPooling2d::MaxPooling2d(
     dim2d          inputSize,
     int            nChannels,
     dim2d          poolingSize,
@@ -29,12 +29,12 @@ MaxPooling2D::MaxPooling2D(
     ));
 }
 
-MaxPooling2D::~MaxPooling2D() {
+MaxPooling2d::~MaxPooling2d() {
     cudaFree(d_output);
     delete activation;
 }
 
-float* MaxPooling2D::forward(const float* d_input) {
+float* MaxPooling2d::forward(const float* d_input) {
     dim3 block(8, 8, 8);
     dim3 grid(
         (outputSize.first + block.x - 1) / block.x,
@@ -53,10 +53,10 @@ float* MaxPooling2D::forward(const float* d_input) {
     return d_output;
 }
 
-int MaxPooling2D::getOutputSize() {
+int MaxPooling2d::getOutputSize() {
     return outputSize.first * outputSize.second * nChannels;
 }
 
-int MaxPooling2D::getInputSize() {
+int MaxPooling2d::getInputSize() {
     return inputSize.first * inputSize.second * nChannels;
 }

@@ -6,16 +6,16 @@
 
 namespace CUDANet::Layers {
 
-class MaxPooling2D : public SequentialLayer {
+class MaxPooling2d : public SequentialLayer {
   public:
-    MaxPooling2D(
+    MaxPooling2d(
         dim2d           inputSize,
         int            nChannels,
         dim2d           poolingSize,
         dim2d           stride,
         ActivationType activationType
     );
-    ~MaxPooling2D();
+    ~MaxPooling2d();
 
     float* forward(const float* d_input);
 

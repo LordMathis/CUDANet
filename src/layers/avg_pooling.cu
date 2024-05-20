@@ -4,7 +4,7 @@
 
 using namespace CUDANet::Layers;
 
-AvgPooling2D::AvgPooling2D(
+AvgPooling2d::AvgPooling2d(
     dim2d          inputSize,
     int            nChannels,
     dim2d          poolingSize,
@@ -31,12 +31,12 @@ AvgPooling2D::AvgPooling2D(
     ));
 }
 
-AvgPooling2D::~AvgPooling2D() {
+AvgPooling2d::~AvgPooling2d() {
     cudaFree(d_output);
     delete activation;
 }
 
-float* AvgPooling2D::forward(const float* d_input) {
+float* AvgPooling2d::forward(const float* d_input) {
     dim3 block(8, 8, 8);
     dim3 grid(
         (outputSize.first + block.x - 1) / block.x,
@@ -55,10 +55,10 @@ float* AvgPooling2D::forward(const float* d_input) {
     return d_output;
 }
 
-int AvgPooling2D::getOutputSize() {
+int AvgPooling2d::getOutputSize() {
     return outputSize.first * outputSize.second * nChannels;
 }
 
-int AvgPooling2D::getInputSize() {
+int AvgPooling2d::getInputSize() {
     return inputSize.first * inputSize.second * nChannels;
 }
