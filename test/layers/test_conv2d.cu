@@ -82,8 +82,9 @@ TEST_F(Conv2dTest, SimpleTest) {
     );
 
     int outputHeight = (inputSize.first - kernelSize.first) / stride.first + 1;
-    int outputWidth  = (inputSize.second - kernelSize.second) / stride.second + 1;
-    int outputSize  = outputHeight * outputWidth * numFilters;
+    int outputWidth =
+        (inputSize.second - kernelSize.second) / stride.second + 1;
+    int outputSize = outputHeight * outputWidth * numFilters;
     EXPECT_EQ(outputSize, conv2d.getOutputSize());
 
     d_output = conv2d.forward(d_input);
@@ -112,9 +113,12 @@ TEST_F(Conv2dTest, PaddedTest) {
     dim2d stride        = {1, 1};
     int   numFilters    = 2;
 
-    int paddingFirst = CUDANET_SAME_PADDING(inputSize.first, kernelSize.first, stride.first);
-    int paddingSecond = CUDANET_SAME_PADDING(inputSize.second, kernelSize.second, stride.second);
-    dim2d paddingSize   = {paddingFirst, paddingSecond};
+    int paddingFirst =
+        CUDANET_SAME_PADDING(inputSize.first, kernelSize.first, stride.first);
+    int paddingSecond = CUDANET_SAME_PADDING(
+        inputSize.second, kernelSize.second, stride.second
+    );
+    dim2d paddingSize = {paddingFirst, paddingSecond};
 
     CUDANet::Layers::ActivationType activationType =
         CUDANet::Layers::ActivationType::NONE;
@@ -177,7 +181,9 @@ TEST_F(Conv2dTest, PaddedTest) {
         activationType, input, kernels.data(), d_input
     );
 
-    EXPECT_EQ(inputSize.first * inputSize.second * numFilters, conv2d.getOutputSize());
+    EXPECT_EQ(
+        inputSize.first * inputSize.second * numFilters, conv2d.getOutputSize()
+    );
 
     d_output = conv2d.forward(d_input);
 
@@ -209,15 +215,17 @@ TEST_F(Conv2dTest, PaddedTest) {
 
 TEST_F(Conv2dTest, StridedPaddedConvolution) {
     dim2d inputSize     = {5, 5};
-    int inputChannels = 2;
+    int   inputChannels = 2;
     dim2d kernelSize    = {3, 3};
     dim2d stride        = {2, 2};
-    int numFilters    = 2;
+    int   numFilters    = 2;
 
-    int paddingFirst   = CUDANET_SAME_PADDING(inputSize.first, kernelSize.second, stride.first);
-    int paddingSecond  = CUDANET_SAME_PADDING(inputSize.second, kernelSize.second, stride.second);
+    int paddingFirst =
+        CUDANET_SAME_PADDING(inputSize.first, kernelSize.second, stride.first);
+    int paddingSecond = CUDANET_SAME_PADDING(
+        inputSize.second, kernelSize.second, stride.second
+    );
     dim2d paddingSize = {paddingFirst, paddingSecond};
-
 
     CUDANet::Layers::ActivationType activationType =
         CUDANet::Layers::ActivationType::RELU;
@@ -265,7 +273,9 @@ TEST_F(Conv2dTest, StridedPaddedConvolution) {
         activationType, input, kernels.data(), d_input
     );
 
-    EXPECT_EQ(inputSize.first * inputSize.second * numFilters, conv2d.getOutputSize());
+    EXPECT_EQ(
+        inputSize.first * inputSize.second * numFilters, conv2d.getOutputSize()
+    );
 
     d_output = conv2d.forward(d_input);
 

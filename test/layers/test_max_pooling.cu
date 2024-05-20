@@ -5,15 +5,74 @@
 
 #include "max_pooling.cuh"
 
-TEST(MaxPoolingLayerTest, MaxPoolForwardTest) {
-    dim2d inputSize   = {4, 4};
-    int   nChannels   = 2;
-    dim2d poolingSize = {2, 2};
-    dim2d stride      = {2, 2};
+class MaxPoolingLayerTest : public ::testing::Test {
+  protected:
+    dim2d              inputSize;
+    int                nChannels;
+    dim2d              poolingSize;
+    dim2d              stride;
+    std::vector<float> input;
+    std::vector<float> expected;
 
-    cudaError_t cudaStatus;
+    float                         *d_input;
+    float                         *d_output;
+    CUDANet::Layers::MaxPooling2d *maxPoolingLayer;
 
-    std::vector<float> input = {
+    virtual void SetUp() override {
+        d_input         = nullptr;
+        d_output        = nullptr;
+        maxPoolingLayer = nullptr;
+    }
+
+    virtual void TearDown() override {
+        if (d_input) {
+            cudaFree(d_input);
+        }
+        delete maxPoolingLayer;
+    }
+
+    void runTest() {
+        cudaError_t cudaStatus;
+
+        maxPoolingLayer = new CUDANet::Layers::MaxPooling2d(
+            inputSize, nChannels, poolingSize, stride,
+            CUDANet::Layers::ActivationType::NONE
+        );
+
+        cudaStatus =
+            cudaMalloc((void **)&d_input, sizeof(float) * input.size());
+        EXPECT_EQ(cudaStatus, cudaSuccess);
+
+        cudaStatus = cudaMemcpy(
+            d_input, input.data(), sizeof(float) * input.size(),
+            cudaMemcpyHostToDevice
+        );
+        EXPECT_EQ(cudaStatus, cudaSuccess);
+
+        d_output = maxPoolingLayer->forward(d_input);
+
+        int outputSize = maxPoolingLayer->getOutputSize();
+
+        std::vector<float> output(outputSize);
+        cudaStatus = cudaMemcpy(
+            output.data(), d_output, sizeof(float) * output.size(),
+            cudaMemcpyDeviceToHost
+        );
+        EXPECT_EQ(cudaStatus, cudaSuccess);
+
+        for (int i = 0; i < output.size(); ++i) {
+            EXPECT_FLOAT_EQ(expected[i], output[i]);
+        }
+    }
+};
+
+TEST_F(MaxPoolingLayerTest, MaxPoolForwardTest) {
+    inputSize   = {4, 4};
+    nChannels   = 2;
+    poolingSize = {2, 2};
+    stride      = {2, 2};
+
+    input = {
         // clang-format off
         // Channel 0
         0.573f, 0.619f, 0.732f, 0.055f,
@@ -28,43 +87,82 @@ TEST(MaxPoolingLayerTest, MaxPoolForwardTest) {
         // clang-format on
     };
 
-    CUDANet::Layers::MaxPooling2d maxPoolingLayer(
-        inputSize, nChannels, poolingSize, stride,
-        CUDANet::Layers::ActivationType::NONE
-    );
+    expected = {0.619f, 0.732f, 0.712f, 0.742f, 0.919f, 0.973f, 0.819f, 0.85f};
 
-    float *d_input;
+    runTest();
+}
 
-    cudaStatus = cudaMalloc(
-        (void **)&d_input, sizeof(float) * inputSize.first * inputSize.second * nChannels
-    );
-    EXPECT_EQ(cudaStatus, cudaSuccess);
+TEST_F(MaxPoolingLayerTest, MaxPoolForwardNonSquareInputTest) {
+    inputSize   = {4, 6};  // Non-square input
+    nChannels   = 2;
+    poolingSize = {2, 2};
+    stride      = {2, 2};
 
-    cudaStatus = cudaMemcpy(
-        d_input, input.data(),
-        sizeof(float) * inputSize.first * inputSize.second * nChannels,
-        cudaMemcpyHostToDevice
-    );
-    EXPECT_EQ(cudaStatus, cudaSuccess);
+    input = {// Channel 0
+             0.573f, 0.619f, 0.732f, 0.055f, 0.123f, 0.234f, 0.243f, 0.316f,
+             0.573f, 0.619f, 0.456f, 0.789f, 0.712f, 0.055f, 0.243f, 0.316f,
+             0.654f, 0.987f, 0.573f, 0.619f, 0.742f, 0.055f, 0.321f, 0.654f,
+             // Channel 1
+             0.473f, 0.919f, 0.107f, 0.073f, 0.321f, 0.654f, 0.073f, 0.362f,
+             0.973f, 0.059f, 0.654f, 0.987f, 0.473f, 0.455f, 0.283f, 0.416f,
+             0.789f, 0.123f, 0.532f, 0.819f, 0.732f, 0.850f, 0.987f, 0.321f
+    };
 
-    float *d_output = maxPoolingLayer.forward(d_input);
+    expected = {0.619f, 0.732f, 0.789f, 0.712f, 0.742f, 0.987f, 0.919f, 0.973f, 0.987f, 0.819f, 0.85f, 0.987f};
 
-    int outputSize = maxPoolingLayer.getOutputSize();
+    runTest();
+}
 
-    std::vector<float> output(outputSize);
-    cudaStatus = cudaMemcpy(
-        output.data(), d_output, sizeof(float) * outputSize,
-        cudaMemcpyDeviceToHost
-    );
-    EXPECT_EQ(cudaStatus, cudaSuccess);
+TEST_F(MaxPoolingLayerTest, MaxPoolForwardNonSquarePoolSizeTest) {
+    inputSize   = {4, 4};
+    nChannels   = 2;
+    poolingSize = {2, 3};  // Non-square pooling size
+    stride      = {2, 2};
 
-    std::vector<float> expected = {0.619f, 0.732f, 0.712f, 0.742f,
-                                   0.919f, 0.973f, 0.819f, 0.85f};
+    input = {
+        // clang-format off
+        // Channel 0
+        0.573f, 0.619f, 0.732f, 0.055f,
+        0.243f, 0.316f, 0.573f, 0.619f,
+        0.712f, 0.055f, 0.243f, 0.316f,
+        0.573f, 0.619f, 0.742f, 0.055f,
+        // Channel 1
+        0.473f, 0.919f, 0.107f, 0.073f,
+        0.073f, 0.362f, 0.973f, 0.059f,
+        0.473f, 0.455f, 0.283f, 0.416f,
+        0.532f, 0.819f, 0.732f, 0.850f
+        // clang-format on
+    };
 
-    for (int i = 0; i < output.size(); ++i) {
-        EXPECT_FLOAT_EQ(expected[i], output[i]);
-    }
+    expected = {0.732f, 0.742f, 0.973f, 0.819f};
 
-    cudaStatus = cudaFree(d_input);
-    EXPECT_EQ(cudaStatus, cudaSuccess);
+    runTest();
+
+}
+
+TEST_F(MaxPoolingLayerTest, MaxPoolForwardNonSquareStrideTest) {
+    inputSize   = {4, 4};
+    nChannels   = 2;
+    poolingSize = {2, 2};
+    stride      = {1, 2};  // Non-square stride
+
+    input = {
+        // clang-format off
+        // Channel 0
+        0.573f, 0.619f, 0.732f, 0.055f,
+        0.243f, 0.316f, 0.573f, 0.619f,
+        0.712f, 0.055f, 0.243f, 0.316f,
+        0.573f, 0.619f, 0.742f, 0.055f,
+        // Channel 1
+        0.473f, 0.919f, 0.107f, 0.073f,
+        0.073f, 0.362f, 0.973f, 0.059f,
+        0.473f, 0.455f, 0.283f, 0.416f,
+        0.532f, 0.819f, 0.732f, 0.850f
+        // clang-format on
+    };
+
+    expected = {0.619f, 0.732f, 0.712f, 0.619f, 0.712f, 0.742f, 0.919f, 0.973f, 0.473f, 0.973f, 0.819f, 0.85f};
+
+    runTest();
+
 }

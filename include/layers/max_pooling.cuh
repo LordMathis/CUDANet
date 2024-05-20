@@ -9,10 +9,10 @@ namespace CUDANet::Layers {
 class MaxPooling2d : public SequentialLayer {
   public:
     MaxPooling2d(
-        dim2d           inputSize,
+        dim2d          inputSize,
         int            nChannels,
-        dim2d           poolingSize,
-        dim2d           stride,
+        dim2d          poolingSize,
+        dim2d          stride,
         ActivationType activationType
     );
     ~MaxPooling2d();
@@ -35,7 +35,7 @@ class MaxPooling2d : public SequentialLayer {
 
   private:
     dim2d inputSize;
-    int  nChannels;
+    int   nChannels;
     dim2d poolingSize;
     dim2d stride;
 

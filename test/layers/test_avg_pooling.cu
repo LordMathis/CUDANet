@@ -5,15 +5,78 @@
 
 #include "avg_pooling.cuh"
 
-TEST(AvgPoolingLayerTest, AvgPoolForwardTest) {
-    dim2d inputSize   = {4, 4};
-    int   nChannels   = 2;
-    dim2d poolingSize = {2, 2};
-    dim2d stride      = {2, 2};
+class AvgPoolingLayerTest : public ::testing::Test {
+  protected:
+    dim2d              inputSize;
+    int                nChannels;
+    dim2d              poolingSize;
+    dim2d              stride;
+    std::vector<float> input;
+    std::vector<float> expected;
 
-    cudaError_t cudaStatus;
+    float                         *d_input;
+    float                         *d_output;
+    CUDANet::Layers::AvgPooling2d *avgPoolingLayer;
 
-    std::vector<float> input = {
+    virtual void SetUp() override {
+        d_input         = nullptr;
+        d_output        = nullptr;
+        avgPoolingLayer = nullptr;
+    }
+
+    virtual void TearDown() override {
+        if (d_input) {
+            cudaFree(d_input);
+        }
+    }
+
+    void runTest() {
+        cudaError_t cudaStatus;
+
+        avgPoolingLayer = new CUDANet::Layers::AvgPooling2d(
+            inputSize, nChannels, poolingSize, stride,
+            CUDANet::Layers::ActivationType::NONE
+        );
+
+        cudaStatus = cudaMalloc(
+            (void **)&d_input,
+            sizeof(float) * inputSize.first * inputSize.second * nChannels
+        );
+        EXPECT_EQ(cudaStatus, cudaSuccess);
+
+        cudaStatus = cudaMemcpy(
+            d_input, input.data(),
+            sizeof(float) * inputSize.first * inputSize.second * nChannels,
+            cudaMemcpyHostToDevice
+        );
+        EXPECT_EQ(cudaStatus, cudaSuccess);
+
+        d_output = avgPoolingLayer->forward(d_input);
+
+        int outputSize = avgPoolingLayer->getOutputSize();
+
+        std::vector<float> output(outputSize);
+        cudaStatus = cudaMemcpy(
+            output.data(), d_output, sizeof(float) * outputSize,
+            cudaMemcpyDeviceToHost
+        );
+        EXPECT_EQ(cudaStatus, cudaSuccess);
+
+        for (int i = 0; i < output.size(); ++i) {
+            EXPECT_NEAR(expected[i], output[i], 1e-4);
+        }
+
+        delete avgPoolingLayer;
+    }
+};
+
+TEST_F(AvgPoolingLayerTest, AvgPoolForwardTest) {
+    inputSize   = {4, 4};
+    nChannels   = 2;
+    poolingSize = {2, 2};
+    stride      = {2, 2};
+
+    input = {
         // clang-format off
         // Channel 0
         0.573f, 0.619f, 0.732f, 0.055f,
@@ -28,44 +91,69 @@ TEST(AvgPoolingLayerTest, AvgPoolForwardTest) {
         // clang-format on
     };
 
-    CUDANet::Layers::AvgPooling2d avgPoolingLayer(
-        inputSize, nChannels, poolingSize, stride,
-        CUDANet::Layers::ActivationType::NONE
-    );
+    expected = {0.43775f, 0.49475f, 0.48975f, 0.339f,
+                0.45675f, 0.303f,   0.56975f, 0.57025f};
 
-    float *d_input;
+    runTest();
+}
 
-    cudaStatus = cudaMalloc(
-        (void **)&d_input,
-        sizeof(float) * inputSize.first * inputSize.second * nChannels
-    );
-    EXPECT_EQ(cudaStatus, cudaSuccess);
+TEST_F(AvgPoolingLayerTest, AvgPoolForwardNonSquareInputTest) {
+    inputSize   = {4, 6};  // Non-square input
+    nChannels   = 2;
+    poolingSize = {2, 2};
+    stride      = {2, 2};
 
-    cudaStatus = cudaMemcpy(
-        d_input, input.data(),
-        sizeof(float) * inputSize.first * inputSize.second * nChannels,
-        cudaMemcpyHostToDevice
-    );
-    EXPECT_EQ(cudaStatus, cudaSuccess);
+    input = {// Channel 0
+             0.573f, 0.619f, 0.732f, 0.055f, 0.123f, 0.234f, 0.243f, 0.316f,
+             0.573f, 0.619f, 0.456f, 0.789f, 0.712f, 0.055f, 0.243f, 0.316f,
+             0.654f, 0.987f, 0.573f, 0.619f, 0.742f, 0.055f, 0.321f, 0.654f,
+             // Channel 1
+             0.473f, 0.919f, 0.107f, 0.073f, 0.321f, 0.654f, 0.073f, 0.362f,
+             0.973f, 0.059f, 0.654f, 0.987f, 0.473f, 0.455f, 0.283f, 0.416f,
+             0.789f, 0.123f, 0.532f, 0.819f, 0.732f, 0.850f, 0.987f, 0.321f
+    };
 
-    float *d_output = avgPoolingLayer.forward(d_input);
+    expected = {0.43775f, 0.49475f, 0.4005f, 0.48975f, 0.339f,   0.654f,
+                0.45675f, 0.303f,   0.654f,  0.56975f, 0.57025f, 0.555f};
 
-    int outputSize = avgPoolingLayer.getOutputSize();
+    runTest();
+}
 
-    std::vector<float> output(outputSize);
-    cudaStatus = cudaMemcpy(
-        output.data(), d_output, sizeof(float) * outputSize,
-        cudaMemcpyDeviceToHost
-    );
-    EXPECT_EQ(cudaStatus, cudaSuccess);
+TEST_F(AvgPoolingLayerTest, AvgPoolForwardNonSquarePoolingTest) {
+    inputSize   = {4, 4};
+    nChannels   = 2;
+    poolingSize = {2, 3};  // Non-square pooling
+    stride      = {2, 2};
 
-    std::vector<float> expected = {0.43775f, 0.49475f, 0.48975f, 0.339f,
-                                   0.45675f, 0.303f,   0.56975f, 0.57025f};
+    input = {// Channel 0
+             0.573f, 0.619f, 0.732f, 0.055f, 0.243f, 0.316f, 0.573f, 0.619f,
+             0.712f, 0.055f, 0.243f, 0.316f, 0.573f, 0.619f, 0.742f, 0.055f,
+             // Channel 1
+             0.473f, 0.919f, 0.107f, 0.073f, 0.073f, 0.362f, 0.973f, 0.059f,
+             0.473f, 0.455f, 0.283f, 0.416f, 0.532f, 0.819f, 0.732f, 0.850f
+    };
 
-    for (int i = 0; i < output.size(); ++i) {
-        EXPECT_NEAR(expected[i], output[i], 1e-4);
-    }
+    expected = {0.50933f, 0.49067f, 0.4845f, 0.549f};
 
-    cudaStatus = cudaFree(d_input);
-    EXPECT_EQ(cudaStatus, cudaSuccess);
+    runTest();
+}
+
+TEST_F(AvgPoolingLayerTest, AvgPoolForwardNonSquareStrideTest) {
+    inputSize   = {4, 4};
+    nChannels   = 2;
+    poolingSize = {2, 2};
+    stride      = {1, 2};  // Non-square stride
+
+    input = {// Channel 0
+             0.573f, 0.619f, 0.732f, 0.055f, 0.243f, 0.316f, 0.573f, 0.619f,
+             0.712f, 0.055f, 0.243f, 0.316f, 0.573f, 0.619f, 0.742f, 0.055f,
+             // Channel 1
+             0.473f, 0.919f, 0.107f, 0.073f, 0.073f, 0.362f, 0.973f, 0.059f,
+             0.473f, 0.455f, 0.283f, 0.416f, 0.532f, 0.819f, 0.732f, 0.850f
+    };
+
+    expected = {0.43775f, 0.49475f, 0.3315f,  0.43775f, 0.48975f, 0.339f,
+                0.45675f, 0.303f,   0.34075f, 0.43275f, 0.56975f, 0.57025f};
+
+    runTest();
 }
