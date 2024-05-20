@@ -8,11 +8,11 @@
 
 namespace CUDANet::Layers {
 
-class BatchNorm : public WeightedLayer {
+class BatchNorm2D : public WeightedLayer {
   public:
-    BatchNorm(int inputSize, int inputChannels, float epsilon, ActivationType activationType);
+    BatchNorm2D(int inputSize, int inputChannels, float epsilon, ActivationType activationType);
 
-    ~BatchNorm();
+    ~BatchNorm2D();
 
     /**
      * @brief Compute the forward pass of the batchnorm layer
@@ -105,13 +105,13 @@ class BatchNorm : public WeightedLayer {
 
     /**
      * @brief Initialize mean of the batchnorm layer with zeros
-     * 
+     *
      */
     void initializeMean();
 
     /**
      * @brief Initialize sqrt of variance of the batchnorm layer with ones
-     * 
+     *
      */
     void initializeSqrtVar();
 

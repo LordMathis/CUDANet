@@ -9,7 +9,7 @@
 
 using namespace CUDANet::Layers;
 
-BatchNorm::BatchNorm(
+BatchNorm2D::BatchNorm2D(
     int            inputSize,
     int            inputChannels,
     float          epsilon,
@@ -63,7 +63,7 @@ BatchNorm::BatchNorm(
         (inputSize * inputSize + BLOCK_SIZE - 1) / BLOCK_SIZE;
 }
 
-BatchNorm::~BatchNorm() {
+BatchNorm2D::~BatchNorm2D() {
     cudaFree(d_output);
     cudaFree(d_mean);
     cudaFree(d_mean_sub);
@@ -74,33 +74,33 @@ BatchNorm::~BatchNorm() {
     cudaFree(d_epsilon);
 }
 
-void BatchNorm::initializeWeights() {
+void BatchNorm2D::initializeWeights() {
     std::fill(weights.begin(), weights.end(), 1.0f);
 }
 
-void BatchNorm::initializeBiases() {
+void BatchNorm2D::initializeBiases() {
     std::fill(biases.begin(), biases.end(), 0.0f);
 }
 
-void BatchNorm::setWeights(const float *weights_input) {
+void BatchNorm2D::setWeights(const float *weights_input) {
     std::copy(weights_input, weights_input + weights.size(), weights.begin());
     toCuda();
 }
 
-std::vector<float> BatchNorm::getWeights() {
+std::vector<float> BatchNorm2D::getWeights() {
     return weights;
 }
 
-void BatchNorm::setBiases(const float *biases_input) {
+void BatchNorm2D::setBiases(const float *biases_input) {
     std::copy(biases_input, biases_input + biases.size(), biases.begin());
     toCuda();
 }
 
-std::vector<float> BatchNorm::getBiases() {
+std::vector<float> BatchNorm2D::getBiases() {
     return biases;
 }
 
-void BatchNorm::toCuda() {
+void BatchNorm2D::toCuda() {
     CUDA_CHECK(cudaMemcpy(
         d_weights, weights.data(), sizeof(float) * inputChannels,
         cudaMemcpyHostToDevice
@@ -111,15 +111,15 @@ void BatchNorm::toCuda() {
     ));
 }
 
-int BatchNorm::getInputSize() {
+int BatchNorm2D::getInputSize() {
     return inputSize * inputSize * inputChannels;
 }
 
-int BatchNorm::getOutputSize() {
+int BatchNorm2D::getOutputSize() {
     return inputSize * inputSize * inputChannels;
 }
 
-float *BatchNorm::forward(const float *d_input) {
+float *BatchNorm2D::forward(const float *d_input) {
     
     // Compute per-channel batch normalization
     for (int i = 0; i < inputChannels; i++) {

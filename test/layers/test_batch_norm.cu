@@ -12,7 +12,7 @@ TEST(BatchNormLayerTest, BatchNormSmallForwardTest) {
 
     cudaError_t cudaStatus;
 
-    CUDANet::Layers::BatchNorm batchNorm(
+    CUDANet::Layers::BatchNorm2D batchNorm(
         inputSize, nChannels, 1e-5f, CUDANet::Layers::ActivationType::NONE
     );
 
@@ -69,7 +69,7 @@ TEST(BatchNormLayerTest, BatchNormSmallForwardTest) {
         0.9126f, 0.71485f, -0.08184f, -0.19131f
     };
 
-    // std::cout << "BatchNorm: " << std::endl;
+    // std::cout << "BatchNorm2D: " << std::endl;
     for (int i = 0; i < output.size(); i++) {
         EXPECT_NEAR(output[i], expected[i], 1e-5);
         // std::cout << output[i] << " ";
