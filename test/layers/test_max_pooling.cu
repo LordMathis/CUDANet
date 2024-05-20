@@ -6,10 +6,10 @@
 #include "max_pooling.cuh"
 
 TEST(MaxPoolingLayerTest, MaxPoolForwardTest) {
-    int inputSize   = 4;
-    int nChannels   = 2;
-    int poolingSize = 2;
-    int stride      = 2;
+    dim2d inputSize   = {4, 4};
+    int   nChannels   = 2;
+    dim2d poolingSize = {2, 2};
+    dim2d stride      = {2, 2};
 
     cudaError_t cudaStatus;
 
@@ -36,13 +36,13 @@ TEST(MaxPoolingLayerTest, MaxPoolForwardTest) {
     float *d_input;
 
     cudaStatus = cudaMalloc(
-        (void **)&d_input, sizeof(float) * inputSize * inputSize * nChannels
+        (void **)&d_input, sizeof(float) * inputSize.first * inputSize.second * nChannels
     );
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
     cudaStatus = cudaMemcpy(
         d_input, input.data(),
-        sizeof(float) * inputSize * inputSize * nChannels,
+        sizeof(float) * inputSize.first * inputSize.second * nChannels,
         cudaMemcpyHostToDevice
     );
     EXPECT_EQ(cudaStatus, cudaSuccess);
@@ -53,13 +53,13 @@ TEST(MaxPoolingLayerTest, MaxPoolForwardTest) {
 
     std::vector<float> output(outputSize);
     cudaStatus = cudaMemcpy(
-        output.data(), d_output,
-        sizeof(float) * outputSize,
+        output.data(), d_output, sizeof(float) * outputSize,
         cudaMemcpyDeviceToHost
     );
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
-    std::vector<float> expected = {0.619f, 0.732f, 0.712f, 0.742f, 0.919f, 0.973f, 0.819f, 0.85f};
+    std::vector<float> expected = {0.619f, 0.732f, 0.712f, 0.742f,
+                                   0.919f, 0.973f, 0.819f, 0.85f};
 
     for (int i = 0; i < output.size(); ++i) {
         EXPECT_FLOAT_EQ(expected[i], output[i]);

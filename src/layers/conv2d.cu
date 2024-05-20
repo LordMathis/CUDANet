@@ -1,23 +1,23 @@
+#include <iostream>
+#include <vector>
+
 #include "activation.cuh"
 #include "conv2d.cuh"
 #include "convolution.cuh"
 #include "cuda_helper.cuh"
-#include "matmul.cuh"
 #include "layer.cuh"
+#include "matmul.cuh"
 #include "vector.cuh"
-
-#include <iostream>
-#include <vector>
 
 using namespace CUDANet::Layers;
 
 Conv2d::Conv2d(
-    int                    inputSize,
-    int                    inputChannels,
-    int                    kernelSize,
-    int                    stride,
-    int                    numFilters,
-    int        paddingSize,
+    dim2d          inputSize,
+    int            inputChannels,
+    dim2d          kernelSize,
+    dim2d          stride,
+    int            numFilters,
+    dim2d          paddingSize,
     ActivationType activationType
 )
     : inputSize(inputSize),
@@ -26,34 +26,35 @@ Conv2d::Conv2d(
       stride(stride),
       numFilters(numFilters),
       paddingSize(paddingSize) {
+    outputSize = {
+        (inputSize.first - kernelSize.first + 2 * paddingSize.first) /
+                stride.first + 1,
+        (inputSize.first - kernelSize.first + 2 * paddingSize.first) /
+                stride.first + 1
+    };
 
-    outputSize = (inputSize - kernelSize + 2 * paddingSize) / stride + 1;
-
-    activation = new Activation(
-        activationType, outputSize * outputSize * numFilters
-    );
+    activation =
+        new Activation(activationType, outputSize.first * outputSize.second * numFilters);
 
     d_output = nullptr;
     CUDA_CHECK(cudaMalloc(
-        (void**)&d_output, sizeof(float) * outputSize * outputSize * numFilters
+        (void**)&d_output, sizeof(float) * outputSize.first * outputSize.second * numFilters
     ));
 
-    weights.resize(kernelSize * kernelSize * inputChannels * numFilters);
+    weights.resize(kernelSize.first * kernelSize.second * inputChannels * numFilters);
     initializeWeights();
 
     d_weights = nullptr;
     CUDA_CHECK(cudaMalloc(
         (void**)&d_weights,
-        sizeof(float) * kernelSize * kernelSize * inputChannels * numFilters
+        sizeof(float) * kernelSize.first * kernelSize.second * inputChannels * numFilters
     ));
 
     biases.resize(numFilters);
     initializeBiases();
 
     d_biases = nullptr;
-    CUDA_CHECK(cudaMalloc(
-        (void**)&d_biases, sizeof(float) * numFilters
-    ));
+    CUDA_CHECK(cudaMalloc((void**)&d_biases, sizeof(float) * numFilters));
 
     toCuda();
 }
@@ -94,35 +95,33 @@ std::vector<float> Conv2d::getBiases() {
 void Conv2d::toCuda() {
     CUDA_CHECK(cudaMemcpy(
         d_weights, weights.data(),
-        sizeof(float) * kernelSize * kernelSize * inputChannels * numFilters,
+        sizeof(float) * kernelSize.first * kernelSize.second * inputChannels * numFilters,
         cudaMemcpyHostToDevice
     ));
 
     CUDA_CHECK(cudaMemcpy(
-        d_biases, biases.data(),
-        sizeof(float) * numFilters,
+        d_biases, biases.data(), sizeof(float) * numFilters,
         cudaMemcpyHostToDevice
     ));
 }
 
 float* Conv2d::forward(const float* d_input) {
-
     // Convolve
-    dim3 block(8,8,8);
+    dim3 block(8, 8, 8);
     dim3 grid(
-        (outputSize + block.x - 1) / block.x,
-        (outputSize + block.y - 1) / block.y,
+        (outputSize.first + block.x - 1) / block.x,
+        (outputSize.second + block.y - 1) / block.y,
         (numFilters + block.z - 1) / block.z
     );
 
-    CUDANet::Utils::clear(d_output, outputSize * outputSize * numFilters);
+    CUDANet::Utils::clear(d_output, outputSize.first * outputSize.second * numFilters);
 
     Kernels::convolution<<<grid, block>>>(
-        d_input, d_weights, d_biases, d_output, inputSize, inputChannels, paddingSize,
-        kernelSize, stride, numFilters, outputSize
+        d_input, d_weights, d_biases, d_output, inputSize, inputChannels,
+        paddingSize, kernelSize, stride, numFilters, outputSize
     );
     CUDA_CHECK(cudaGetLastError());
- 
+
     // Apply activation
     activation->activate(d_output);
 
@@ -132,9 +131,9 @@ float* Conv2d::forward(const float* d_input) {
 }
 
 int Conv2d::getOutputSize() {
-    return outputSize * outputSize * numFilters;
+    return outputSize.first * outputSize.second * numFilters;
 }
 
 int Conv2d::getInputSize() {
-    return inputSize * inputSize * inputChannels;
+    return inputSize.first * inputSize.second * inputChannels;
 }

@@ -28,12 +28,12 @@ class Conv2d : public WeightedLayer {
      * 'SOFTMAX' or 'NONE')
      */
     Conv2d(
-        int            inputSize,
+        dim2d          inputSize,
         int            inputChannels,
-        int            kernelSize,
-        int            stride,
+        dim2d          kernelSize,
+        dim2d          stride,
         int            numFilters,
-        int            paddingSize,
+        dim2d          paddingSize,
         ActivationType activationType
     );
 
@@ -98,23 +98,23 @@ class Conv2d : public WeightedLayer {
      *
      * @return int
      */
-    int getPaddingSize() {
+    dim2d getPaddingSize() {
         return paddingSize;
     }
 
   private:
     // Inputs
-    int inputSize;
-    int inputChannels;
+    dim2d inputSize;
+    int   inputChannels;
 
     // Outputs
-    int outputSize;
+    dim2d outputSize;
 
     // Kernel
-    int kernelSize;
-    int stride;
-    int paddingSize;
-    int numFilters;
+    dim2d kernelSize;
+    dim2d stride;
+    dim2d paddingSize;
+    int   numFilters;
 
     // Kernels
     std::vector<float> weights;

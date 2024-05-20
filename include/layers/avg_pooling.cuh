@@ -9,10 +9,10 @@ namespace CUDANet::Layers {
 class AvgPooling2D : public SequentialLayer {
   public:
     AvgPooling2D(
-        int            inputSize,
+        dim2d           inputSize,
         int            nChannels,
-        int            poolingSize,
-        int            stride,
+        dim2d           poolingSize,
+        dim2d           stride,
         ActivationType activationType
     );
     ~AvgPooling2D();
@@ -28,18 +28,18 @@ class AvgPooling2D : public SequentialLayer {
 
     /**
      * @brief Get input size
-     * 
+     *
      * @return int input size
      */
     int getInputSize();
 
   private:
-    int inputSize;
-    int nChannels;
-    int poolingSize;
-    int stride;
+    dim2d inputSize;
+    int  nChannels;
+    dim2d poolingSize;
+    dim2d stride;
 
-    int outputSize;
+    dim2d outputSize;
 
     float* d_output;
 

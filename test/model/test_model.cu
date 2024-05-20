@@ -10,27 +10,26 @@ class ModelTest : public ::testing::Test {
     CUDANet::Model *commonTestSetup(
         bool setWeights = true,
 
-        int inputSize     = 6,
-        int inputChannels = 2,
-        int outputSize    = 3,
+        dim2d inputSize     = {6, 6},
+        int   inputChannels = 2,
+        int   outputSize    = 3,
 
-        int kernelSize = 3,
-        int stride     = 1,
-        int numFilters = 2,
+        dim2d kernelSize = {3, 3},
+        dim2d stride     = {1, 1},
+        int   numFilters = 2,
 
-        int poolingSize   = 2,
-        int poolingStride = 2
+        dim2d poolingSize   = {2, 2},
+        dim2d poolingStride = {2, 2}
     ) {
         CUDANet::Model *model =
             new CUDANet::Model(inputSize, inputChannels, outputSize);
 
-        int paddingSize = 0;
+        dim2d paddingSize = {0, 0};
 
         // Conv2d
         CUDANet::Layers::Conv2d *conv2d = new CUDANet::Layers::Conv2d(
             inputSize, inputChannels, kernelSize, stride, numFilters,
-            paddingSize,
-            CUDANet::Layers::ActivationType::NONE
+            paddingSize, CUDANet::Layers::ActivationType::NONE
         );
 
         if (setWeights) {
@@ -39,9 +38,13 @@ class ModelTest : public ::testing::Test {
         model->addLayer("conv1", conv2d);
 
         // maxpool2d
+        dim2d poolingInput = {
+            inputSize.first - kernelSize.first + 1,
+            inputSize.second - kernelSize.second + 1
+        };
         CUDANet::Layers::MaxPooling2D *maxpool2d =
             new CUDANet::Layers::MaxPooling2D(
-                inputSize - kernelSize + 1, numFilters, poolingSize,
+                poolingInput, numFilters, poolingSize,
                 poolingStride, CUDANet::Layers::ActivationType::RELU
             );
         model->addLayer("maxpool1", maxpool2d);

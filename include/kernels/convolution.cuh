@@ -2,6 +2,7 @@
 #define CUDANET_CONVOLUTION_H
 
 #include <cuda_runtime.h>
+#include "layer.cuh"
 
 namespace CUDANet::Kernels {
 
@@ -24,13 +25,13 @@ __global__ void convolution(
     const float* __restrict__ d_kernel,
     const float* __restrict__ d_bias,
     float* __restrict__ d_output,
-    const int inputSize,
+    const dim2d inputSize,
     const int nChannels,
-    const int paddingSize,
-    const int kernelSize,
-    const int stride,
+    const dim2d paddingSize,
+    const dim2d kernelSize,
+    const dim2d stride,
     const int nFilters,
-    const int outputSize
+    const dim2d outputSize
 );
 
 }  // namespace CUDANet::Kernels

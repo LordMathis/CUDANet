@@ -11,13 +11,13 @@
 
 using namespace CUDANet;
 
-Model::Model(const int inputSize, const int inputChannels, const int outputSize)
+Model::Model(const dim2d inputSize, const int inputChannels, const int outputSize)
     : inputSize(inputSize),
       inputChannels(inputChannels),
       outputSize(outputSize),
       layers(std::vector<std::pair<std::string, Layers::SequentialLayer*>>()),
       layerMap(std::unordered_map<std::string, Layers::SequentialLayer*>()) {
-    inputLayer  = new Layers::Input(inputSize * inputSize * inputChannels);
+    inputLayer  = new Layers::Input(inputSize.first * inputSize.second * inputChannels);
     outputLayer = new Layers::Output(outputSize);
 };
 

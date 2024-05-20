@@ -7,8 +7,8 @@
 #include "batch_norm.cuh"
 
 TEST(BatchNormLayerTest, BatchNormSmallForwardTest) {
-    int inputSize   = 4;
-    int nChannels   = 2;
+    dim2d inputSize = {4, 4};
+    int   nChannels = 2;
 
     cudaError_t cudaStatus;
 
@@ -17,7 +17,7 @@ TEST(BatchNormLayerTest, BatchNormSmallForwardTest) {
     );
 
     std::vector<float> weights = {0.63508f, 0.64903f};
-    std::vector<float> biases = {0.25079f, 0.66841f};
+    std::vector<float> biases  = {0.25079f, 0.66841f};
 
     batchNorm.setWeights(weights.data());
     batchNorm.setBiases(biases.data());
@@ -47,27 +47,27 @@ TEST(BatchNormLayerTest, BatchNormSmallForwardTest) {
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
     cudaStatus = cudaMemcpy(
-        d_input, input.data(), sizeof(float) * input.size(), cudaMemcpyHostToDevice
+        d_input, input.data(), sizeof(float) * input.size(),
+        cudaMemcpyHostToDevice
     );
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
     float* d_output = batchNorm.forward(d_input);
 
     cudaStatus = cudaMemcpy(
-        output.data(), d_output, sizeof(float) * output.size(), cudaMemcpyDeviceToHost
+        output.data(), d_output, sizeof(float) * output.size(),
+        cudaMemcpyDeviceToHost
     );
     EXPECT_EQ(cudaStatus, cudaSuccess);
 
-    std::vector<float> expected = {
-        -0.06007f, 0.951f, 0.18157f, 1.36202f,
-        0.39244f, 0.47335f, 0.58598f, -1.00188f,
-        0.59576f, 0.79919f, -0.57001f, 0.70469f,
-        -0.62847f, -0.06578f, -0.43668f, 0.72952f,
-        0.37726f, 0.02088f, 0.35446f, 0.98092f,
-        1.39264f, 1.80686f, 1.67786f, 1.58318f,
-        -0.0269f, 0.26878f, 0.81411f, 0.09022f,
-        0.9126f, 0.71485f, -0.08184f, -0.19131f
-    };
+    std::vector<float> expected = {-0.06007f, 0.951f,    0.18157f,  1.36202f,
+                                   0.39244f,  0.47335f,  0.58598f,  -1.00188f,
+                                   0.59576f,  0.79919f,  -0.57001f, 0.70469f,
+                                   -0.62847f, -0.06578f, -0.43668f, 0.72952f,
+                                   0.37726f,  0.02088f,  0.35446f,  0.98092f,
+                                   1.39264f,  1.80686f,  1.67786f,  1.58318f,
+                                   -0.0269f,  0.26878f,  0.81411f,  0.09022f,
+                                   0.9126f,   0.71485f,  -0.08184f, -0.19131f};
 
     // std::cout << "BatchNorm2D: " << std::endl;
     for (int i = 0; i < output.size(); i++) {
@@ -76,5 +76,4 @@ TEST(BatchNormLayerTest, BatchNormSmallForwardTest) {
     }
     // std::cout << std::endl;
     cudaFree(d_input);
-
 }

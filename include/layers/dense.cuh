@@ -81,8 +81,8 @@ class Dense : public WeightedLayer {
     int getInputSize();
 
   private:
-    unsigned int inputSize;
-    unsigned int outputSize;
+    int inputSize;
+    int outputSize;
 
     float* d_output;
 
@@ -95,8 +95,8 @@ class Dense : public WeightedLayer {
     Layers::Activation* activation;
 
     // Precompute kernel launch parameters
-    unsigned int forwardGridSize;
-    unsigned int biasGridSize;
+    int forwardGridSize;
+    int biasGridSize;
 
     /**
      * @brief Initialize the weights to zeros

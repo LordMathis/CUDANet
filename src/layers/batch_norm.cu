@@ -10,31 +10,36 @@
 using namespace CUDANet::Layers;
 
 BatchNorm2D::BatchNorm2D(
-    int            inputSize,
+    dim2d          inputSize,
     int            inputChannels,
     float          epsilon,
     ActivationType activationType
 )
     : inputSize(inputSize), inputChannels(inputChannels) {
-    activation =
-        new Activation(activationType, inputSize * inputSize * inputChannels);
+    activation = new Activation(
+        activationType, inputSize.first * inputSize.second * inputChannels
+    );
 
     d_output = nullptr;
     CUDA_CHECK(cudaMalloc(
         (void **)&d_output,
-        sizeof(float) * inputSize * inputSize * inputChannels
+        sizeof(float) * inputSize.first * inputSize.second * inputChannels
     ));
 
     d_mean = nullptr;
-    CUDA_CHECK(cudaMalloc((void **)&d_mean, sizeof(float) * inputSize * inputSize));
+    CUDA_CHECK(cudaMalloc(
+        (void **)&d_mean, sizeof(float) * inputSize.first * inputSize.second
+    ));
 
     d_mean_sub = nullptr;
-    CUDA_CHECK(
-        cudaMalloc((void **)&d_mean_sub, sizeof(float) * inputSize * inputSize)
-    );
+    CUDA_CHECK(cudaMalloc(
+        (void **)&d_mean_sub, sizeof(float) * inputSize.first * inputSize.second
+    ));
 
     d_sqrt_var = nullptr;
-    CUDA_CHECK(cudaMalloc((void **)&d_sqrt_var, sizeof(float) * inputSize * inputSize));
+    CUDA_CHECK(cudaMalloc(
+        (void **)&d_sqrt_var, sizeof(float) * inputSize.first * inputSize.second
+    ));
 
     d_weights = nullptr;
     CUDA_CHECK(cudaMalloc((void **)&d_weights, sizeof(float) * inputChannels));
@@ -42,14 +47,18 @@ BatchNorm2D::BatchNorm2D(
     d_biases = nullptr;
     CUDA_CHECK(cudaMalloc((void **)&d_biases, sizeof(float) * inputChannels));
 
-    d_length = nullptr;
-    float length = (float) inputSize * inputSize;
+    d_length     = nullptr;
+    float length = (float)inputSize.first * inputSize.second;
     CUDA_CHECK(cudaMalloc((void **)&d_length, sizeof(float)));
-    CUDA_CHECK(cudaMemcpy(d_length, &length, sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(
+        cudaMemcpy(d_length, &length, sizeof(float), cudaMemcpyHostToDevice)
+    );
 
     d_epsilon = nullptr;
     CUDA_CHECK(cudaMalloc((void **)&d_epsilon, sizeof(float)));
-    CUDA_CHECK(cudaMemcpy(d_epsilon, &epsilon, sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(
+        cudaMemcpy(d_epsilon, &epsilon, sizeof(float), cudaMemcpyHostToDevice)
+    );
 
     weights.resize(inputChannels);
     biases.resize(inputChannels);
@@ -60,7 +69,7 @@ BatchNorm2D::BatchNorm2D(
     toCuda();
 
     gridSize =
-        (inputSize * inputSize + BLOCK_SIZE - 1) / BLOCK_SIZE;
+        (inputSize.first * inputSize.second + BLOCK_SIZE - 1) / BLOCK_SIZE;
 }
 
 BatchNorm2D::~BatchNorm2D() {
@@ -112,84 +121,67 @@ void BatchNorm2D::toCuda() {
 }
 
 int BatchNorm2D::getInputSize() {
-    return inputSize * inputSize * inputChannels;
+    return inputSize.first * inputSize.second * inputChannels;
 }
 
 int BatchNorm2D::getOutputSize() {
-    return inputSize * inputSize * inputChannels;
+    return inputSize.first * inputSize.second * inputChannels;
 }
 
 float *BatchNorm2D::forward(const float *d_input) {
-    
     // Compute per-channel batch normalization
     for (int i = 0; i < inputChannels; i++) {
-
         // Compute mean
         Utils::mean(
-            d_input + i * inputSize * inputSize,
-            d_mean,
-            d_length,
-            inputSize * inputSize
+            d_input + i * inputSize.first * inputSize.second, d_mean, d_length,
+            inputSize.first * inputSize.second
         );
 
         // Subtract mean from input
         Kernels::vec_scalar_sub<<<gridSize, BLOCK_SIZE>>>(
-            d_input + i * inputSize * inputSize,
-            d_mean_sub,
-            &d_mean[0],
-            inputSize * inputSize
+            d_input + i * inputSize.first * inputSize.second, d_mean_sub,
+            &d_mean[0], inputSize.first * inputSize.second
         );
         CUDA_CHECK(cudaGetLastError());
 
         // Compute variance
         Utils::var(
-            d_mean_sub,
-            d_sqrt_var,
-            d_length,
-            inputSize * inputSize
+            d_mean_sub, d_sqrt_var, d_length, inputSize.first * inputSize.second
         );
 
         // Add epsilon to variance to avoid division by zero
         Kernels::vec_scalar_add<<<gridSize, BLOCK_SIZE>>>(
-            d_sqrt_var,
-            d_sqrt_var,
-            &d_epsilon[0],
-            inputSize * inputSize
+            d_sqrt_var, d_sqrt_var, &d_epsilon[0],
+            inputSize.first * inputSize.second
         );
         CUDA_CHECK(cudaGetLastError());
 
         // Compute squared root of variance
         Kernels::vec_sqrt<<<gridSize, BLOCK_SIZE>>>(
-            d_sqrt_var,
-            d_sqrt_var,
-            inputSize * inputSize
+            d_sqrt_var, d_sqrt_var, inputSize.first * inputSize.second
         );
         CUDA_CHECK(cudaGetLastError());
 
         // Divide by squared root of variance
         Kernels::vec_scalar_div<<<gridSize, BLOCK_SIZE>>>(
-            d_mean_sub,
-            d_output + i * inputSize * inputSize,
-            &d_sqrt_var[0],
-            inputSize * inputSize
+            d_mean_sub, d_output + i * inputSize.first * inputSize.second,
+            &d_sqrt_var[0], inputSize.first * inputSize.second
         );
         CUDA_CHECK(cudaGetLastError());
 
         // Multiply by weights
         Kernels::vec_scalar_mul<<<gridSize, BLOCK_SIZE>>>(
-            d_output + i * inputSize * inputSize,
-            d_output + i * inputSize * inputSize,
-            &d_weights[i],
-            inputSize * inputSize
+            d_output + i * inputSize.first * inputSize.second,
+            d_output + i * inputSize.first * inputSize.second, &d_weights[i],
+            inputSize.first * inputSize.second
         );
         CUDA_CHECK(cudaGetLastError());
 
         // Add biases
         Kernels::vec_scalar_add<<<gridSize, BLOCK_SIZE>>>(
-            d_output + i * inputSize * inputSize,
-            d_output + i * inputSize * inputSize,
-            &d_biases[i],
-            inputSize * inputSize
+            d_output + i * inputSize.first * inputSize.second,
+            d_output + i * inputSize.first * inputSize.second, &d_biases[i],
+            inputSize.first * inputSize.second
         );
         CUDA_CHECK(cudaGetLastError());
     }

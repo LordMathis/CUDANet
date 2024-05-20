@@ -5,24 +5,29 @@
 using namespace CUDANet::Layers;
 
 AvgPooling2D::AvgPooling2D(
-    int            inputSize,
+    dim2d          inputSize,
     int            nChannels,
-    int            poolingSize,
-    int            stride,
+    dim2d          poolingSize,
+    dim2d          stride,
     ActivationType activationType
 )
     : inputSize(inputSize),
       nChannels(nChannels),
       poolingSize(poolingSize),
       stride(stride) {
-    outputSize = (inputSize - poolingSize) / stride + 1;
+    outputSize = {
+        (inputSize.first - poolingSize.first) / stride.first + 1,
+        (inputSize.second - poolingSize.second) / stride.second + 1
+    };
 
-    activation =
-        new Activation(activationType, outputSize * outputSize * nChannels);
+    activation = new Activation(
+        activationType, outputSize.first * outputSize.second * nChannels
+    );
 
     d_output = nullptr;
     CUDA_CHECK(cudaMalloc(
-        (void**)&d_output, sizeof(float) * outputSize * outputSize * nChannels
+        (void**)&d_output,
+        sizeof(float) * outputSize.first * outputSize.second * nChannels
     ));
 }
 
@@ -32,11 +37,10 @@ AvgPooling2D::~AvgPooling2D() {
 }
 
 float* AvgPooling2D::forward(const float* d_input) {
-
     dim3 block(8, 8, 8);
     dim3 grid(
-        (outputSize + block.x - 1) / block.x,
-        (outputSize + block.y - 1) / block.y,
+        (outputSize.first + block.x - 1) / block.x,
+        (outputSize.second + block.y - 1) / block.y,
         (nChannels + block.z - 1) / block.z
     );
 
@@ -52,9 +56,9 @@ float* AvgPooling2D::forward(const float* d_input) {
 }
 
 int AvgPooling2D::getOutputSize() {
-    return outputSize * outputSize * nChannels;
+    return outputSize.first * outputSize.second * nChannels;
 }
 
 int AvgPooling2D::getInputSize() {
-    return inputSize * inputSize * nChannels;
+    return inputSize.first * inputSize.second * nChannels;
 }

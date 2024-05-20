@@ -7,6 +7,8 @@
 #define CUDANET_SAME_PADDING(inputSize, kernelSize, stride) \
     ((stride - 1) * inputSize - stride + kernelSize) / 2;
 
+typedef std::pair<int, int> dim2d;
+
 namespace CUDANet::Layers {
 
 /**
