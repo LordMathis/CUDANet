@@ -6,125 +6,121 @@
 #include "conv2d.cuh"
 
 class Conv2dTest : public ::testing::Test {
-  protected:
-    CUDANet::Layers::Conv2d commonTestSetup(
-        dim2d                           inputSize,
-        int                             inputChannels,
-        dim2d                           kernelSize,
-        dim2d                           stride,
-        int                             numFilters,
-        dim2d                           paddingSize,
-        CUDANet::Layers::ActivationType activationType,
-        std::vector<float>&             input,
-        float*                          kernels,
-        float*&                         d_input
-    ) {
-        // Create Conv2d layer
-        CUDANet::Layers::Conv2d conv2d(
+protected:
+    dim2d inputSize;
+    int inputChannels;
+    dim2d kernelSize;
+    dim2d stride;
+    int numFilters;
+    dim2d paddingSize;
+    CUDANet::Layers::ActivationType activationType;
+    std::vector<float> input;
+    std::vector<float> kernels;
+    std::vector<float> expected;
+
+    float *d_input;
+    float *d_output;
+    CUDANet::Layers::Conv2d *conv2dLayer;
+
+    virtual void SetUp() override {
+        d_input = nullptr;
+        d_output = nullptr;
+        conv2dLayer = nullptr;
+    }
+
+    virtual void TearDown() override {
+        if (d_input) {
+            cudaFree(d_input);
+        }
+        delete conv2dLayer;
+    }
+
+    void runTest() {
+        cudaError_t cudaStatus;
+
+        conv2dLayer = new CUDANet::Layers::Conv2d(
             inputSize, inputChannels, kernelSize, stride, numFilters,
             paddingSize, activationType
         );
 
-        conv2d.setWeights(kernels);
+        conv2dLayer->setWeights(kernels.data());
 
-        // Allocate device memory
-        cudaStatus = cudaMalloc(
-            (void**)&d_input,
-            sizeof(float) * inputSize.first * inputSize.second * inputChannels
-        );
+        cudaStatus = cudaMalloc((void**)&d_input, sizeof(float) * input.size());
         EXPECT_EQ(cudaStatus, cudaSuccess);
 
-        // // Copy input to device
         cudaStatus = cudaMemcpy(
             d_input, input.data(), sizeof(float) * input.size(),
             cudaMemcpyHostToDevice
         );
         EXPECT_EQ(cudaStatus, cudaSuccess);
 
-        return conv2d;
-    }
+        d_output = conv2dLayer->forward(d_input);
 
-    void commonTestTeardown(float* d_input) {
-        // Free device memory
-        cudaFree(d_input);
-    }
+        int outputHeight = (inputSize.first - kernelSize.first + 2 * paddingSize.first) / stride.first + 1;
+        int outputWidth = (inputSize.second - kernelSize.second + 2 * paddingSize.second) / stride.second + 1;
+        int outputSize = outputHeight * outputWidth * numFilters;
+        EXPECT_EQ(outputSize, conv2dLayer->getOutputSize());
 
-    cudaError_t cudaStatus;
+        std::vector<float> output(outputSize);
+        cudaStatus = cudaMemcpy(
+            output.data(), d_output, sizeof(float) * output.size(),
+            cudaMemcpyDeviceToHost
+        );
+        EXPECT_EQ(cudaStatus, cudaSuccess);
+
+        for (int i = 0; i < output.size(); ++i) {
+            EXPECT_NEAR(expected[i], output[i], 1e-5f);
+        }
+    }
 };
 
 TEST_F(Conv2dTest, SimpleTest) {
-    dim2d inputSize     = {4, 4};
-    int   inputChannels = 1;
-    dim2d kernelSize    = {2, 2};
-    dim2d stride        = {1, 1};
-    int   numFilters    = 1;
-    dim2d paddingSize   = {0, 0};
+    inputSize = {4, 4};
+    inputChannels = 1;
+    kernelSize = {2, 2};
+    stride = {1, 1};
+    numFilters = 1;
+    paddingSize = {0, 0};
+    activationType = CUDANet::Layers::ActivationType::NONE;
 
-    CUDANet::Layers::ActivationType activationType =
-        CUDANet::Layers::ActivationType::NONE;
-
-    std::vector<float> input   = {1.0f,  2.0f,  3.0f,  4.0f,  5.0f,  6.0f,
-                                  7.0f,  8.0f,  9.0f,  10.0f, 11.0f, 12.0f,
-                                  13.0f, 14.0f, 15.0f, 16.0f};
-    std::vector<float> kernels = {
-        1.0f,
-        2.0f,
-        3.0f,
-        4.0f,
+    input = {
+        // clang-format off
+        1.0f, 2.0f, 3.0f, 4.0f,
+        5.0f, 6.0f, 7.0f, 8.0f,
+        9.0f, 10.0f, 11.0f, 12.0f,
+        13.0f, 14.0f, 15.0f, 16.0f
+        // clang-format on
     };
+    kernels = {
+        // clang-format off
+        1.0f,2.0f,
+        3.0f, 4.0f
+        // clang-format on
+    };
+    expected = {44.0f, 54.0f, 64.0f, 84.0f, 94.0f, 104.0f, 124.0f, 134.0f, 144.0f};
 
-    float* d_input;
-    float* d_output;
-
-    CUDANet::Layers::Conv2d conv2d = commonTestSetup(
-        inputSize, inputChannels, kernelSize, stride, numFilters, paddingSize,
-        activationType, input, kernels.data(), d_input
-    );
-
-    int outputHeight = (inputSize.first - kernelSize.first) / stride.first + 1;
-    int outputWidth =
-        (inputSize.second - kernelSize.second) / stride.second + 1;
-    int outputSize = outputHeight * outputWidth * numFilters;
-    EXPECT_EQ(outputSize, conv2d.getOutputSize());
-
-    d_output = conv2d.forward(d_input);
-
-    std::vector<float> expected = {44.0f,  54.0f,  64.0f,  84.0f, 94.0f,
-                                   104.0f, 124.0f, 134.0f, 144.0f};
-    std::vector<float> output(outputSize);
-
-    cudaStatus = cudaMemcpy(
-        output.data(), d_output, sizeof(float) * output.size(),
-        cudaMemcpyDeviceToHost
-    );
-    EXPECT_EQ(cudaStatus, cudaSuccess);
-
-    for (int i = 0; i < output.size(); ++i) {
-        EXPECT_FLOAT_EQ(expected[i], output[i]);
-    }
-
-    commonTestTeardown(d_input);
+    runTest();
 }
 
 TEST_F(Conv2dTest, PaddedTest) {
-    dim2d inputSize     = {5, 5};
-    int   inputChannels = 3;
-    dim2d kernelSize    = {3, 3};
-    dim2d stride        = {1, 1};
-    int   numFilters    = 2;
+    inputSize     = {5, 5};
+    inputChannels = 3;
+    kernelSize    = {3, 3};
+    stride        = {1, 1};
+    numFilters    = 2;
 
     int paddingFirst =
         CUDANET_SAME_PADDING(inputSize.first, kernelSize.first, stride.first);
     int paddingSecond = CUDANET_SAME_PADDING(
         inputSize.second, kernelSize.second, stride.second
     );
-    dim2d paddingSize = {paddingFirst, paddingSecond};
+    paddingSize = {paddingFirst, paddingSecond};
 
-    CUDANet::Layers::ActivationType activationType =
+    activationType =
         CUDANet::Layers::ActivationType::NONE;
 
     // clang-format off
-    std::vector<float> input = {
+    input = {
         // Channel 1
         0.823f, 0.217f, 0.435f, 0.981f, 0.742f,
         0.109f, 0.518f, 0.374f, 0.681f, 0.147f,
@@ -145,7 +141,7 @@ TEST_F(Conv2dTest, PaddedTest) {
         0.345f, 0.123f, 0.789f, 0.123f, 0.456f
     };
 
-    std::vector<float> kernels = {
+    kernels = {
         // Filter 1, Channel 1
         0.128f, 0.754f, 0.987f,
         0.321f, 0.412f, 0.635f,
@@ -173,28 +169,8 @@ TEST_F(Conv2dTest, PaddedTest) {
     };
     // clang-format on
 
-    float* d_input;
-    float* d_output;
-
-    CUDANet::Layers::Conv2d conv2d = commonTestSetup(
-        inputSize, inputChannels, kernelSize, stride, numFilters, paddingSize,
-        activationType, input, kernels.data(), d_input
-    );
-
-    EXPECT_EQ(
-        inputSize.first * inputSize.second * numFilters, conv2d.getOutputSize()
-    );
-
-    d_output = conv2d.forward(d_input);
-
-    std::vector<float> output(conv2d.getOutputSize());
-    cudaMemcpy(
-        output.data(), d_output, sizeof(float) * conv2d.getOutputSize(),
-        cudaMemcpyDeviceToHost
-    );
-
     // Generated by tools/generate_conv2d_test.py
-    std::vector<float> expected = {
+    expected = {
         // Channel 1
         2.29426f, 3.89173f, 4.17634f, 3.25501f, 2.07618f, 5.41483f, 7.09971f,
         6.39811f, 5.71432f, 3.10928f, 5.12973f, 6.29638f, 5.26962f, 5.21997f,
@@ -206,32 +182,29 @@ TEST_F(Conv2dTest, PaddedTest) {
         2.78625f, 5.33763f, 5.80899f, 5.89785f, 5.51095f, 3.74287f, 2.64053f,
         4.05895f, 3.96482f, 4.30177f, 1.94269f
     };
-    for (int i = 0; i < output.size(); i++) {
-        EXPECT_NEAR(output[i], expected[i], 0.0001f);
-    }
-
-    commonTestTeardown(d_input);
+    
+    runTest();
 }
 
 TEST_F(Conv2dTest, StridedPaddedConvolution) {
-    dim2d inputSize     = {5, 5};
-    int   inputChannels = 2;
-    dim2d kernelSize    = {3, 3};
-    dim2d stride        = {2, 2};
-    int   numFilters    = 2;
+    inputSize     = {5, 5};
+    inputChannels = 2;
+    kernelSize    = {3, 3};
+    stride        = {2, 2};
+    numFilters    = 2;
 
     int paddingFirst =
         CUDANET_SAME_PADDING(inputSize.first, kernelSize.second, stride.first);
     int paddingSecond = CUDANET_SAME_PADDING(
         inputSize.second, kernelSize.second, stride.second
     );
-    dim2d paddingSize = {paddingFirst, paddingSecond};
+    paddingSize = {paddingFirst, paddingSecond};
 
-    CUDANet::Layers::ActivationType activationType =
+    activationType =
         CUDANet::Layers::ActivationType::RELU;
 
     // clang-format off
-    std::vector<float> input = {
+    input = {
         // Channel 1
         0.946f, 0.879f, 0.382f, 0.542f, 0.453f,
         0.128f, 0.860f, 0.778f, 0.049f, 0.974f,
@@ -245,7 +218,7 @@ TEST_F(Conv2dTest, StridedPaddedConvolution) {
         0.473f, 0.303f, 0.084f, 0.785f, 0.444f,
         0.464f, 0.413f, 0.779f, 0.298f, 0.783f
     };
-    std::vector<float> kernels = {
+    kernels = {
         // Filter 1, Channel 1
         0.744f, 0.745f, 0.641f,
         0.164f, 0.157f, 0.127f,
@@ -265,28 +238,7 @@ TEST_F(Conv2dTest, StridedPaddedConvolution) {
     };
     // clang-format on
 
-    float* d_input;
-    float* d_output;
-
-    CUDANet::Layers::Conv2d conv2d = commonTestSetup(
-        inputSize, inputChannels, kernelSize, stride, numFilters, paddingSize,
-        activationType, input, kernels.data(), d_input
-    );
-
-    EXPECT_EQ(
-        inputSize.first * inputSize.second * numFilters, conv2d.getOutputSize()
-    );
-
-    d_output = conv2d.forward(d_input);
-
-    std::vector<float> output(conv2d.getOutputSize());
-    cudaMemcpy(
-        output.data(), d_output, sizeof(float) * conv2d.getOutputSize(),
-        cudaMemcpyDeviceToHost
-    );
-
-    // Generated by tools/generate_conv2d_test.py
-    std::vector<float> expected = {
+    expected = {
         // Channel 1
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.59803f, 2.84444f, 1.6201f, 0.0f,
         0.0f, 2.38937f, 3.80762f, 3.39679f, 0.0f, 0.0f, 1.13102f, 2.33335f,
@@ -297,9 +249,5 @@ TEST_F(Conv2dTest, StridedPaddedConvolution) {
         1.63218f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
     };
 
-    for (int i = 0; i < output.size(); i++) {
-        EXPECT_NEAR(output[i], expected[i], 0.0001f);
-    }
-
-    commonTestTeardown(d_input);
+    runTest();
 }
