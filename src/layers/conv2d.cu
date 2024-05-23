@@ -26,11 +26,12 @@ Conv2d::Conv2d(
       stride(stride),
       numFilters(numFilters),
       paddingSize(paddingSize) {
+
     outputSize = {
         (inputSize.first - kernelSize.first + 2 * paddingSize.first) /
                 stride.first + 1,
-        (inputSize.first - kernelSize.first + 2 * paddingSize.first) /
-                stride.first + 1
+        (inputSize.second - kernelSize.second + 2 * paddingSize.second) /
+                stride.second + 1
     };
 
     activation =
