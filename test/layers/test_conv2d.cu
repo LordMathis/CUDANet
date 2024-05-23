@@ -6,25 +6,25 @@
 #include "conv2d.cuh"
 
 class Conv2dTest : public ::testing::Test {
-protected:
-    dim2d inputSize;
-    int inputChannels;
-    dim2d kernelSize;
-    dim2d stride;
-    int numFilters;
-    dim2d paddingSize;
+  protected:
+    dim2d                           inputSize;
+    int                             inputChannels;
+    dim2d                           kernelSize;
+    dim2d                           stride;
+    int                             numFilters;
+    dim2d                           paddingSize;
     CUDANet::Layers::ActivationType activationType;
-    std::vector<float> input;
-    std::vector<float> kernels;
-    std::vector<float> expected;
+    std::vector<float>              input;
+    std::vector<float>              kernels;
+    std::vector<float>              expected;
 
-    float *d_input;
-    float *d_output;
+    float                   *d_input;
+    float                   *d_output;
     CUDANet::Layers::Conv2d *conv2dLayer;
 
     virtual void SetUp() override {
-        d_input = nullptr;
-        d_output = nullptr;
+        d_input     = nullptr;
+        d_output    = nullptr;
         conv2dLayer = nullptr;
     }
 
@@ -45,7 +45,8 @@ protected:
 
         conv2dLayer->setWeights(kernels.data());
 
-        cudaStatus = cudaMalloc((void**)&d_input, sizeof(float) * input.size());
+        cudaStatus =
+            cudaMalloc((void **)&d_input, sizeof(float) * input.size());
         EXPECT_EQ(cudaStatus, cudaSuccess);
 
         cudaStatus = cudaMemcpy(
@@ -56,8 +57,14 @@ protected:
 
         d_output = conv2dLayer->forward(d_input);
 
-        int outputHeight = (inputSize.first - kernelSize.first + 2 * paddingSize.first) / stride.first + 1;
-        int outputWidth = (inputSize.second - kernelSize.second + 2 * paddingSize.second) / stride.second + 1;
+        int outputHeight =
+            (inputSize.first - kernelSize.first + 2 * paddingSize.first) /
+                stride.first +
+            1;
+        int outputWidth =
+            (inputSize.second - kernelSize.second + 2 * paddingSize.second) /
+                stride.second +
+            1;
         int outputSize = outputHeight * outputWidth * numFilters;
         EXPECT_EQ(outputSize, conv2dLayer->getOutputSize());
 
@@ -75,12 +82,12 @@ protected:
 };
 
 TEST_F(Conv2dTest, SimpleTest) {
-    inputSize = {4, 4};
-    inputChannels = 1;
-    kernelSize = {2, 2};
-    stride = {1, 1};
-    numFilters = 1;
-    paddingSize = {0, 0};
+    inputSize      = {4, 4};
+    inputChannels  = 1;
+    kernelSize     = {2, 2};
+    stride         = {1, 1};
+    numFilters     = 1;
+    paddingSize    = {0, 0};
     activationType = CUDANet::Layers::ActivationType::NONE;
 
     input = {
@@ -97,7 +104,8 @@ TEST_F(Conv2dTest, SimpleTest) {
         3.0f, 4.0f
         // clang-format on
     };
-    expected = {44.0f, 54.0f, 64.0f, 84.0f, 94.0f, 104.0f, 124.0f, 134.0f, 144.0f};
+    expected = {44.0f,  54.0f,  64.0f,  84.0f, 94.0f,
+                104.0f, 124.0f, 134.0f, 144.0f};
 
     runTest();
 }
@@ -116,8 +124,7 @@ TEST_F(Conv2dTest, PaddedTest) {
     );
     paddingSize = {paddingFirst, paddingSecond};
 
-    activationType =
-        CUDANet::Layers::ActivationType::NONE;
+    activationType = CUDANet::Layers::ActivationType::NONE;
 
     // clang-format off
     input = {
@@ -182,11 +189,11 @@ TEST_F(Conv2dTest, PaddedTest) {
         2.78625f, 5.33763f, 5.80899f, 5.89785f, 5.51095f, 3.74287f, 2.64053f,
         4.05895f, 3.96482f, 4.30177f, 1.94269f
     };
-    
+
     runTest();
 }
 
-TEST_F(Conv2dTest, StridedPaddedConvolution) {
+TEST_F(Conv2dTest, StridedPaddedTest) {
     inputSize     = {5, 5};
     inputChannels = 2;
     kernelSize    = {3, 3};
@@ -200,8 +207,7 @@ TEST_F(Conv2dTest, StridedPaddedConvolution) {
     );
     paddingSize = {paddingFirst, paddingSecond};
 
-    activationType =
-        CUDANet::Layers::ActivationType::RELU;
+    activationType = CUDANet::Layers::ActivationType::RELU;
 
     // clang-format off
     input = {
@@ -238,16 +244,112 @@ TEST_F(Conv2dTest, StridedPaddedConvolution) {
     };
     // clang-format on
 
-    expected = {
-        // Channel 1
-        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.59803f, 2.84444f, 1.6201f, 0.0f,
-        0.0f, 2.38937f, 3.80762f, 3.39679f, 0.0f, 0.0f, 1.13102f, 2.33335f,
-        1.98488f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        // Channel 2
-        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 2.57732f, 3.55543f, 2.24675f, 0.0f,
-        0.0f, 3.36842f, 3.41373f, 3.14804f, 0.0f, 0.0f, 1.17963f, 2.55005f,
-        1.63218f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
+    expected = {// Channel 1
+                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.59803f, 2.84444f, 1.6201f,
+                0.0f, 0.0f, 2.38937f, 3.80762f, 3.39679f, 0.0f, 0.0f, 1.13102f,
+                2.33335f, 1.98488f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                // Channel 2
+                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 2.57732f, 3.55543f,
+                2.24675f, 0.0f, 0.0f, 3.36842f, 3.41373f, 3.14804f, 0.0f, 0.0f,
+                1.17963f, 2.55005f, 1.63218f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
     };
 
     runTest();
+}
+
+TEST_F(Conv2dTest, NonSquareInputTest) {
+    inputSize      = {4, 6};  // Non-square input
+    inputChannels  = 1;
+    kernelSize     = {2, 2};
+    stride         = {1, 1};
+    numFilters     = 1;
+    paddingSize    = {0, 0};
+    activationType = CUDANet::Layers::ActivationType::NONE;
+
+    input = {
+        // clang-format off
+        0.946f, 0.879f, 0.382f, 0.542f, 0.453f, 0.128f,
+        0.128f, 0.860f, 0.778f, 0.049f, 0.974f, 0.400f,
+        0.400f, 0.874f, 0.161f, 0.271f, 0.580f, 0.373f,
+        0.078f, 0.366f, 0.396f, 0.181f, 0.246f, 0.112f
+        // clang-format on
+    };
+    kernels  = {0.744f, 0.745f, 0.164f, 0.157f};
+    expected = {1.51469f, 1.20175f, 0.82328f, 0.90169f, 0.65493f,
+                0.93875f, 1.38806f, 0.68429f, 0.89759f, 1.17634f,
+                1.01898f, 0.8924f,  0.41504f, 0.70203f, 0.76733f};
+
+    runTest();
+}
+
+TEST_F(Conv2dTest, NonSquareKernelTest) {
+    inputSize      = {4, 4};
+    inputChannels  = 1;
+    kernelSize     = {1, 3};  // Non-square kernel
+    stride         = {1, 1};
+    numFilters     = 1;
+    paddingSize    = {0, 0};
+    activationType = CUDANet::Layers::ActivationType::NONE;
+
+    input = {
+        // clang-format off
+        0.946f, 0.879f, 0.382f, 0.542f,
+        0.128f, 0.860f, 0.778f, 0.049f,
+        0.400f, 0.874f, 0.161f, 0.271f,
+        0.078f, 0.366f, 0.396f, 0.181f
+        // clang-format on
+    };
+    kernels  = {0.744f, 0.745f, 0.164f};
+    expected = {1.42133f, 1.02745f, 0.86352f, 1.22749f,
+                0.97513f, 0.81465f, 0.39565f, 0.59701f};
+
+    runTest();
+}
+
+TEST_F(Conv2dTest, NonSquareStrideTest) {
+    inputSize      = {4, 4};
+    inputChannels  = 1;
+    kernelSize     = {2, 2};
+    stride         = {1, 2};  // Non-square stride
+    numFilters     = 1;
+    paddingSize    = {0, 0};
+    activationType = CUDANet::Layers::ActivationType::NONE;
+
+    input = {
+        // clang-format off
+        0.946f, 0.879f, 0.382f, 0.542f,
+        0.128f, 0.860f, 0.778f, 0.049f,
+        0.400f, 0.874f, 0.161f, 0.271f,
+        0.078f, 0.366f, 0.396f, 0.181f
+        // clang-format on
+    };
+    kernels  = {0.144f, 0.745f, 0.964f, 0.164f};
+    expected = {1.05551f, 1.21683f, 1.18807f, 0.34818f, 0.84395f, 0.63651f};
+
+    runTest();
+}
+
+TEST_F(Conv2dTest, NonSquarePaddingTest) {
+    inputSize      = {4, 4};
+    inputChannels  = 1;
+    kernelSize     = {2, 2};
+    stride         = {1, 1};
+    numFilters     = 1;
+    paddingSize    = {1, 2};  // Non-square padding
+    activationType = CUDANet::Layers::ActivationType::NONE;
+
+    input = {
+        // clang-format off
+        0.946f, 0.879f, 0.382f, 0.542f,
+        0.128f, 0.860f, 0.778f, 0.049f,
+        0.400f, 0.874f, 0.161f, 0.271f,
+        0.078f, 0.366f, 0.396f, 0.181f
+        // clang-format on
+    };
+    kernels  = {0.144f, 0.745f, 0.964f, 0.164f};
+    expected = {0.0f, 0.15514f, 1.0561f,  0.91f,    0.45714f, 0.52249f, 0.0f,
+                0.0f, 0.72576f, 1.05551f, 1.3678f,  1.21683f, 0.12528f, 0.0f,
+                0.0f, 0.16096f, 1.18807f, 1.57239f, 0.34818f, 0.2683f,  0.0f,
+                0.0f, 0.31079f, 0.84395f, 0.66357f, 0.63651f, 0.21351f, 0.0f,
+                0.0f, 0.05811f, 0.2839f,  0.34772f, 0.19187f, 0.02606f, 0.0f};
 }

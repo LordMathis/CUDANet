@@ -128,9 +128,139 @@ def gen_convd_strided_test_result():
     
     print_cpp_vector(output)
 
+
+def gen_convd_non_square_input_test_result():
+
+    in_channels = 1
+    out_channels = 1
+    kernel_size = 2
+    stride = 1
+    padding = 0
+
+    input = torch.tensor([
+        0.946, 0.879, 0.382, 0.542, 0.453, 0.128,
+        0.128, 0.860, 0.778, 0.049, 0.974, 0.400,
+        0.400, 0.874, 0.161, 0.271, 0.580, 0.373,
+        0.078, 0.366, 0.396, 0.181, 0.246, 0.112,
+    ]).reshape(1, 1, 4, 6)
+
+
+    weights = torch.tensor([
+        0.744, 0.745,
+        0.164, 0.157,
+    ]).reshape(1, 1, 2, 2)
+
+    output = _conv2d(in_channels,
+                     out_channels,
+                     kernel_size,
+                     stride,
+                     padding,
+                     input,
+                     weights)
+    
+    print_cpp_vector(output)
+
+def gen_convd_non_square_kernel_test_result():
+
+    in_channels = 1
+    out_channels = 1
+    kernel_size = (1, 3)
+    stride = 1
+    padding = 0
+
+    input = torch.tensor([
+        0.946, 0.879, 0.382, 0.542,
+        0.128, 0.860, 0.778, 0.049,
+        0.400, 0.874, 0.161, 0.271,
+        0.078, 0.366, 0.396, 0.181
+    ]).reshape(1, 1, 4, 4)
+
+    weights = torch.tensor([
+        0.744, 0.745, 0.164
+    ]).reshape(1, 1, 1, 3)
+
+    output = _conv2d(in_channels,
+                     out_channels,
+                     kernel_size,
+                     stride,
+                     padding,
+                     input,
+                     weights)
+    
+    print_cpp_vector(output)
+
+def gen_convd_non_square_stride_test_result():
+
+    in_channels = 1
+    out_channels = 1
+    kernel_size = 2
+    stride = (1, 2)
+    padding = 0
+
+    input = torch.tensor([
+        0.946, 0.879, 0.382, 0.542,
+        0.128, 0.860, 0.778, 0.049,
+        0.400, 0.874, 0.161, 0.271,
+        0.078, 0.366, 0.396, 0.181
+    ]).reshape(1, 1, 4, 4)
+
+    weights = torch.tensor([
+        0.144, 0.745,
+        0.964, 0.164
+    ]).reshape(1, 1, 2, 2)
+
+    output = _conv2d(in_channels,
+                     out_channels,
+                     kernel_size,
+                     stride,
+                     padding,
+                     input,
+                     weights)
+    
+    print_cpp_vector(output)
+
+def gen_convd_non_square_padding_test_result():
+
+    in_channels = 1
+    out_channels = 1
+    kernel_size = 2
+    stride = 1
+    padding = (1, 2)
+
+    input = torch.tensor([
+        0.946, 0.879, 0.382, 0.542,
+        0.128, 0.860, 0.778, 0.049,
+        0.400, 0.874, 0.161, 0.271,
+        0.078, 0.366, 0.396, 0.181
+    ]).reshape(1, 1, 4, 4)
+
+    weights = torch.tensor([
+        0.144, 0.745,
+        0.964, 0.164
+    ]).reshape(1, 1, 2, 2)
+
+    output = _conv2d(in_channels,
+                     out_channels,
+                     kernel_size,
+                     stride,
+                     padding,
+                     input,
+                     weights)
+    
+    print_cpp_vector(output)
+
+
 if __name__ == "__main__":
     print("Generating test results...")
     print("Padded convolution test:")
     gen_convd_padded_test_result()
     print("Strided convolution test:")
     gen_convd_strided_test_result()
+    print("Non square input convolution test:")
+    gen_convd_non_square_input_test_result()
+    print("Non square kernel convolution test:")
+    gen_convd_non_square_kernel_test_result()
+    print("Non square stride convolution test:")
+    gen_convd_non_square_stride_test_result()
+    print("Non square padding convolution test:")
+    gen_convd_non_square_padding_test_result()
