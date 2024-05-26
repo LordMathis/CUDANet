@@ -13,7 +13,8 @@ __global__ void max_pooling(
     const dim2d outputSize,
     const int nChannels,
     const dim2d poolingSize,
-    const dim2d stride
+    const dim2d stride,
+    const dim2d padding
 );
 
 __global__ void avg_pooling(

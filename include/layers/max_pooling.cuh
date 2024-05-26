@@ -13,6 +13,7 @@ class MaxPooling2d : public SequentialLayer, public TwoDLayer {
         int            nChannels,
         dim2d          poolingSize,
         dim2d          stride,
+        dim2d          padding,
         ActivationType activationType
     );
     ~MaxPooling2d();
@@ -40,6 +41,7 @@ class MaxPooling2d : public SequentialLayer, public TwoDLayer {
     int   nChannels;
     dim2d poolingSize;
     dim2d stride;
+    dim2d padding;
 
     dim2d outputSize;
 

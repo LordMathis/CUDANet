@@ -9,23 +9,31 @@ MaxPooling2d::MaxPooling2d(
     int            nChannels,
     dim2d          poolingSize,
     dim2d          stride,
+    dim2d          padding,
     ActivationType activationType
 )
     : inputSize(inputSize),
       nChannels(nChannels),
       poolingSize(poolingSize),
-      stride(stride) {
+      stride(stride),
+      padding(padding) {
     outputSize = {
-        (inputSize.first - poolingSize.first) / stride.first + 1,
-        (inputSize.second - poolingSize.second) / stride.second + 1
+        (inputSize.first + 2 * padding.first - poolingSize.first) /
+                stride.first +
+            1,
+        (inputSize.second + 2 * padding.second - poolingSize.second) /
+                stride.second +
+            1
     };
 
-    activation =
-        new Activation(activationType, outputSize.first * outputSize.second * nChannels);
+    activation = new Activation(
+        activationType, outputSize.first * outputSize.second * nChannels
+    );
 
     d_output = nullptr;
     CUDA_CHECK(cudaMalloc(
-        (void**)&d_output, sizeof(float) * outputSize.first * outputSize.second * nChannels
+        (void**)&d_output,
+        sizeof(float) * outputSize.first * outputSize.second * nChannels
     ));
 }
 
@@ -43,7 +51,8 @@ float* MaxPooling2d::forward(const float* d_input) {
     );
 
     Kernels::max_pooling<<<grid, block>>>(
-        d_input, d_output, inputSize, outputSize, nChannels, poolingSize, stride
+        d_input, d_output, inputSize, outputSize, nChannels, poolingSize,
+        stride, padding
     );
     CUDA_CHECK(cudaGetLastError());
 

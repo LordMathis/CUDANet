@@ -45,7 +45,7 @@ class ModelTest : public ::testing::Test {
         CUDANet::Layers::MaxPooling2d *maxpool2d =
             new CUDANet::Layers::MaxPooling2d(
                 poolingInput, numFilters, poolingSize,
-                poolingStride, CUDANet::Layers::ActivationType::RELU
+                poolingStride, {0, 0}, CUDANet::Layers::ActivationType::RELU
             );
         model->addLayer("maxpool1", maxpool2d);
 

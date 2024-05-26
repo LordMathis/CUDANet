@@ -62,6 +62,14 @@ def gen_max_pool_non_square_stride_test_result():
 
     print_cpp_vector(output)
 
+def gen_max_pool_non_square_padding_test_result():
+    input = _get_pool_input()
+
+    output = torch.nn.MaxPool2d(kernel_size=2, stride=2, padding=(0, 1))(input)
+    output = torch.flatten(output)
+
+    print_cpp_vector(output)
+
 
 def gen_avg_pool_test_result():
 
@@ -123,6 +131,8 @@ if __name__ == "__main__":
     gen_max_non_square_pool_test_result()
     print("Max pool non square stride test:")
     gen_max_pool_non_square_stride_test_result()
+    print("Max pool non square padding test:")
+    gen_max_pool_non_square_padding_test_result()
 
     print("--------------")
 

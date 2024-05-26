@@ -11,6 +11,7 @@ class MaxPoolingLayerTest : public ::testing::Test {
     int                nChannels;
     dim2d              poolingSize;
     dim2d              stride;
+    dim2d              padding;
     std::vector<float> input;
     std::vector<float> expected;
 
@@ -35,7 +36,7 @@ class MaxPoolingLayerTest : public ::testing::Test {
         cudaError_t cudaStatus;
 
         maxPoolingLayer = new CUDANet::Layers::MaxPooling2d(
-            inputSize, nChannels, poolingSize, stride,
+            inputSize, nChannels, poolingSize, stride, padding,
             CUDANet::Layers::ActivationType::NONE
         );
 
@@ -71,6 +72,7 @@ TEST_F(MaxPoolingLayerTest, MaxPoolForwardTest) {
     nChannels   = 2;
     poolingSize = {2, 2};
     stride      = {2, 2};
+    padding     = {0, 0};
 
     input = {
         // clang-format off
@@ -97,6 +99,7 @@ TEST_F(MaxPoolingLayerTest, MaxPoolForwardNonSquareInputTest) {
     nChannels   = 2;
     poolingSize = {2, 2};
     stride      = {2, 2};
+    padding     = {0, 0};
 
     input = {// Channel 0
              0.573f, 0.619f, 0.732f, 0.055f, 0.123f, 0.234f, 0.243f, 0.316f,
@@ -118,6 +121,7 @@ TEST_F(MaxPoolingLayerTest, MaxPoolForwardNonSquarePoolSizeTest) {
     nChannels   = 2;
     poolingSize = {2, 3};  // Non-square pooling size
     stride      = {2, 2};
+    padding     = {0, 0};
 
     input = {
         // clang-format off
@@ -145,6 +149,7 @@ TEST_F(MaxPoolingLayerTest, MaxPoolForwardNonSquareStrideTest) {
     nChannels   = 2;
     poolingSize = {2, 2};
     stride      = {1, 2};  // Non-square stride
+    padding     = {0, 0};
 
     input = {
         // clang-format off
@@ -162,6 +167,34 @@ TEST_F(MaxPoolingLayerTest, MaxPoolForwardNonSquareStrideTest) {
     };
 
     expected = {0.619f, 0.732f, 0.712f, 0.619f, 0.712f, 0.742f, 0.919f, 0.973f, 0.473f, 0.973f, 0.819f, 0.85f};
+
+    runTest();
+
+}
+
+TEST_F(MaxPoolingLayerTest, MaxPoolForwardNonSquarePaddingTest) {
+    inputSize   = {4, 4};
+    nChannels   = 2;
+    poolingSize = {2, 2};
+    stride      = {2, 2};  // Non-square stride
+    padding     = {0, 1};
+
+    input = {
+        // clang-format off
+        // Channel 0
+        0.573f, 0.619f, 0.732f, 0.055f,
+        0.243f, 0.316f, 0.573f, 0.619f,
+        0.712f, 0.055f, 0.243f, 0.316f,
+        0.573f, 0.619f, 0.742f, 0.055f,
+        // Channel 1
+        0.473f, 0.919f, 0.107f, 0.073f,
+        0.073f, 0.362f, 0.973f, 0.059f,
+        0.473f, 0.455f, 0.283f, 0.416f,
+        0.532f, 0.819f, 0.732f, 0.850f
+        // clang-format on
+    };
+
+    expected = {0.573f, 0.732f, 0.619f, 0.712f, 0.742f, 0.316f, 0.473f, 0.973f, 0.073f, 0.532f, 0.819f, 0.85f};
 
     runTest();
 
