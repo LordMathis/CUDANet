@@ -103,6 +103,15 @@ def gen_avg_pool_non_square_stride_test_result():
     print_cpp_vector(output)
 
 
+def gen_avg_pool_non_square_padding_test_result():
+
+    input = _get_pool_input()
+
+    output = torch.nn.AvgPool2d(kernel_size=2, stride=2, padding=(1, 0))(input)
+    output = torch.flatten(output)
+
+    print_cpp_vector(output)
+
 
 if __name__ == "__main__":
     print("Generating test results...")
@@ -125,3 +134,5 @@ if __name__ == "__main__":
     gen_avg_non_square_pool_test_result()
     print("Avg pool non square stride test:")
     gen_avg_pool_non_square_stride_test_result()
+    print("Avg pool non square padding test:")
+    gen_avg_pool_non_square_padding_test_result()

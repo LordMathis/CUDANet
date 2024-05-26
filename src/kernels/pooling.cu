@@ -47,7 +47,8 @@ __global__ void Kernels::avg_pooling(
     const dim2d outputSize,
     const int   nChannels,
     const dim2d poolingSize,
-    const dim2d stride
+    const dim2d stride,
+    const dim2d padding
 ) {
     int j = blockDim.x * blockIdx.x + threadIdx.x;
     int i = blockDim.y * blockIdx.y + threadIdx.y;
@@ -61,11 +62,16 @@ __global__ void Kernels::avg_pooling(
 
     for (int k = 0; k < poolingSize.first; k++) {
         for (int l = 0; l < poolingSize.second; l++) {
-            int inputIndex = c * inputSize.first * inputSize.second +
-                             (i * stride.first + k) * inputSize.second +
-                             (j * stride.second + l);
 
-            sum += d_input[inputIndex];
+            int inputRow = i * stride.first + k - padding.first;
+            int inputCol = j * stride.second + l - padding.second;
+
+            if (inputRow >= 0 && inputRow < inputSize.first &&
+                inputCol >= 0 && inputCol < inputSize.second) {
+                int inputIndex = c * inputSize.first * inputSize.second +
+                                 inputRow * inputSize.second + inputCol;
+                sum += d_input[inputIndex];
+            }
         }
     }
 

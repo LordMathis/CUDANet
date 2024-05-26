@@ -9,15 +9,17 @@ AvgPooling2d::AvgPooling2d(
     int            nChannels,
     dim2d          poolingSize,
     dim2d          stride,
+    dim2d          padding,
     ActivationType activationType
 )
     : inputSize(inputSize),
       nChannels(nChannels),
       poolingSize(poolingSize),
-      stride(stride) {
+      stride(stride),
+      padding(padding) {
     outputSize = {
-        (inputSize.first - poolingSize.first) / stride.first + 1,
-        (inputSize.second - poolingSize.second) / stride.second + 1
+        (inputSize.first + 2 * padding.first - poolingSize.first) / stride.first + 1,
+        (inputSize.second + 2 * padding.second - poolingSize.second) / stride.second + 1
     };
 
     activation = new Activation(
@@ -45,7 +47,8 @@ float* AvgPooling2d::forward(const float* d_input) {
     );
 
     Kernels::avg_pooling<<<grid, block>>>(
-        d_input, d_output, inputSize, outputSize, nChannels, poolingSize, stride
+        d_input, d_output, inputSize, outputSize, nChannels, poolingSize,
+        stride, padding
     );
     CUDA_CHECK(cudaGetLastError());
 
