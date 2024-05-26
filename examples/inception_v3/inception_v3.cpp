@@ -14,23 +14,23 @@ int main(int argc, const char *const argv[]) {
 class BasicConv2d : public CUDANet::Module {
   public:
     BasicConv2d(
-        const int          inputSize,
+        const dim2d          inputSize,
         const int          inputChannels,
         const int          outputChannels,
-        const int          kernelSize,
-        const int          stride,
-        const int          padding,
+        const dim2d          kernelSize,
+        const dim2d          stride,
+        const dim2d          padding,
         const std::string &prefix
     ) {
         // Create the convolution layer
-        CUDANet::Layers::Conv2d *conv = new CUDANet::Layers::Conv2d(
+        conv = new CUDANet::Layers::Conv2d(
             inputSize, inputChannels, kernelSize, stride, outputChannels,
             padding, CUDANet::Layers::ActivationType::NONE
         );
 
-        int batchNormSize = conv->getOutputSize();
+        dim2d batchNormSize = conv->getOutputDims();
 
-        CUDANet::Layers::BatchNorm2d *batchNorm = new CUDANet::Layers::BatchNorm2d(
+        batchNorm = new CUDANet::Layers::BatchNorm2d(
             batchNormSize, outputChannels, 1e-3f,
             CUDANet::Layers::ActivationType::RELU
         );
@@ -39,20 +39,20 @@ class BasicConv2d : public CUDANet::Module {
         addLayer(prefix + ".bn", batchNorm);
     }
 
-    float* forward(const float* d_input) {
-
-        for (auto& layer : layers) {
-            d_input = layer.second->forward(d_input);
-        }
-        return d_input;
+    float *forward(const float *d_input) {
+        float *d_output = conv->forward(d_input);
+        return batchNorm->forward(d_output);
     }
 
+  private:
+    CUDANet::Layers::Conv2d      *conv;
+    CUDANet::Layers::BatchNorm2d *batchNorm;
 };
 
 class InceptionA : public CUDANet::Module {
   public:
     InceptionA(
-        const int          inputSize,
+        const dim2d          inputSize,
         const int          inputChannels,
         const int          poolFeatures,
         const std::string &prefix
@@ -60,42 +60,47 @@ class InceptionA : public CUDANet::Module {
         : inputSize(inputSize),
           inputChannels(inputChannels),
           poolFeatures(poolFeatures) {
-        
         // Branch 1x1
-        CUDANet::Module *branch1x1 = new BasicConv2d(
-            inputSize, inputChannels, 64, 1, 1, 0, prefix + ".branch1x1"
+        branch1x1 = new BasicConv2d(
+            inputSize, inputChannels, 64, {1, 1}, {1, 1}, {0, 0}, prefix + ".branch1x1"
         );
         addLayer("", branch1x1);
 
         // Branch 5x5
-        CUDANet::Module *branch5x5_1 = new BasicConv2d(
-            inputSize, inputChannels, 48, 1, 1, 0, prefix + ".branch5x5_1"
+        branch5x5_1 = new BasicConv2d(
+            inputSize, inputChannels, 48, {1, 1}, {1, 1}, {0, 0}, prefix + ".branch5x5_1"
         );
         addLayer("", branch5x5_1);
-        CUDANet::Module *branch5x5_2 = new BasicConv2d(
-            inputSize, 48, 64, 5, 1, 2, prefix + ".branch5x5_2"
+        branch5x5_2 = new BasicConv2d(
+            inputSize, 48, 64, {5, 5}, {1, 1}, {2, 2}, prefix + ".branch5x5_2"
         );
         addLayer("", branch5x5_2);
 
         // Branch 3x3
-        CUDANet::Module *branch3x3_1 = new BasicConv2d(
-            inputSize, inputChannels, 64, 1, 1, 0, prefix + ".branch3x3_1"
+        branch3x3_1 = new BasicConv2d(
+            inputSize, inputChannels, 64, {1, 1}, {1, 1}, {0, 0}, prefix + ".branch3x3_1"
         );
         addLayer("", branch3x3_1);
-        CUDANet::Module *branch3x3_2 = new BasicConv2d(
-            inputSize, 64, 96, 3, 1, 1, prefix + ".branch3x3_2"
+        branch3x3_2 = new BasicConv2d(
+            inputSize, 64, 96, {3, 3}, {1, 1}, {1, 1}, prefix + ".branch3x3_2"
         );
         addLayer("", branch3x3_2);
-        CUDANet::Module *branch3x3_3 = new BasicConv2d(
-            inputSize, 96, 96, 3, 1, 1, prefix + ".branch3x3_3"
+        branch3x3_3 = new BasicConv2d(
+            inputSize, 96, 96, {3, 3}, {1, 1}, {1, 1}, prefix + ".branch3x3_3"
         );
         addLayer("", branch3x3_3);
 
         // Branch Pool
-        CUDANet::Module *branchPool = new BasicConv2d(
-            inputSize, inputChannels, poolFeatures, 1, 1, 0, prefix + ".branchPool"
+        branchPool_1 = new CUDANet::Layers::AvgPooling2d(
+            inputSize, inputChannels, {3, 3}, {1, 1},
+            CUDANet::Layers::ActivationType::NONE
         );
-        addLayer("", branchPool);
+        addLayer("", branchPool_1);
+        branchPool_2 = new BasicConv2d(
+            branchPool_1->getOutputDims(), inputChannels, poolFeatures, {1, 1}, {1, 1}, {0, 0},
+            prefix + ".branchPool"
+        );
+        addLayer("", branchPool_2);
 
         // Concat
         concat_1 = new CUDANet::Layers::Concat(
@@ -104,14 +109,58 @@ class InceptionA : public CUDANet::Module {
         concat_2 = new CUDANet::Layers::Concat(
             concat_1->getOutputSize(), branch3x3_3->getOutputSize()
         );
-        
+        concat_3 = new CUDANet::Layers::Concat(
+            concat_2->getOutputSize(), branchPool_2->getOutputSize()
+        );
+    }
+
+    float *forward(const float *d_input) {
+        float *d_branch1x1_out = branch1x1->forward(d_input);
+
+        float *d_branch5x5_out = branch5x5_1->forward(d_input);
+        d_branch5x5_out        = branch5x5_2->forward(d_branch5x5_out);
+
+        float *d_branch3x3_out = branch3x3_1->forward(d_input);
+        d_branch3x3_out        = branch3x3_2->forward(d_branch3x3_out);
+        d_branch3x3_out        = branch3x3_3->forward(d_branch3x3_out);
+
+        float *d_branchPool_out = branchPool_1->forward(d_input);
+        d_branchPool_out        = branchPool_2->forward(d_branchPool_out);
+
+        float *d_output = concat_1->forward(d_branch1x1_out, d_branch5x5_out);
+        d_output        = concat_2->forward(d_output, d_branch3x3_out);
+        d_output        = concat_3->forward(d_output, d_branchPool_out);
+
+        return d_output;
     }
 
   private:
-    int inputSize;
+    dim2d inputSize;
     int inputChannels;
     int poolFeatures;
 
+    CUDANet::Module               *branch1x1;
+    CUDANet::Module               *branch5x5_1;
+    CUDANet::Module               *branch5x5_2;
+    CUDANet::Module               *branch3x3_1;
+    CUDANet::Module               *branch3x3_2;
+    CUDANet::Module               *branch3x3_3;
+    CUDANet::Layers::AvgPooling2d *branchPool_1;
+    CUDANet::Module               *branchPool_2;
+
     CUDANet::Layers::Concat *concat_1;
     CUDANet::Layers::Concat *concat_2;
+    CUDANet::Layers::Concat *concat_3;
 };
+
+class InceptionB : public CUDANet::Module {
+  public:
+    InceptionB(const int inputSize, const int inputChannels)
+        : inputSize(inputSize), inputChannels(inputChannels) {
+        // Branch 1x1
+        branch1x1 = new BasicConv2d(
+            inputSize, inputChannels, 128, 1, 1, 0, "branch1x1"
+        );
+        addLayer("", branch1x1);
+    }
+}
