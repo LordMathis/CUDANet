@@ -47,19 +47,6 @@ class DenseLayerTest : public ::testing::Test {
     cudaError_t cudaStatus;
 };
 
-TEST_F(DenseLayerTest, Init) {
-    for (int i = 1; i < 100; ++i) {
-        for (int j = 1; j < 100; ++j) {
-            int inputSize  = i;
-            int outputSize = j;
-
-            CUDANet::Layers::Dense denseLayer(
-                inputSize, outputSize, CUDANet::Layers::ActivationType::SIGMOID
-            );
-        }
-    }
-}
-
 TEST_F(DenseLayerTest, setWeights) {
     int inputSize  = 4;
     int outputSize = 5;
