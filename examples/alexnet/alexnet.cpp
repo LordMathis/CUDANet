@@ -32,7 +32,7 @@ readAndNormalizeImage(const std::string &imagePath, int width, int height) {
 }
 
 CUDANet::Model *createModel(
-    const int inputSize,
+    const dim2d inputSize,
     const int inputChannels,
     const int outputSize
 ) {
@@ -41,44 +41,44 @@ CUDANet::Model *createModel(
 
     // Block 1
     CUDANet::Layers::Conv2d *conv1 = new CUDANet::Layers::Conv2d(
-        inputSize, inputChannels, 11, 4, 64, 2,
+        inputSize, inputChannels, {11, 11}, {4, 4}, 64, {2, 2},
         CUDANet::Layers::ActivationType::RELU
     );
     model->addLayer("features.0", conv1);  // Match pytorch naming
     CUDANet::Layers::MaxPooling2d *pool1 = new CUDANet::Layers::MaxPooling2d(
-        56, 64, 3, 2, CUDANet::Layers::ActivationType::NONE
+        {56, 56}, 64, {3, 3}, {2, 2}, {0, 0}, CUDANet::Layers::ActivationType::NONE
     );
     model->addLayer("pool1", pool1);
 
     // Block 2
     CUDANet::Layers::Conv2d *conv2 = new CUDANet::Layers::Conv2d(
-        27, 64, 5, 1, 192, 2, CUDANet::Layers::ActivationType::RELU
+        {27, 27}, 64, {5, 5}, {1, 1}, 192, {2, 2}, CUDANet::Layers::ActivationType::RELU
     );
     model->addLayer("features.3", conv2);
     CUDANet::Layers::MaxPooling2d *pool2 = new CUDANet::Layers::MaxPooling2d(
-        27, 192, 3, 2, CUDANet::Layers::ActivationType::NONE
+        {27, 27}, 192, {3, 3}, {2, 2}, {0, 0}, CUDANet::Layers::ActivationType::NONE
     );
     model->addLayer("pool2", pool2);
 
     // Block 3
     CUDANet::Layers::Conv2d *conv3 = new CUDANet::Layers::Conv2d(
-        13, 192, 3, 1, 384, 1, CUDANet::Layers::ActivationType::RELU
+        {13, 13}, 192, {3, 3}, {1, 1}, 384, {1, 1}, CUDANet::Layers::ActivationType::RELU
     );
     model->addLayer("features.6", conv3);
 
     // Block 4
     CUDANet::Layers::Conv2d *conv4 = new CUDANet::Layers::Conv2d(
-        13, 384, 3, 1, 256, 1, CUDANet::Layers::ActivationType::RELU
+        {13, 13}, 384, {3, 3}, {1, 1}, 256, {1, 1}, CUDANet::Layers::ActivationType::RELU
     );
     model->addLayer("features.8", conv4);
 
     // Block 5
     CUDANet::Layers::Conv2d *conv5 = new CUDANet::Layers::Conv2d(
-        13, 256, 3, 1, 256, 1, CUDANet::Layers::ActivationType::RELU
+        {13, 13}, 256, {3, 3}, {1, 1}, 256, {1, 1}, CUDANet::Layers::ActivationType::RELU
     );
     model->addLayer("features.10", conv5);
     CUDANet::Layers::MaxPooling2d *pool5 = new CUDANet::Layers::MaxPooling2d(
-        13, 256, 3, 2, CUDANet::Layers::ActivationType::NONE
+        {13, 13}, 256, {3, 3}, {2, 2}, {0, 0}, CUDANet::Layers::ActivationType::NONE
     );
     model->addLayer("pool5", pool5);
 
@@ -112,7 +112,7 @@ int main(int argc, const char *const argv[]) {
     std::string modelWeightsPath = argv[1];
     std::string imagePath        = argv[2];
 
-    const int inputSize     = 227;
+    const dim2d inputSize     = {227, 227};
     const int inputChannels = 3;
     const int outputSize    = 1000;
 
@@ -124,10 +124,10 @@ int main(int argc, const char *const argv[]) {
 
     // Read and normalize the image
     std::vector<float> imageData =
-        readAndNormalizeImage(imagePath, inputSize, inputSize);
+        readAndNormalizeImage(imagePath, inputSize.first, inputSize.second);
 
     // Print the size of the image data
-    float *output = model->predict(imageData.data());
+    const float *output = model->predict(imageData.data());
 
     // Get max index
     int maxIndex = 0;
