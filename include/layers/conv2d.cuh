@@ -13,7 +13,7 @@ namespace CUDANet::Layers {
  * @brief 2D convolutional layer
  *
  */
-class Conv2d : public WeightedLayer {
+class Conv2d : public WeightedLayer, public TwoDLayer {
   public:
     /**
      * @brief Construct a new Conv 2d layer
@@ -101,6 +101,8 @@ class Conv2d : public WeightedLayer {
     dim2d getPaddingSize() {
         return paddingSize;
     }
+
+    dim2d getOutputDims();
 
   private:
     // Inputs

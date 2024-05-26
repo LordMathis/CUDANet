@@ -60,3 +60,7 @@ int MaxPooling2d::getOutputSize() {
 int MaxPooling2d::getInputSize() {
     return inputSize.first * inputSize.second * nChannels;
 }
+
+dim2d MaxPooling2d::getOutputDims() {
+    return outputSize;
+}

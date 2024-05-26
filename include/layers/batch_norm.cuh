@@ -8,7 +8,7 @@
 
 namespace CUDANet::Layers {
 
-class BatchNorm2d : public WeightedLayer {
+class BatchNorm2d : public WeightedLayer, public TwoDLayer {
   public:
     BatchNorm2d(dim2d inputSize, int inputChannels, float epsilon, ActivationType activationType);
 
@@ -63,6 +63,8 @@ class BatchNorm2d : public WeightedLayer {
      * @return int input size
      */
     int getInputSize();
+
+    dim2d getOutputDims();
 
   private:
 

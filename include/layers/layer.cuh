@@ -11,6 +11,15 @@ typedef std::pair<int, int> dim2d;
 
 namespace CUDANet::Layers {
 
+
+class TwoDLayer {
+
+  public:
+    virtual dim2d getOutputDims() = 0;
+
+};
+
+
 /**
  * @brief Basic Sequential Layer
  *

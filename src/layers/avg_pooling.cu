@@ -62,3 +62,7 @@ int AvgPooling2d::getOutputSize() {
 int AvgPooling2d::getInputSize() {
     return inputSize.first * inputSize.second * nChannels;
 }
+
+dim2d AvgPooling2d::getOutputDims() {
+    return outputSize;
+}

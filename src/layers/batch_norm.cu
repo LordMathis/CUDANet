@@ -128,6 +128,10 @@ int BatchNorm2d::getOutputSize() {
     return inputSize.first * inputSize.second * inputChannels;
 }
 
+dim2d BatchNorm2d::getOutputDims() {
+    return inputSize;
+}
+
 float *BatchNorm2d::forward(const float *d_input) {
     // Compute per-channel batch normalization
     for (int i = 0; i < inputChannels; i++) {

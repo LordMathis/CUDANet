@@ -138,3 +138,7 @@ int Conv2d::getOutputSize() {
 int Conv2d::getInputSize() {
     return inputSize.first * inputSize.second * inputChannels;
 }
+
+dim2d Conv2d::getOutputDims() {
+    return outputSize;
+}
