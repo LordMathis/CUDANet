@@ -5,11 +5,11 @@
 using namespace CUDANet::Layers;
 
 MaxPooling2d::MaxPooling2d(
-    dim2d          inputSize,
+    shape2d          inputSize,
     int            nChannels,
-    dim2d          poolingSize,
-    dim2d          stride,
-    dim2d          padding,
+    shape2d          poolingSize,
+    shape2d          stride,
+    shape2d          padding,
     ActivationType activationType
 )
     : inputSize(inputSize),
@@ -70,6 +70,6 @@ int MaxPooling2d::getInputSize() {
     return inputSize.first * inputSize.second * nChannels;
 }
 
-dim2d MaxPooling2d::getOutputDims() {
+shape2d MaxPooling2d::getOutputDims() {
     return outputSize;
 }

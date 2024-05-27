@@ -10,7 +10,7 @@
 using namespace CUDANet::Layers;
 
 BatchNorm2d::BatchNorm2d(
-    dim2d          inputSize,
+    shape2d          inputSize,
     int            inputChannels,
     float          epsilon,
     ActivationType activationType
@@ -128,7 +128,7 @@ int BatchNorm2d::getOutputSize() {
     return inputSize.first * inputSize.second * inputChannels;
 }
 
-dim2d BatchNorm2d::getOutputDims() {
+shape2d BatchNorm2d::getOutputDims() {
     return inputSize;
 }
 

@@ -7,7 +7,7 @@
 #define CUDANET_SAME_PADDING(inputSize, kernelSize, stride) \
     ((stride - 1) * inputSize - stride + kernelSize) / 2;
 
-typedef std::pair<int, int> dim2d;
+typedef std::pair<int, int> shape2d;
 
 namespace CUDANet::Layers {
 
@@ -15,7 +15,7 @@ namespace CUDANet::Layers {
 class TwoDLayer {
 
   public:
-    virtual dim2d getOutputDims() = 0;
+    virtual shape2d getOutputDims() = 0;
 
 };
 

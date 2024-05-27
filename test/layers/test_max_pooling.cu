@@ -7,11 +7,11 @@
 
 class MaxPoolingLayerTest : public ::testing::Test {
   protected:
-    dim2d              inputSize;
+    shape2d              inputSize;
     int                nChannels;
-    dim2d              poolingSize;
-    dim2d              stride;
-    dim2d              padding;
+    shape2d              poolingSize;
+    shape2d              stride;
+    shape2d              padding;
     std::vector<float> input;
     std::vector<float> expected;
 

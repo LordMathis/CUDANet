@@ -7,12 +7,12 @@
 
 class Conv2dTest : public ::testing::Test {
   protected:
-    dim2d                           inputSize;
+    shape2d                           inputSize;
     int                             inputChannels;
-    dim2d                           kernelSize;
-    dim2d                           stride;
+    shape2d                           kernelSize;
+    shape2d                           stride;
     int                             numFilters;
-    dim2d                           paddingSize;
+    shape2d                           paddingSize;
     CUDANet::Layers::ActivationType activationType;
     std::vector<float>              input;
     std::vector<float>              kernels;

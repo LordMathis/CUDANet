@@ -26,7 +26,7 @@ struct TensorInfo {
 
 class Model {
   public:
-    Model(const dim2d inputSize, const int inputChannels, const int outputSize);
+    Model(const shape2d inputSize, const int inputChannels, const int outputSize);
     Model(const Model& other);
     ~Model();
 
@@ -43,7 +43,7 @@ class Model {
     Layers::Input*  inputLayer;
     Layers::Output* outputLayer;
 
-    dim2d inputSize;
+    shape2d inputSize;
     int inputChannels;
 
     int outputSize;

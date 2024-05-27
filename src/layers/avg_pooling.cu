@@ -5,11 +5,11 @@
 using namespace CUDANet::Layers;
 
 AvgPooling2d::AvgPooling2d(
-    dim2d          inputSize,
+    shape2d          inputSize,
     int            nChannels,
-    dim2d          poolingSize,
-    dim2d          stride,
-    dim2d          padding,
+    shape2d          poolingSize,
+    shape2d          stride,
+    shape2d          padding,
     ActivationType activationType
 )
     : inputSize(inputSize),
@@ -66,6 +66,6 @@ int AvgPooling2d::getInputSize() {
     return inputSize.first * inputSize.second * nChannels;
 }
 
-dim2d AvgPooling2d::getOutputDims() {
+shape2d AvgPooling2d::getOutputDims() {
     return outputSize;
 }

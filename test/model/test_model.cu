@@ -10,21 +10,21 @@ class ModelTest : public ::testing::Test {
     CUDANet::Model *commonTestSetup(
         bool setWeights = true,
 
-        dim2d inputSize     = {6, 6},
+        shape2d inputSize     = {6, 6},
         int   inputChannels = 2,
         int   outputSize    = 3,
 
-        dim2d kernelSize = {3, 3},
-        dim2d stride     = {1, 1},
+        shape2d kernelSize = {3, 3},
+        shape2d stride     = {1, 1},
         int   numFilters = 2,
 
-        dim2d poolingSize   = {2, 2},
-        dim2d poolingStride = {2, 2}
+        shape2d poolingSize   = {2, 2},
+        shape2d poolingStride = {2, 2}
     ) {
         CUDANet::Model *model =
             new CUDANet::Model(inputSize, inputChannels, outputSize);
 
-        dim2d paddingSize = {0, 0};
+        shape2d paddingSize = {0, 0};
 
         // Conv2d
         CUDANet::Layers::Conv2d *conv2d = new CUDANet::Layers::Conv2d(
@@ -38,7 +38,7 @@ class ModelTest : public ::testing::Test {
         model->addLayer("conv1", conv2d);
 
         // maxpool2d
-        dim2d poolingInput = {
+        shape2d poolingInput = {
             inputSize.first - kernelSize.first + 1,
             inputSize.second - kernelSize.second + 1
         };

@@ -11,7 +11,7 @@
 
 using namespace CUDANet;
 
-Model::Model(const dim2d inputSize, const int inputChannels, const int outputSize)
+Model::Model(const shape2d inputSize, const int inputChannels, const int outputSize)
     : inputSize(inputSize),
       inputChannels(inputChannels),
       outputSize(outputSize),

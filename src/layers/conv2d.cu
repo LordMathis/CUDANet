@@ -12,12 +12,12 @@
 using namespace CUDANet::Layers;
 
 Conv2d::Conv2d(
-    dim2d          inputSize,
+    shape2d          inputSize,
     int            inputChannels,
-    dim2d          kernelSize,
-    dim2d          stride,
+    shape2d          kernelSize,
+    shape2d          stride,
     int            numFilters,
-    dim2d          paddingSize,
+    shape2d          paddingSize,
     ActivationType activationType
 )
     : inputSize(inputSize),
@@ -139,6 +139,6 @@ int Conv2d::getInputSize() {
     return inputSize.first * inputSize.second * inputChannels;
 }
 
-dim2d Conv2d::getOutputDims() {
+shape2d Conv2d::getOutputDims() {
     return outputSize;
 }

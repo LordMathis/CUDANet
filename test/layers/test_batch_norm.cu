@@ -8,7 +8,7 @@
 
 class BatchNormLayerTest : public ::testing::Test {
   protected:
-    dim2d              inputSize;
+    shape2d              inputSize;
     int                nChannels;
     std::vector<float> weights;
     std::vector<float> biases;

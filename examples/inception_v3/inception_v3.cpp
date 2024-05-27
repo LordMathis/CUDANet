@@ -14,12 +14,12 @@ int main(int argc, const char *const argv[]) {
 class BasicConv2d : public CUDANet::Module {
   public:
     BasicConv2d(
-        const dim2d        inputSize,
+        const shape2d        inputSize,
         const int          inputChannels,
         const int          outputChannels,
-        const dim2d        kernelSize,
-        const dim2d        stride,
-        const dim2d        padding,
+        const shape2d        kernelSize,
+        const shape2d        stride,
+        const shape2d        padding,
         const std::string &prefix
     ) {
         // Create the convolution layer
@@ -28,7 +28,7 @@ class BasicConv2d : public CUDANet::Module {
             padding, CUDANet::Layers::ActivationType::NONE
         );
 
-        dim2d batchNormSize = conv->getOutputDims();
+        shape2d batchNormSize = conv->getOutputDims();
 
         batchNorm = new CUDANet::Layers::BatchNorm2d(
             batchNormSize, outputChannels, 1e-3f,
@@ -44,7 +44,7 @@ class BasicConv2d : public CUDANet::Module {
         return batchNorm->forward(d_output);
     }
 
-    dim2d getOutputDims() {
+    shape2d getOutputDims() {
         return batchNorm->getOutputDims();
     }
 
@@ -56,7 +56,7 @@ class BasicConv2d : public CUDANet::Module {
 class InceptionA : public CUDANet::Module {
   public:
     InceptionA(
-        const dim2d        inputSize,
+        const shape2d        inputSize,
         const int          inputChannels,
         const int          poolFeatures,
         const std::string &prefix
@@ -144,7 +144,7 @@ class InceptionA : public CUDANet::Module {
     }
 
   private:
-    dim2d inputSize;
+    shape2d inputSize;
     int   inputChannels;
     int   poolFeatures;
 
@@ -168,7 +168,7 @@ class InceptionA : public CUDANet::Module {
 class InceptionB : public CUDANet::Module {
   public:
     InceptionB(
-        const dim2d        inputSize,
+        const shape2d        inputSize,
         const int          inputChannels,
         const std::string &prefix
     )
@@ -227,7 +227,7 @@ class InceptionB : public CUDANet::Module {
     }
 
   private:
-    dim2d inputSize;
+    shape2d inputSize;
     int   inputChannels;
 
     BasicConv2d *branch3x3;
@@ -245,7 +245,7 @@ class InceptionB : public CUDANet::Module {
 class InceptionC : public CUDANet::Module {
   public:
     InceptionC(
-        const dim2d        inputSize,
+        const shape2d        inputSize,
         const int          inputChannels,
         const int          nChannels_7x7,
         const std::string &prefix
@@ -338,7 +338,7 @@ class InceptionC : public CUDANet::Module {
     }
 
   private:
-    dim2d inputSize;
+    shape2d inputSize;
     int   inputChannels;
 
     BasicConv2d *branch1x1;

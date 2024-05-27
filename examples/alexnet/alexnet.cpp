@@ -32,7 +32,7 @@ readAndNormalizeImage(const std::string &imagePath, int width, int height) {
 }
 
 CUDANet::Model *createModel(
-    const dim2d inputSize,
+    const shape2d inputSize,
     const int inputChannels,
     const int outputSize
 ) {
@@ -112,7 +112,7 @@ int main(int argc, const char *const argv[]) {
     std::string modelWeightsPath = argv[1];
     std::string imagePath        = argv[2];
 
-    const dim2d inputSize     = {227, 227};
+    const shape2d inputSize     = {227, 227};
     const int inputChannels = 3;
     const int outputSize    = 1000;
 

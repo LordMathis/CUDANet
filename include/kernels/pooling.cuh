@@ -9,23 +9,23 @@ namespace CUDANet::Kernels {
 __global__ void max_pooling(
     const float* __restrict__ d_input,
     float* __restrict__ d_output,
-    const dim2d inputSize,
-    const dim2d outputSize,
+    const shape2d inputSize,
+    const shape2d outputSize,
     const int nChannels,
-    const dim2d poolingSize,
-    const dim2d stride,
-    const dim2d padding
+    const shape2d poolingSize,
+    const shape2d stride,
+    const shape2d padding
 );
 
 __global__ void avg_pooling(
     const float* __restrict__ d_input,
     float* __restrict__ d_output,
-    const dim2d inputSize,
-    const dim2d outputSize,
+    const shape2d inputSize,
+    const shape2d outputSize,
     const int nChannels,
-    const dim2d poolingSize,
-    const dim2d stride,
-    const dim2d padding
+    const shape2d poolingSize,
+    const shape2d stride,
+    const shape2d padding
 );
 
 }  // namespace CUDANet::Kernels
