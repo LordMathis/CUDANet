@@ -14,12 +14,12 @@ int main(int argc, const char *const argv[]) {
 class BasicConv2d : public CUDANet::Module {
   public:
     BasicConv2d(
-        const shape2d        inputSize,
+        const shape2d      inputSize,
         const int          inputChannels,
         const int          outputChannels,
-        const shape2d        kernelSize,
-        const shape2d        stride,
-        const shape2d        padding,
+        const shape2d      kernelSize,
+        const shape2d      stride,
+        const shape2d      padding,
         const std::string &prefix
     ) {
         // Create the convolution layer
@@ -61,7 +61,7 @@ class BasicConv2d : public CUDANet::Module {
 class InceptionA : public CUDANet::Module {
   public:
     InceptionA(
-        const shape2d        inputSize,
+        const shape2d      inputSize,
         const int          inputChannels,
         const int          poolFeatures,
         const std::string &prefix
@@ -164,8 +164,8 @@ class InceptionA : public CUDANet::Module {
 
   private:
     shape2d inputSize;
-    int   inputChannels;
-    int   poolFeatures;
+    int     inputChannels;
+    int     poolFeatures;
 
     BasicConv2d *branch1x1;
 
@@ -187,7 +187,7 @@ class InceptionA : public CUDANet::Module {
 class InceptionB : public CUDANet::Module {
   public:
     InceptionB(
-        const shape2d        inputSize,
+        const shape2d      inputSize,
         const int          inputChannels,
         const std::string &prefix
     )
@@ -257,7 +257,7 @@ class InceptionB : public CUDANet::Module {
 
   private:
     shape2d inputSize;
-    int   inputChannels;
+    int     inputChannels;
 
     BasicConv2d *branch3x3;
 
@@ -274,7 +274,7 @@ class InceptionB : public CUDANet::Module {
 class InceptionC : public CUDANet::Module {
   public:
     InceptionC(
-        const shape2d        inputSize,
+        const shape2d      inputSize,
         const int          inputChannels,
         const int          nChannels_7x7,
         const std::string &prefix
@@ -396,7 +396,7 @@ class InceptionC : public CUDANet::Module {
 
   private:
     shape2d inputSize;
-    int   inputChannels;
+    int     inputChannels;
 
     BasicConv2d *branch1x1;
 
@@ -421,7 +421,7 @@ class InceptionC : public CUDANet::Module {
 class InceptionD : public CUDANet::Module {
   public:
     InceptionD(
-        const shape2d        inputSize,
+        const shape2d      inputSize,
         const int          inputChannels,
         const std::string &prefix
     )
@@ -433,8 +433,7 @@ class InceptionD : public CUDANet::Module {
         );
         addLayer("", branch3x3_1);
         branch3x3_2 = new BasicConv2d(
-            inputSize, 192, 320, {3, 3}, {2, 2}, {0, 0},
-            prefix + "branch3x3_2"
+            inputSize, 192, 320, {3, 3}, {2, 2}, {0, 0}, prefix + "branch3x3_2"
         );
         addLayer("", branch3x3_2);
 
@@ -469,12 +468,10 @@ class InceptionD : public CUDANet::Module {
 
         // Concat
         concat_1 = new CUDANet::Layers::Concat(
-            branch3x3_2->getOutputSize(),
-            branch7x7x3_4->getOutputSize()
+            branch3x3_2->getOutputSize(), branch7x7x3_4->getOutputSize()
         );
         concat_2 = new CUDANet::Layers::Concat(
-            concat_1->getOutputSize(),
-            branchPool->getOutputSize()
+            concat_1->getOutputSize(), branchPool->getOutputSize()
         );
     }
 
@@ -492,24 +489,24 @@ class InceptionD : public CUDANet::Module {
 
     float *forward(float *d_input) {
         float *branch1x1_output = branch3x3_1->forward(d_input);
-        branch1x1_output = branch3x3_2->forward(branch1x1_output);
+        branch1x1_output        = branch3x3_2->forward(branch1x1_output);
 
         float *branch7x7_output = branch7x7x3_1->forward(d_input);
-        branch7x7_output = branch7x7x3_2->forward(branch7x7_output);
-        branch7x7_output = branch7x7x3_3->forward(branch7x7_output);
-        branch7x7_output = branch7x7x3_4->forward(branch7x7_output);
+        branch7x7_output        = branch7x7x3_2->forward(branch7x7_output);
+        branch7x7_output        = branch7x7x3_3->forward(branch7x7_output);
+        branch7x7_output        = branch7x7x3_4->forward(branch7x7_output);
 
         float *branchPool_output = branchPool->forward(d_input);
 
         float *d_output = concat_1->forward(branch1x1_output, branch7x7_output);
-        d_output = concat_2->forward(d_output, branchPool_output);
+        d_output        = concat_2->forward(d_output, branchPool_output);
 
         return d_output;
     }
 
   private:
     shape2d inputSize;
-    int   inputChannels;  
+    int     inputChannels;
 
     BasicConv2d *branch3x3_1;
     BasicConv2d *branch3x3_2;
@@ -523,5 +520,147 @@ class InceptionD : public CUDANet::Module {
 
     CUDANet::Layers::Concat *concat_1;
     CUDANet::Layers::Concat *concat_2;
+};
 
+class InceptionE : public CUDANet::Module {
+  public:
+    InceptionE(shape2d inputSize, int inputChannels)
+        : inputSize(inputSize), inputChannels(inputChannels) {
+
+        // Branch 1x1
+        branch1x1 = new BasicConv2d(
+            inputSize, inputChannels, 320, {1, 1}, {1, 1}, {0, 0}, "branch1x1"
+        );
+        addLayer("", branch1x1);
+
+        // Branch 3x3
+        branch3x3_1 = new BasicConv2d(
+            inputSize, inputChannels, 384, {1, 1}, {1, 1}, {0, 0}, "branch3x3_1"
+        );
+        addLayer("", branch3x3_1);
+        branch3x3_2a = new BasicConv2d(
+            inputSize, 384, 384, {1, 3}, {1, 1}, {0, 1}, "branch3x3_2a"
+        );
+        addLayer("", branch3x3_2a);
+        branch3x3_2b = new BasicConv2d(
+            inputSize, 384, 384, {3, 1}, {1, 1}, {1, 0}, "branch3x3_2b"
+        );
+        addLayer("", branch3x3_2b);
+        branch_3x3_2_concat = new CUDANet::Layers::Concat(
+            branch3x3_2a->getOutputSize(), branch3x3_2b->getOutputSize()
+        );
+
+        // Branch 3x3dbl
+        branch3x3dbl_1 = new BasicConv2d(
+            inputSize, inputChannels, 448, {1, 1}, {1, 1}, {0, 0},
+            "branch3x3dbl_1"
+        );
+        addLayer("", branch3x3dbl_1);
+        branch3x3dbl_2 = new BasicConv2d(
+            inputSize, 448, 384, {3, 3}, {1, 1}, {1, 1}, "branch3x3dbl_2"
+        );
+        addLayer("", branch3x3dbl_2);
+        branch3x3dbl_3a = new BasicConv2d(
+            inputSize, 384, 384, {1, 3}, {1, 1}, {0, 1}, "branch3x3dbl_3a"
+        );
+        addLayer("", branch3x3dbl_3a);
+        branch3x3dbl_3b = new BasicConv2d(
+            inputSize, 384, 384, {3, 1}, {1, 1}, {1, 0}, "branch3x3dbl_3b"
+        );
+        addLayer("", branch3x3dbl_3b);
+        branch_3x3dbl_3_concat = new CUDANet::Layers::Concat(
+            branch3x3dbl_3a->getOutputSize(), branch3x3dbl_3b->getOutputSize()
+        );
+
+        // Branch Pool
+        branchPool_1 = new CUDANet::Layers::AvgPooling2d(
+            inputSize, inputChannels, {3, 3}, {1, 1}, {1, 1}, CUDANet::Layers::ActivationType::NONE
+        );
+        addLayer("", branchPool_1);
+        branchPool_2 = new BasicConv2d(
+            inputSize, inputChannels, 192, {1, 1}, {1, 1}, {0, 0}, "branchPool_2"
+        );
+        addLayer("", branchPool_2);
+
+        // Concat
+        concat_1 = new CUDANet::Layers::Concat(
+            branch1x1->getOutputSize(), branch_3x3_2_concat->getOutputSize()
+        );
+        concat_2 = new CUDANet::Layers::Concat(
+            concat_1->getOutputSize(), branch_3x3dbl_3_concat->getOutputSize()
+        );
+        concat_3 = new CUDANet::Layers::Concat(
+            concat_2->getOutputSize(), branchPool_2->getOutputSize()
+        );
+    }
+
+    ~InceptionE() {
+        delete branch1x1;
+        delete branch3x3_1;
+        delete branch3x3_2a;
+        delete branch3x3_2b;
+        delete branch_3x3_2_concat;
+        delete branch3x3dbl_1;
+        delete branch3x3dbl_2;
+        delete branch3x3dbl_3a;
+        delete branch3x3dbl_3b;
+        delete branch_3x3dbl_3_concat;
+        delete branchPool_1;
+        delete branchPool_2;
+        delete concat_1;
+        delete concat_2;
+        delete concat_3;
+    }
+
+    float *forward(const float *d_input) {
+        float *branch1x1_output = branch1x1->forward(d_input);
+
+        float *branch3x3_output = branch3x3_1->forward(d_input);
+        float *branch3x3_2a_output = branch3x3_2a->forward(branch3x3_output);
+        float *branch3x3_2b_output = branch3x3_2b->forward(branch3x3_output);
+        branch3x3_output = branch_3x3_2_concat->forward(
+            branch3x3_2a_output, branch3x3_2b_output
+        );
+
+        float *branch3x3dbl_output = branch3x3dbl_1->forward(d_input);
+        branch3x3dbl_output = branch3x3dbl_2->forward(branch3x3dbl_output);
+        float *branch3x3dbl_3a_output = branch3x3dbl_3a->forward(branch3x3dbl_output);
+        float *branch3x3dbl_3b_output = branch3x3dbl_3b->forward(branch3x3dbl_output);
+        branch3x3dbl_output = branch_3x3dbl_3_concat->forward(
+            branch3x3dbl_3a_output, branch3x3dbl_3b_output
+        );
+
+        float *branchPool_output = branchPool_1->forward(d_input);
+        branchPool_output = branchPool_2->forward(branchPool_output);
+
+        float *d_output = concat_1->forward(branch1x1_output, branch3x3_output);
+        d_output        = concat_2->forward(d_output, branch3x3dbl_output);
+        d_output        = concat_3->forward(d_output, branchPool_output);
+        
+        return d_output;
+    }
+
+  private:
+    shape2d inputSize;
+    int     inputChannels;
+
+    BasicConv2d *branch1x1;
+
+    BasicConv2d             *branch3x3_1;
+    BasicConv2d             *branch3x3_2a;
+    BasicConv2d             *branch3x3_2b;
+    CUDANet::Layers::Concat *branch_3x3_2_concat;
+
+    BasicConv2d             *branch3x3dbl_1;
+    BasicConv2d             *branch3x3dbl_2;
+    BasicConv2d             *branch3x3dbl_3a;
+    BasicConv2d             *branch3x3dbl_3b;
+    CUDANet::Layers::Concat *branch_3x3dbl_3_concat;
+
+    CUDANet::Layers::AvgPooling2d *branchPool_1;
+    BasicConv2d                   *branchPool_2;
+
+    CUDANet::Layers::Concat *concat_1;
+    CUDANet::Layers::Concat *concat_2;
+    CUDANet::Layers::Concat *concat_3;
 };
