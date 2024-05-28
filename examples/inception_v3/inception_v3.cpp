@@ -525,7 +525,7 @@ class InceptionD : public CUDANet::Module {
         delete concat_2;
     }
 
-    float *forward(float *d_input) {
+    float *forward(const float *d_input) {
         float *branch3x3_output = branch3x3_1->forward(d_input);
         branch3x3_output        = branch3x3_2->forward(branch3x3_output);
 
@@ -791,9 +791,90 @@ class InceptionV3 : public CUDANet::Model {
         Mixed_5c =
             new InceptionA(Mixed_5b->getOutputDims(), 256, 64, "Mixed_5c");
         addLayer("", Mixed_5c);
-        Mixed_5d = new InceptionA(Mixed_5c->getOutputDims(), 288, 64, "Mixed_5d");
+        Mixed_5d =
+            new InceptionA(Mixed_5c->getOutputDims(), 288, 64, "Mixed_5d");
         addLayer("", Mixed_5d);
+
+        Mixed_6a = new InceptionB(Mixed_5d->getOutputDims(), 288, "Mixed_6a");
+        addLayer("", Mixed_6a);
+
+        Mixed_6b =
+            new InceptionC(Mixed_6a->getOutputDims(), 768, 128, "Mixed_6b");
+        addLayer("", Mixed_6b);
+        Mixed_6c =
+            new InceptionC(Mixed_6b->getOutputDims(), 768, 160, "Mixed_6c");
+        addLayer("", Mixed_6c);
+        Mixed_6d =
+            new InceptionC(Mixed_6c->getOutputDims(), 768, 160, "Mixed_6d");
+        addLayer("", Mixed_6d);
+        Mixed_6e =
+            new InceptionC(Mixed_6d->getOutputDims(), 768, 192, "Mixed_6e");
+        addLayer("", Mixed_6e);
+
+        Mixed_7a = new InceptionD(Mixed_6e->getOutputDims(), 768, "Mixed_7a");
+        addLayer("", Mixed_7a);
+
+        Mixed_7b = new InceptionE(Mixed_7a->getOutputDims(), 1280, "Mixed_7b");
+        addLayer("", Mixed_7b);
+        Mixed_7c = new InceptionE(Mixed_7b->getOutputDims(), 2048, "Mixed_7c");
+        addLayer("", Mixed_7c);
+
+        fc = new CUDANet::Layers::Dense(
+            Mixed_7c->getOutputSize(), 1000,
+            CUDANet::Layers::ActivationType::SOFTMAX
+        );
+        addLayer("", fc);
     }
+
+    float* predict(const float* input) {
+        float *d_x = inputLayer->forward(input);
+        
+        d_x = conv2d_1a_3x3->forward(d_x);
+        d_x = conv2d_2a_3x3->forward(d_x);
+        d_x = conv2d_2b_3x3->forward(d_x);
+        d_x = maxpool1->forward(d_x);
+        d_x = conv2d_3b_1x1->forward(d_x);
+        d_x = conv2d_4a_3x3->forward(d_x);
+        d_x = maxpool2->forward(d_x);
+        d_x = Mixed_5b->forward(d_x);
+        d_x = Mixed_5c->forward(d_x);
+        d_x = Mixed_5d->forward(d_x);
+        d_x = Mixed_6a->forward(d_x);
+        d_x = Mixed_6b->forward(d_x);
+        d_x = Mixed_6c->forward(d_x);
+        d_x = Mixed_6d->forward(d_x);
+        d_x = Mixed_6e->forward(d_x);
+        d_x = Mixed_7a->forward(d_x);
+        d_x = Mixed_7b->forward(d_x);
+        d_x = Mixed_7c->forward(d_x);
+        d_x = fc->forward(d_x);
+
+        float* output = outputLayer->forward(d_x);
+        return output;
+    }
+
+    ~InceptionV3() {
+        delete conv2d_1a_3x3;
+        delete conv2d_2a_3x3;
+        delete conv2d_2b_3x3;
+        delete maxpool1;
+        delete conv2d_3b_1x1;
+        delete conv2d_4a_3x3;
+        delete maxpool2;
+        delete Mixed_5b;
+        delete Mixed_5c;
+        delete Mixed_5d;
+        delete Mixed_6a;
+        delete Mixed_6b;
+        delete Mixed_6c;
+        delete Mixed_6d;
+        delete Mixed_6e;
+        delete Mixed_7a;
+        delete Mixed_7b;
+        delete Mixed_7c;
+        delete fc;
+    }
+
 
   private:
     BasicConv2d *conv2d_1a_3x3;
@@ -819,6 +900,7 @@ class InceptionV3 : public CUDANet::Model {
     InceptionC *Mixed_6e;
 
     InceptionD *Mixed_7a;
+
     InceptionE *Mixed_7b;
     InceptionE *Mixed_7c;
 
