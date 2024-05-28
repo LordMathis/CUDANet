@@ -39,6 +39,8 @@ class Model {
 
     bool validate();
 
+    void printSummary();
+
   protected:
     Layers::Input*  inputLayer;
     Layers::Output* outputLayer;

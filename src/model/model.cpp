@@ -187,3 +187,11 @@ bool Model::validate() {
 
     return valid;
 }
+
+void Model::printSummary() {
+    std::cout << "Model summary:" << std::endl;
+    for (const auto& layer : layers) {
+        std::cout << "Layer: " << layer.first << ", input size: " << layer.second->getInputSize() << ", output size: "
+                  << layer.second->getOutputSize() << std::endl;
+    }
+}
