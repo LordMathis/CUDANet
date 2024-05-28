@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -11,13 +12,18 @@
 
 using namespace CUDANet;
 
-Model::Model(const shape2d inputSize, const int inputChannels, const int outputSize)
+Model::Model(
+    const shape2d inputSize,
+    const int     inputChannels,
+    const int     outputSize
+)
     : inputSize(inputSize),
       inputChannels(inputChannels),
       outputSize(outputSize),
       layers(std::vector<std::pair<std::string, Layers::SequentialLayer*>>()),
       layerMap(std::unordered_map<std::string, Layers::SequentialLayer*>()) {
-    inputLayer  = new Layers::Input(inputSize.first * inputSize.second * inputChannels);
+    inputLayer =
+        new Layers::Input(inputSize.first * inputSize.second * inputChannels);
     outputLayer = new Layers::Output(outputSize);
 };
 
@@ -50,11 +56,10 @@ float* Model::predict(const float* input) {
 }
 
 void Model::addLayer(const std::string& name, Layers::SequentialLayer* layer) {
-
     Module* module = dynamic_cast<Module*>(layer);
 
     if (module != nullptr) {
-        layers.push_back({ name, module });
+        layers.push_back({name, module});
         for (const auto& moduleLayer : module->getLayers()) {
             layerMap[moduleLayer.first] = moduleLayer.second;
         }
@@ -62,7 +67,7 @@ void Model::addLayer(const std::string& name, Layers::SequentialLayer* layer) {
         return;
     }
 
-    layers.push_back({ name, layer });
+    layers.push_back({name, layer});
     layerMap[name] = layer;
 }
 
@@ -93,35 +98,33 @@ void Model::loadWeights(const std::string& path) {
     file.read(&header[0], headerSize);
 
     std::vector<TensorInfo> tensorInfos;
-    size_t pos = 0;
+    size_t                  pos = 0;
 
     while (pos < header.size()) {
         size_t nextPos = header.find('\n', pos);
-        if (nextPos == std::string::npos)
-            break;
-        
+        if (nextPos == std::string::npos) break;
+
         std::string line = header.substr(pos, nextPos - pos);
-        pos = nextPos + 1;
+        pos              = nextPos + 1;
 
         size_t commaPos = line.find(',');
-        if (commaPos == std::string::npos)
-            continue;
+        if (commaPos == std::string::npos) continue;
 
         // Parse tensor name into name and type
         std::string nameStr = line.substr(0, commaPos);
-        size_t dotPos = nameStr.find_last_of('.');
-        if (dotPos == std::string::npos)
-            continue;
+        size_t      dotPos  = nameStr.find_last_of('.');
+        if (dotPos == std::string::npos) continue;
         std::string name = nameStr.substr(0, dotPos);
-        TensorType type = nameStr.substr(dotPos + 1) == "weight" ? TensorType::WEIGHT : TensorType::BIAS;
+        TensorType  type = nameStr.substr(dotPos + 1) == "weight"
+                               ? TensorType::WEIGHT
+                               : TensorType::BIAS;
 
         line = line.substr(commaPos + 1);
 
         commaPos = line.find(',');
-        if (commaPos == std::string::npos)
-            continue;
+        if (commaPos == std::string::npos) continue;
 
-        int size = std::stoi(line.substr(0, commaPos));
+        int size   = std::stoi(line.substr(0, commaPos));
         int offset = std::stoi(line.substr(commaPos + 1));
 
         tensorInfos.push_back({name, type, size, offset});
@@ -130,39 +133,49 @@ void Model::loadWeights(const std::string& path) {
     for (const auto& tensorInfo : tensorInfos) {
         std::vector<float> values(tensorInfo.size);
 
-        file.seekg(sizeof(version) + sizeof(headerSize) + header.size() + tensorInfo.offset);
-        file.read(reinterpret_cast<char*>(values.data()), tensorInfo.size * sizeof(float));
+        file.seekg(
+            sizeof(version) + sizeof(headerSize) + header.size() +
+            tensorInfo.offset
+        );
+        file.read(
+            reinterpret_cast<char*>(values.data()),
+            tensorInfo.size * sizeof(float)
+        );
 
         if (layerMap.find(tensorInfo.name) != layerMap.end()) {
-
-            Layers::WeightedLayer* wLayer = dynamic_cast<Layers::WeightedLayer*>(layerMap[tensorInfo.name]);
+            Layers::WeightedLayer* wLayer =
+                dynamic_cast<Layers::WeightedLayer*>(layerMap[tensorInfo.name]);
 
             if (wLayer == nullptr) {
-                std::cerr << "Layer: " << tensorInfo.name << " does not have weights" << std::endl;
+                std::cerr << "Layer: " << tensorInfo.name
+                          << " does not have weights" << std::endl;
                 continue;
             }
 
             if (tensorInfo.type == TensorType::WEIGHT) {
-
                 if (wLayer->getWeights().size() != values.size()) {
-                    std::cerr << "Layer: " << tensorInfo.name << " has incorrect number of weights, expected "
-                              << wLayer->getWeights().size() << " but got " << values.size() << ", skipping" << std::endl;
+                    std::cerr << "Layer: " << tensorInfo.name
+                              << " has incorrect number of weights, expected "
+                              << wLayer->getWeights().size() << " but got "
+                              << values.size() << ", skipping" << std::endl;
                     continue;
                 }
 
                 wLayer->setWeights(values.data());
             } else if (tensorInfo.type == TensorType::BIAS) {
-
                 if (wLayer->getBiases().size() != values.size()) {
-                    std::cerr << "Layer: " << tensorInfo.name << " has incorrect number of biases, expected " 
-                              << wLayer->getBiases().size() << " but got " << values.size() << ", skipping" << std::endl;
+                    std::cerr << "Layer: " << tensorInfo.name
+                              << " has incorrect number of biases, expected "
+                              << wLayer->getBiases().size() << " but got "
+                              << values.size() << ", skipping" << std::endl;
                     continue;
                 }
 
                 wLayer->setBiases(values.data());
             }
         } else {
-            std::cerr << "Layer: " << tensorInfo.name << " does not exist, skipping" << std::endl;
+            std::cerr << "Layer: " << tensorInfo.name
+                      << " does not exist, skipping" << std::endl;
         }
     }
 
@@ -170,15 +183,16 @@ void Model::loadWeights(const std::string& path) {
 }
 
 bool Model::validate() {
-    
     bool valid = true;
-    int size = inputLayer->getInputSize();
+    int  size  = inputLayer->getInputSize();
 
     for (const auto& layer : layers) {
         if (layer.second->getInputSize() != size) {
             valid = false;
-            std::cerr << "Layer: " << layer.first << " has incorrect input size, expected " << size << " but got "
-                      << layer.second->getInputSize() << std::endl;
+            std::cerr << "Layer: " << layer.first
+                      << " has incorrect input size, expected " << size
+                      << " but got " << layer.second->getInputSize()
+                      << std::endl;
             break;
         }
 
@@ -189,9 +203,44 @@ bool Model::validate() {
 }
 
 void Model::printSummary() {
-    std::cout << "Model summary:" << std::endl;
+    struct layer_info {
+        std::string name;
+        std::string inputSize;
+        std::string outputSize;
+    };
+
+    std::vector<layer_info> layerInfos;
+
+    int maxNameLength   = 0;
+    int maxInputLength  = 0;
+    int maxOutputLength = 0;
+
     for (const auto& layer : layers) {
-        std::cout << "Layer: " << layer.first << ", input size: " << layer.second->getInputSize() << ", output size: "
-                  << layer.second->getOutputSize() << std::endl;
+        layer_info layerInfo = {
+            layer.first, std::to_string(layer.second->getInputSize()),
+            std::to_string(layer.second->getOutputSize())
+        };
+        layerInfos.push_back(layerInfo);
+
+        maxNameLength = std::max(maxNameLength, (int)layerInfo.name.size());
+        maxInputLength =
+            std::max(maxInputLength, (int)layerInfo.inputSize.size());
+        maxOutputLength =
+            std::max(maxOutputLength, (int)layerInfo.outputSize.size());
+    }
+
+    int rowLength = maxNameLength + maxInputLength + maxOutputLength + 6;
+
+    std::cout << "Model Summary:" << std::endl              
+              << std::string(rowLength, '-') << std::endl;
+
+    for (const auto& layerInfo : layerInfos) {
+        std::cout << std::left
+                  << std::setw(maxNameLength) << layerInfo.name
+                  << " | " << std::right
+                  << std::setw(maxInputLength) << layerInfo.inputSize
+                  << " | "
+                  << std::setw(maxOutputLength) << layerInfo.outputSize
+                  << std::endl;
     }
 }
