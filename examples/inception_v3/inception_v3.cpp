@@ -53,6 +53,10 @@ class BasicConv2d : public CUDANet::Module {
         return batchNorm->getOutputDims();
     }
 
+    int getOutputChannels() {
+        return outputChannels;
+    }
+
   private:
     CUDANet::Layers::Conv2d      *conv;
     CUDANet::Layers::BatchNorm2d *batchNorm;
@@ -83,7 +87,8 @@ class InceptionA : public CUDANet::Module {
         );
         addLayer("", branch5x5_1);
         branch5x5_2 = new BasicConv2d(
-            inputSize, 48, 64, {5, 5}, {1, 1}, {2, 2}, prefix + ".branch5x5_2"
+            branch5x5_1->getOutputDims(), 48, 64, {5, 5}, {1, 1}, {2, 2},
+            prefix + ".branch5x5_2"
         );
         addLayer("", branch5x5_2);
 
@@ -94,12 +99,12 @@ class InceptionA : public CUDANet::Module {
         );
         addLayer("", branch3x3dbl_1);
         branch3x3dbl_2 = new BasicConv2d(
-            inputSize, 64, 96, {3, 3}, {1, 1}, {1, 1},
+            branch3x3dbl_1->getOutputDims(), 64, 96, {3, 3}, {1, 1}, {1, 1},
             prefix + ".branch3x3dbl_2"
         );
         addLayer("", branch3x3dbl_2);
         branch3x3dbl_3 = new BasicConv2d(
-            inputSize, 96, 96, {3, 3}, {1, 1}, {1, 1},
+            branch3x3dbl_2->getOutputDims(), 96, 96, {3, 3}, {1, 1}, {1, 1},
             prefix + ".branch3x3dbl_3"
         );
         addLayer("", branch3x3dbl_3);
@@ -160,6 +165,17 @@ class InceptionA : public CUDANet::Module {
         d_output        = concat_3->forward(d_output, d_branchPool_out);
 
         return d_output;
+    }
+
+    shape2d getOutputDims() {
+        return branch1x1->getOutputDims();
+    }
+
+    int getOutputChannels() {
+        return branch1x1->getOutputChannels() +
+               branch5x5_2->getOutputChannels() +
+               branch3x3dbl_3->getOutputChannels() +
+               branchPool_2->getOutputChannels();
     }
 
   private:
@@ -254,6 +270,15 @@ class InceptionB : public CUDANet::Module {
         d_output = concat_2->forward(d_output, d_branchPool_out);
 
         return d_output;
+    }
+
+    shape2d getOutputDims() {
+        return branch3x3->getOutputDims();
+    }
+
+    int getOutputChannels() {
+        return branch3x3->getOutputChannels() +
+               branch3x3dbl_3->getOutputChannels() + inputChannels;
     }
 
   private:
@@ -396,6 +421,17 @@ class InceptionC : public CUDANet::Module {
         return d_output;
     }
 
+    shape2d getOutputDims() {
+        return branch1x1->getOutputDims();
+    }
+
+    int getOutputChannels() {
+        return branch1x1->getOutputChannels() +
+               branch7x7_3->getOutputChannels() +
+               branch7x7dbl_5->getOutputChannels() +
+               branchPool_2->getOutputChannels();
+    }
+
   private:
     shape2d inputSize;
     int     inputChannels;
@@ -490,8 +526,8 @@ class InceptionD : public CUDANet::Module {
     }
 
     float *forward(float *d_input) {
-        float *branch1x1_output = branch3x3_1->forward(d_input);
-        branch1x1_output        = branch3x3_2->forward(branch1x1_output);
+        float *branch3x3_output = branch3x3_1->forward(d_input);
+        branch3x3_output        = branch3x3_2->forward(branch3x3_output);
 
         float *branch7x7_output = branch7x7x3_1->forward(d_input);
         branch7x7_output        = branch7x7x3_2->forward(branch7x7_output);
@@ -500,10 +536,19 @@ class InceptionD : public CUDANet::Module {
 
         float *branchPool_output = branchPool->forward(d_input);
 
-        float *d_output = concat_1->forward(branch1x1_output, branch7x7_output);
+        float *d_output = concat_1->forward(branch3x3_output, branch7x7_output);
         d_output        = concat_2->forward(d_output, branchPool_output);
 
         return d_output;
+    }
+
+    shape2d getOutputDims() {
+        return branch3x3_2->getOutputDims();
+    }
+
+    int getOutputChannels() {
+        return branch3x3_2->getOutputChannels() +
+               branch7x7x3_4->getOutputChannels() + inputChannels;
     }
 
   private:
@@ -656,6 +701,18 @@ class InceptionE : public CUDANet::Module {
         return d_output;
     }
 
+    shape2d getOutputDims() {
+        branch3x3_2a->getOutputDims();
+    }
+
+    int getOutputChannels() {
+        return branch3x3_2a->getOutputChannels() +
+               branch3x3_2b->getOutputChannels() +
+               branch3x3dbl_3a->getOutputChannels() +
+               branch3x3dbl_3b->getOutputChannels() +
+               branchPool_2->getOutputChannels();
+    }
+
   private:
     shape2d inputSize;
     int     inputChannels;
@@ -679,4 +736,91 @@ class InceptionE : public CUDANet::Module {
     CUDANet::Layers::Concat *concat_1;
     CUDANet::Layers::Concat *concat_2;
     CUDANet::Layers::Concat *concat_3;
+};
+
+class InceptionV3 : public CUDANet::Model {
+  public:
+    InceptionV3(
+        const shape2d inputSize,
+        const int     inputChannels,
+        const int     outputSize
+    )
+        : CUDANet::Model(inputSize, inputChannels, outputSize) {
+        conv2d_1a_3x3 = new BasicConv2d(
+            inputSize, inputChannels, 32, {3, 3}, {2, 2}, {0, 0},
+            "conv2d_1a_3x3"
+        );
+        addLayer("", conv2d_1a_3x3);
+        conv2d_2a_3x3 = new BasicConv2d(
+            conv2d_1a_3x3->getOutputDims(), 32, 32, {3, 3}, {1, 1}, {0, 0},
+            "conv2d_2a_3x3"
+        );
+        addLayer("", conv2d_2a_3x3);
+        conv2d_2b_3x3 = new BasicConv2d(
+            conv2d_2a_3x3->getOutputDims(), 32, 64, {3, 3}, {1, 1}, {1, 1},
+            "conv2d_2b_3x3"
+        );
+        addLayer("", conv2d_2b_3x3);
+
+        maxpool1 = new CUDANet::Layers::MaxPooling2d(
+            conv2d_2b_3x3->getOutputDims(), 64, {3, 3}, {2, 2}, {0, 0},
+            CUDANet::Layers::ActivationType::NONE
+        );
+        addLayer("maxpool1", maxpool1);
+
+        conv2d_3b_1x1 = new BasicConv2d(
+            maxpool1->getOutputDims(), 64, 80, {1, 1}, {1, 1}, {0, 0},
+            "conv2d_3b_1x1"
+        );
+        addLayer("", conv2d_3b_1x1);
+        conv2d_4a_3x3 = new BasicConv2d(
+            conv2d_3b_1x1->getOutputDims(), 80, 192, {3, 3}, {1, 1}, {0, 0},
+            "conv2d_4a_3x3"
+        );
+        addLayer("", conv2d_4a_3x3);
+
+        maxpool2 = new CUDANet::Layers::MaxPooling2d(
+            conv2d_4a_3x3->getOutputDims(), 192, {3, 3}, {2, 2}, {0, 0},
+            CUDANet::Layers::ActivationType::NONE
+        );
+        addLayer("maxpool2", maxpool2);
+
+        Mixed_5b =
+            new InceptionA(maxpool2->getOutputDims(), 192, 32, "Mixed_5b");
+        addLayer("", Mixed_5b);
+        Mixed_5c =
+            new InceptionA(Mixed_5b->getOutputDims(), 256, 64, "Mixed_5c");
+        addLayer("", Mixed_5c);
+        Mixed_5d = new InceptionA(Mixed_5c->getOutputDims(), 288, 64, "Mixed_5d");
+        addLayer("", Mixed_5d);
+    }
+
+  private:
+    BasicConv2d *conv2d_1a_3x3;
+    BasicConv2d *conv2d_2a_3x3;
+    BasicConv2d *conv2d_2b_3x3;
+
+    CUDANet::Layers::MaxPooling2d *maxpool1;
+
+    BasicConv2d *conv2d_3b_1x1;
+    BasicConv2d *conv2d_4a_3x3;
+
+    CUDANet::Layers::MaxPooling2d *maxpool2;
+
+    InceptionA *Mixed_5b;
+    InceptionA *Mixed_5c;
+    InceptionA *Mixed_5d;
+
+    InceptionB *Mixed_6a;
+
+    InceptionC *Mixed_6b;
+    InceptionC *Mixed_6c;
+    InceptionC *Mixed_6d;
+    InceptionC *Mixed_6e;
+
+    InceptionD *Mixed_7a;
+    InceptionE *Mixed_7b;
+    InceptionE *Mixed_7c;
+
+    CUDANet::Layers::Dense *fc;
 };
