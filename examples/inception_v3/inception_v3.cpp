@@ -1,16 +1,6 @@
 #include <cudanet.cuh>
 #include <iostream>
 
-int main(int argc, const char *const argv[]) {
-    if (argc != 3) {
-        std::cerr << "Usage: " << argv[0] << "<model_weights_path> <image_path>"
-                  << std::endl;
-        return 1;  // Return error code indicating incorrect usage
-    }
-
-    std::cout << "Loading model..." << std::endl;
-}
-
 class BasicConv2d : public CUDANet::Module {
   public:
     BasicConv2d(
@@ -702,7 +692,7 @@ class InceptionE : public CUDANet::Module {
     }
 
     shape2d getOutputDims() {
-        branch3x3_2a->getOutputDims();
+        return branch3x3_2a->getOutputDims();
     }
 
     int getOutputChannels() {
@@ -823,7 +813,7 @@ class InceptionV3 : public CUDANet::Model {
             Mixed_7c->getOutputSize(), 1000,
             CUDANet::Layers::ActivationType::SOFTMAX
         );
-        addLayer("", fc);
+        addLayer("fc", fc);
     }
 
     float* predict(const float* input) {
@@ -906,3 +896,19 @@ class InceptionV3 : public CUDANet::Model {
 
     CUDANet::Layers::Dense *fc;
 };
+
+int main(int argc, const char *const argv[]) {
+
+    InceptionV3 *inception_v3 = new InceptionV3({299, 299}, 3, 1000);
+
+    inception_v3->printSummary();
+
+
+    if (argc != 3) {
+        std::cerr << "Usage: " << argv[0] << "<model_weights_path> <image_path>"
+                  << std::endl;
+        return 1;  // Return error code indicating incorrect usage
+    }
+
+    std::cout << "Loading model..." << std::endl;
+}

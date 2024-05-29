@@ -11,8 +11,6 @@ namespace CUDANet {
 
 class Module : public Layers::SequentialLayer {
   public:
-    virtual ~Module() = 0;
-
     virtual float* forward(const float* d_input) = 0;
 
     int getOutputSize();
