@@ -219,7 +219,7 @@ class InceptionB : public CUDANet::Module {
         // Branch 3x3
         branch3x3 = new BasicConv2d(
             inputShape, inputChannels, 384, {3, 3}, {2, 2}, {0, 0},
-            prefix + ".branch1x1"
+            prefix + ".branch3x3"
         );
         addLayer("", branch3x3);
 
@@ -230,7 +230,7 @@ class InceptionB : public CUDANet::Module {
         );
         addLayer("", branch3x3dbl_1);
         branch3x3dbl_2 = new BasicConv2d(
-            branch3x3dbl_1->getOutputDims(), 96, 96, {3, 3}, {1, 1}, {1, 1},
+            branch3x3dbl_1->getOutputDims(), 64, 96, {3, 3}, {1, 1}, {1, 1},
             prefix + ".branch3x3dbl_2"
         );
         addLayer("", branch3x3dbl_2);
@@ -485,7 +485,7 @@ class InceptionD : public CUDANet::Module {
         // Branch 3x3
         branch3x3_1 = new BasicConv2d(
             inputShape, inputChannels, 192, {1, 1}, {1, 1}, {0, 0},
-            prefix + ".branch3x3"
+            prefix + ".branch3x3_1"
         );
         addLayer("", branch3x3_1);
         branch3x3_2 = new BasicConv2d(
