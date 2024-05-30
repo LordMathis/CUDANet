@@ -17,19 +17,14 @@ class Module : public Layers::SequentialLayer {
     int getInputSize();
 
     void addLayer(const std::string& name, Layers::SequentialLayer* layer);
-    Layers::SequentialLayer* getLayer(const std::string& name);
 
-    const std::unordered_map<std::string, Layers::SequentialLayer*>& getLayers() const;
+    const std::vector<std::pair<std::string, Layers::SequentialLayer*>>& getLayers() const;
 
   protected:
-    int inputSize;
-    int inputChannels;
+    std::vector<std::pair<std::string, Layers::SequentialLayer*>> layers;
 
     int outputSize;
-    int outputChannels;
-
-    std::vector<std::pair<std::string, Layers::SequentialLayer*>> layers;
-    std::unordered_map<std::string, Layers::SequentialLayer*>     layerMap;
+    int inputSize;
 };
 
 }  // namespace CUDANet

@@ -67,7 +67,6 @@ void Model::addLayer(const std::string& name, Layers::SequentialLayer* layer) {
         return;
     }
 
-
     layers.push_back({name, layer});
     layerMap[name] = layer;
 }

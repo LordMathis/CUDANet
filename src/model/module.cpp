@@ -1,5 +1,7 @@
 #include "module.hpp"
 
+#include <algorithm>
+
 #include "cuda_helper.cuh"
 
 using namespace CUDANet;
@@ -9,7 +11,6 @@ void Module::addLayer(const std::string& name, Layers::SequentialLayer* layer) {
 
     if (module != nullptr) {
         for (const auto& moduleLayer : module->getLayers()) {
-            layerMap[moduleLayer.first] = moduleLayer.second;
             layers.push_back({moduleLayer.first, moduleLayer.second});
         }
 
@@ -17,24 +18,17 @@ void Module::addLayer(const std::string& name, Layers::SequentialLayer* layer) {
     }
 
     layers.push_back({name, layer});
-    layerMap[name] = layer;
-
-    // std::cout << "Wat?! - module" << name << std::endl;
 }
 
-Layers::SequentialLayer* Module::getLayer(const std::string& name) {
-    return layerMap[name];
-}
-
-const std::unordered_map<std::string, Layers::SequentialLayer*>&
+const std::vector<std::pair<std::string, Layers::SequentialLayer*>>&
 Module::getLayers() const {
-    return layerMap;
+    return layers;
 }
 
 int Module::getInputSize() {
-    return inputSize * inputSize * inputChannels;
+    return inputSize;
 }
 
 int Module::getOutputSize() {
-    return outputSize * outputSize * outputChannels;
+    return outputSize;
 }
