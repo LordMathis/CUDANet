@@ -1,8 +1,10 @@
 import torch
 from utils import print_cpp_vector
 
+
 def gen_dense_softmax_test():
 
+    # fmt: off
     input = torch.tensor([
         0.1, 0.2, 0.3, 0.4, 0.5
     ])
@@ -17,6 +19,7 @@ def gen_dense_softmax_test():
     biases = torch.tensor([
         0.1, 0.2, 0.3, 0.4
     ])
+    # fmt: on
 
     dense = torch.nn.Linear(5, 4)
     dense.weight = torch.nn.Parameter(weights)
@@ -34,7 +37,6 @@ def gen_dense_softmax_test():
 
     souftmax_out = softmax_exp / softmax_sum
     print(souftmax_out)
-
 
     softmax = torch.nn.Softmax(dim=0)(output)
     print_cpp_vector(softmax)

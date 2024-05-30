@@ -3,6 +3,7 @@ from utils import print_cpp_vector
 
 
 def _get_pool_input():
+    # fmt: off
     return torch.tensor([
         0.573, 0.619, 0.732, 0.055,
         0.243, 0.316, 0.573, 0.619,
@@ -13,8 +14,11 @@ def _get_pool_input():
         0.473, 0.455, 0.283, 0.416,
         0.532, 0.819, 0.732, 0.850
     ]).reshape(1, 2, 4, 4)
+    # fmt: on
+
 
 def _get_pool_input_non_square():
+    # fmt: off
     return torch.Tensor([
         0.573, 0.619, 0.732, 0.055, 0.123, 0.234,
         0.243, 0.316, 0.573, 0.619, 0.456, 0.789,
@@ -25,6 +29,7 @@ def _get_pool_input_non_square():
         0.473, 0.455, 0.283, 0.416, 0.789, 0.123,
         0.532, 0.819, 0.732, 0.850, 0.987, 0.321
     ]).reshape(1, 2, 4, 6)
+    # fmt: on
 
 
 def gen_max_pool_test_result():
@@ -61,6 +66,7 @@ def gen_max_pool_non_square_stride_test_result():
     output = torch.flatten(output)
 
     print_cpp_vector(output)
+
 
 def gen_max_pool_non_square_padding_test_result():
     input = _get_pool_input()
