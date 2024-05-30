@@ -69,3 +69,23 @@ int AvgPooling2d::getInputSize() {
 shape2d AvgPooling2d::getOutputDims() {
     return outputSize;
 }
+
+AdaptiveAvgPooling2d::AdaptiveAvgPooling2d(shape2d inputShape, int nChannels, shape2d outputShape, ActivationType activationType)
+    : AvgPooling2d(inputShape, nChannels, {1, 1}, {1, 1}, {0, 0}, activationType) {
+    
+    stride = {inputShape.first / outputShape.first, inputShape.second / outputShape.second};
+    poolingSize = {
+        inputShape.first - (outputShape.first - 1) * stride.first,
+        inputShape.second - (outputShape.second - 1) * stride.second
+    };
+    padding = {
+        (poolingSize.first - 1) / 2,
+        (poolingSize.second - 1) / 2
+    };
+    outputSize = outputShape;    
+
+    activation = new Activation(activationType, outputSize.first * outputSize.second * nChannels);
+
+    cudaFree(d_output);
+    cudaMalloc((void**)&d_output, sizeof(float) * outputSize.first * outputSize.second * nChannels);
+}

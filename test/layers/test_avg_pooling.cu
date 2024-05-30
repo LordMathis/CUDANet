@@ -183,3 +183,99 @@ TEST_F(AvgPoolingLayerTest, AvgPoolForwardNonSquarePaddingTest) {
 
     runTest();
 }
+
+
+class AdaptiveAvgPoolingLayerTest : public ::testing::Test {
+  protected:
+    shape2d inputSize;
+    shape2d outputSize;
+    int nChannels;
+    std::vector<float> input;
+    std::vector<float> expected;
+
+    float* d_input;
+    float* d_output;
+    CUDANet::Layers::AdaptiveAvgPooling2d* adaptiveAvgPoolingLayer;
+
+    virtual void SetUp() override {
+        d_input = nullptr;
+        d_output = nullptr;
+        adaptiveAvgPoolingLayer = nullptr;
+    }
+
+    virtual void TearDown() override {
+        cudaFree(d_input);
+    }
+
+    void runTest() {
+        cudaError_t cudaStatus;
+
+        adaptiveAvgPoolingLayer = new CUDANet::Layers::AdaptiveAvgPooling2d(
+            inputSize, nChannels, outputSize, CUDANet::Layers::ActivationType::NONE
+        );
+
+        cudaStatus = cudaMalloc(
+            (void**)&d_input,
+            sizeof(float) * inputSize.first * inputSize.second * nChannels
+        );
+        EXPECT_EQ(cudaStatus, cudaSuccess);
+
+        cudaStatus = cudaMemcpy(
+            d_input, input.data(),
+            sizeof(float) * inputSize.first * inputSize.second * nChannels,
+            cudaMemcpyHostToDevice
+        );
+        EXPECT_EQ(cudaStatus, cudaSuccess);
+
+        d_output = adaptiveAvgPoolingLayer->forward(d_input);
+
+        int outputSize = adaptiveAvgPoolingLayer->getOutputSize();
+
+        std::vector<float> output(outputSize);
+        cudaStatus = cudaMemcpy(
+            output.data(), d_output, sizeof(float) * outputSize,
+            cudaMemcpyDeviceToHost
+        );
+        EXPECT_EQ(cudaStatus, cudaSuccess);
+
+        for (int i = 0; i < output.size(); ++i) {
+            EXPECT_NEAR(expected[i], output[i], 1e-5);
+        }
+
+        delete adaptiveAvgPoolingLayer;
+    }
+};
+
+TEST_F(AdaptiveAvgPoolingLayerTest, AdaptiveAvgPoolForwardTest) {
+    inputSize = {4, 4};
+    outputSize = {2, 2};
+    nChannels = 2;
+
+    input = {
+        // clang-format off
+        // Channel 0
+        0.573f, 0.619f, 0.732f, 0.055f,
+        0.243f, 0.316f, 0.573f, 0.619f,
+        0.712f, 0.055f, 0.243f, 0.316f,
+        0.573f, 0.619f, 0.742f, 0.055f,
+        // Channel 1
+        0.473f, 0.919f, 0.107f, 0.073f,
+        0.073f, 0.362f, 0.973f, 0.059f,
+        0.473f, 0.455f, 0.283f, 0.416f,
+        0.532f, 0.819f, 0.732f, 0.850f
+        // clang-format on
+    };
+
+    expected = {
+        // clang-format off
+        // Channel 0
+        0.43775f, 0.49475f,
+        0.48975f, 0.339f,
+        // Channel 1
+        0.45675f, 0.303f,
+        0.56975f, 0.57025f
+        // clang-format on
+    };
+
+    runTest();
+}

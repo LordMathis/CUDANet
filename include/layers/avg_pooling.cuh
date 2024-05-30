@@ -9,11 +9,11 @@ namespace CUDANet::Layers {
 class AvgPooling2d : public SequentialLayer, public TwoDLayer {
   public:
     AvgPooling2d(
-        shape2d           inputSize,
+        shape2d        inputSize,
         int            nChannels,
-        shape2d           poolingSize,
-        shape2d           stride,
-        shape2d           padding,
+        shape2d        poolingSize,
+        shape2d        stride,
+        shape2d        padding,
         ActivationType activationType
     );
     ~AvgPooling2d();
@@ -36,9 +36,9 @@ class AvgPooling2d : public SequentialLayer, public TwoDLayer {
 
     shape2d getOutputDims();
 
-  private:
+  protected:
     shape2d inputSize;
-    int  nChannels;
+    int     nChannels;
     shape2d poolingSize;
     shape2d stride;
     shape2d padding;
@@ -48,6 +48,11 @@ class AvgPooling2d : public SequentialLayer, public TwoDLayer {
     float* d_output;
 
     Activation* activation;
+};
+
+class AdaptiveAvgPooling2d : public AvgPooling2d {
+  public:
+    AdaptiveAvgPooling2d(shape2d inputShape, int nChannels, shape2d outputShape, ActivationType activationType);
 };
 
 }  // namespace CUDANet::Layers
