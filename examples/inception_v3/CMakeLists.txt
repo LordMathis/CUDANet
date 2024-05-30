@@ -1,10 +1,13 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.20)
 
 project(Inceptionv3
         LANGUAGES CXX CUDA
 )
 
-add_executable(inception_v3 inception_v3.cpp)
+add_executable(inception_v3 
+    inception_v3.cpp 
+    inception_modules.cpp
+)
 
 find_library(CUDANet_LIBRARY NAMES CUDANet HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../build)
 find_package(OpenCV REQUIRED COMPONENTS core imgcodecs imgproc)
@@ -19,7 +22,7 @@ set (CUDANet_INCLUDE_DIRS
 )
 
 target_include_directories(
-    inception_v3 PRIVATE ${OpenCV_INCLUDE_DIRS} ${CUDANet_INCLUDE_DIRS} ${CUDAToolkit_INCLUDE_DIRS})
+    inception_v3 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${OpenCV_INCLUDE_DIRS} ${CUDANet_INCLUDE_DIRS} ${CUDAToolkit_INCLUDE_DIRS})
 
 target_link_libraries(inception_v3 PRIVATE ${CUDANet_LIBRARY} ${OpenCV_LIBS} CUDA::cudart)
 
