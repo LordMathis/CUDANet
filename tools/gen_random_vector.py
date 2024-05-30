@@ -2,8 +2,10 @@ import numpy as np
 import utils
 from sys import argv
 
+
 def gen_random_vector(size):
     return np.random.rand(size)
+
 
 if __name__ == "__main__":
 

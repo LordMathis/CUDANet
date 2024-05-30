@@ -1,7 +1,9 @@
 import torch
 import struct
 
-import numpy as np
+from PIL import Image
+
+from torchvision import transforms
 
 
 def print_cpp_vector(vector, name="expected"):
@@ -14,7 +16,7 @@ def print_cpp_vector(vector, name="expected"):
 
 
 def export_model_weights(model: torch.nn.Module, filename):
-    with open(filename, 'wb') as f:
+    with open(filename, "wb") as f:
 
         version = 1
         header = ""
@@ -22,23 +24,54 @@ def export_model_weights(model: torch.nn.Module, filename):
         tensor_data = b""
 
         for name, param in model.named_parameters():
-            if 'weight' not in name and 'bias' not in name:
+            if "weight" not in name and "bias" not in name:
                 continue
 
             tensor_bytes = param.type(torch.float32).detach().numpy().tobytes()
             tensor_size = param.numel()
 
-            header += f"{name},{tensor_size},{offset}\n"            
+            header += f"{name},{tensor_size},{offset}\n"
             offset += len(tensor_bytes)
 
             tensor_data += tensor_bytes
 
         f.seek(0)
-        f.write(struct.pack('H', version))
-        f.write(struct.pack('Q', len(header)))           
-        f.write(header.encode('utf-8'))
+        f.write(struct.pack("H", version))
+        f.write(struct.pack("Q", len(header)))
+        f.write(header.encode("utf-8"))
         f.write(tensor_data)
+
 
 def print_model_parameters(model: torch.nn.Module):
     for name, param in model.named_parameters():
         print(name, param.numel())
+
+
+def predict(model, image_path, preprocess=None):
+    input_image = Image.open(image_path)
+
+    if preprocess is None:
+        preprocess = transforms.Compose(
+            [
+                transforms.Resize(299),
+                transforms.CenterCrop(299),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                ),
+            ]
+        )
+
+    input_tensor = preprocess(input_image)
+    input_batch = input_tensor.unsqueeze(
+        0
+    )  # create a mini-batch as expected by the model
+
+    # move the input and model to GPU for speed if available
+    if torch.cuda.is_available():
+        input_batch = input_batch.to("cuda")
+        model.to("cuda")
+
+    with torch.no_grad():
+        output = model(input_batch)
+        return torch.argmax(output)
