@@ -190,5 +190,7 @@ float *BatchNorm2d::forward(const float *d_input) {
         CUDA_CHECK(cudaGetLastError());
     }
 
+    activation->activate(d_output);
+
     return d_output;
 }
