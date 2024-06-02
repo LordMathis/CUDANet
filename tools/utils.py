@@ -47,14 +47,14 @@ def print_model_parameters(model: torch.nn.Module):
         print(name, param.numel())
 
 
-def predict(model, image_path, preprocess=None):
+def predict(model, image_path, resize=299, crop=299, preprocess=None):
     input_image = Image.open(image_path)
 
     if preprocess is None:
         preprocess = transforms.Compose(
             [
-                transforms.Resize(299),
-                transforms.CenterCrop(299),
+                transforms.Resize(resize),
+                transforms.CenterCrop(crop),
                 transforms.ToTensor(),
                 transforms.Normalize(
                     mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
