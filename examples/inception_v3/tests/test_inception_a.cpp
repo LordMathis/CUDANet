@@ -94,8 +94,6 @@ class InceptionATest : public ::testing::Test {
         inception_a =
             new InceptionA(inputShape, inputChannels, poolFeatures, prefix);
 
-        CUDANet::Layers::Conv2d *conv;
-
         // Set up layer weights and bias
         // Branch 1x1
         setBasicConv2dWeights(branch1x1_conv_weights, branch1x1_bn_weights,
