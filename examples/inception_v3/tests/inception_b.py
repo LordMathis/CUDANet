@@ -34,6 +34,10 @@ with torch.no_grad():
     print_cpp_vector(torch.flatten(inception_b.branch3x3dbl_2.bn.weight), "branch3x3dbl_2_bn_weights")
     print_cpp_vector(torch.flatten(inception_b.branch3x3dbl_2.bn.bias), "branch3x3dbl_2_bn_bias")
 
+    print_cpp_vector(torch.flatten(inception_b.branch3x3dbl_3.conv.weight), "branch3x3dbl_3_conv_weights")
+    print_cpp_vector(torch.flatten(inception_b.branch3x3dbl_3.bn.weight), "branch3x3dbl_3_bn_weights")
+    print_cpp_vector(torch.flatten(inception_b.branch3x3dbl_3.bn.bias), "branch3x3dbl_3_bn_bias")
+
     input_shape = (1, 3, 8, 8)
     input = torch.randn(input_shape)
     print_cpp_vector(torch.flatten(input), "input")
