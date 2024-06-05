@@ -12,7 +12,7 @@ class BasicConv2dTest : public ::testing::Test {
     shape2d     kernelSize;
     shape2d     stride;
     shape2d     padding;
-    std::string prefix = "test";
+    std::string prefix = "test.";
 
     float *d_input;
     float *d_output;
@@ -46,7 +46,7 @@ class BasicConv2dTest : public ::testing::Test {
         std::pair<std::string, CUDANet::Layers::SequentialLayer *> layerPair =
             basic_conv2d->getLayers()[0];
 
-        ASSERT_EQ(layerPair.first, prefix + ".conv");
+        ASSERT_EQ(layerPair.first, prefix + "conv");
 
         CUDANet::Layers::Conv2d *conv =
             dynamic_cast<CUDANet::Layers::Conv2d *>(layerPair.second);
@@ -60,7 +60,7 @@ class BasicConv2dTest : public ::testing::Test {
         EXPECT_EQ(cudaStatus, cudaSuccess);
 
         layerPair = basic_conv2d->getLayers()[1];
-        ASSERT_EQ(layerPair.first, prefix + ".bn");
+        ASSERT_EQ(layerPair.first, prefix + "bn");
 
         CUDANet::Layers::BatchNorm2d *bn =
             dynamic_cast<CUDANet::Layers::BatchNorm2d *>(layerPair.second);
