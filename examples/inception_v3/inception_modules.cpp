@@ -30,8 +30,8 @@ BasicConv2d::BasicConv2d(
     outputSize = batchNorm->getOutputDims().first *
                  batchNorm->getOutputDims().second * outputChannels;
 
-    addLayer(prefix + ".conv", conv);
-    addLayer(prefix + ".bn", batchNorm);
+    addLayer(prefix + "conv", conv);
+    addLayer(prefix + "bn", batchNorm);
 }
 
 BasicConv2d::~BasicConv2d() {
@@ -67,36 +67,36 @@ InceptionA::InceptionA(
     // Branch 1x1
     branch1x1 = new BasicConv2d(
         inputShape, inputChannels, 64, {1, 1}, {1, 1}, {0, 0},
-        prefix + ".branch1x1"
+        prefix + "branch1x1."
     );
     addLayer("", branch1x1);
 
     // Branch 5x5
     branch5x5_1 = new BasicConv2d(
         inputShape, inputChannels, 48, {1, 1}, {1, 1}, {0, 0},
-        prefix + ".branch5x5_1"
+        prefix + "branch5x5_1."
     );
     addLayer("", branch5x5_1);
     branch5x5_2 = new BasicConv2d(
         branch5x5_1->getOutputDims(), 48, 64, {5, 5}, {1, 1}, {2, 2},
-        prefix + ".branch5x5_2"
+        prefix + "branch5x5_2."
     );
     addLayer("", branch5x5_2);
 
     // Branch 3x3
     branch3x3dbl_1 = new BasicConv2d(
         inputShape, inputChannels, 64, {1, 1}, {1, 1}, {0, 0},
-        prefix + ".branch3x3dbl_1"
+        prefix + "branch3x3dbl_1."
     );
     addLayer("", branch3x3dbl_1);
     branch3x3dbl_2 = new BasicConv2d(
         branch3x3dbl_1->getOutputDims(), 64, 96, {3, 3}, {1, 1}, {1, 1},
-        prefix + ".branch3x3dbl_2"
+        prefix + "branch3x3dbl_2."
     );
     addLayer("", branch3x3dbl_2);
     branch3x3dbl_3 = new BasicConv2d(
         branch3x3dbl_2->getOutputDims(), 96, 96, {3, 3}, {1, 1}, {1, 1},
-        prefix + ".branch3x3dbl_3"
+        prefix + "branch3x3dbl_3."
     );
     addLayer("", branch3x3dbl_3);
 
@@ -105,10 +105,10 @@ InceptionA::InceptionA(
         inputShape, inputChannels, {3, 3}, {1, 1}, {1, 1},
         CUDANet::Layers::ActivationType::NONE
     );
-    addLayer(prefix + ".branch_pool", branchPool_1);
+    addLayer(prefix + "branch_pool", branchPool_1);
     branchPool_2 = new BasicConv2d(
         branchPool_1->getOutputDims(), inputChannels, poolFeatures, {1, 1},
-        {1, 1}, {0, 0}, prefix + ".branch_pool"
+        {1, 1}, {0, 0}, prefix + "branch_pool."
     );
     addLayer("", branchPool_2);
 
@@ -182,24 +182,24 @@ InceptionB::InceptionB(
     // Branch 3x3
     branch3x3 = new BasicConv2d(
         inputShape, inputChannels, 384, {3, 3}, {2, 2}, {0, 0},
-        prefix + ".branch3x3"
+        prefix + "branch3x3."
     );
     addLayer("", branch3x3);
 
     // Branch 3x3dbl
     branch3x3dbl_1 = new BasicConv2d(
         inputShape, inputChannels, 64, {1, 1}, {1, 1}, {0, 0},
-        prefix + ".branch3x3dbl_1"
+        prefix + "branch3x3dbl_1."
     );
     addLayer("", branch3x3dbl_1);
     branch3x3dbl_2 = new BasicConv2d(
         branch3x3dbl_1->getOutputDims(), 64, 96, {3, 3}, {1, 1}, {1, 1},
-        prefix + ".branch3x3dbl_2"
+        prefix + "branch3x3dbl_2."
     );
     addLayer("", branch3x3dbl_2);
     branch3x3dbl_3 = new BasicConv2d(
-        branch3x3dbl_2->getOutputDims(), 96, 96, {3, 3}, {2, 2}, {1, 1},
-        prefix + ".branch3x3dbl_3"
+        branch3x3dbl_2->getOutputDims(), 96, 96, {3, 3}, {2, 2}, {0, 0},
+        prefix + "branch3x3dbl_3."
     );
     addLayer("", branch3x3dbl_3);
 
@@ -207,7 +207,7 @@ InceptionB::InceptionB(
         inputShape, inputChannels, {3, 3}, {2, 2}, {0, 0},
         CUDANet::Layers::ActivationType::NONE
     );
-    addLayer(prefix + ".branch_pool", branchPool);
+    addLayer(prefix + "branch_pool", branchPool);
 
     concat_1 = new CUDANet::Layers::Concat(
         branch3x3->getOutputSize(), branch3x3dbl_3->getOutputSize()
@@ -266,51 +266,51 @@ InceptionC::InceptionC(
     // Branch 1x1
     branch1x1 = new BasicConv2d(
         inputShape, inputChannels, 192, {1, 1}, {1, 1}, {0, 0},
-        prefix + ".branch1x1"
+        prefix + "branch1x1."
     );
     addLayer("", branch1x1);
 
     // Branch 7x7
     branch7x7_1 = new BasicConv2d(
         inputShape, inputChannels, nChannels_7x7, {1, 1}, {1, 1}, {0, 0},
-        prefix + ".branch7x7_1"
+        prefix + "branch7x7_1."
     );
     addLayer("", branch7x7_1);
     branch7x7_2 = new BasicConv2d(
         branch7x7_1->getOutputDims(), nChannels_7x7, nChannels_7x7, {1, 7},
-        {1, 1}, {0, 3}, prefix + ".branch7x7_2"
+        {1, 1}, {0, 3}, prefix + "branch7x7_2."
     );
     addLayer("", branch7x7_2);
     branch7x7_3 = new BasicConv2d(
         branch7x7_2->getOutputDims(), nChannels_7x7, 192, {7, 1}, {1, 1},
-        {3, 0}, prefix + ".branch7x7_3"
+        {3, 0}, prefix + "branch7x7_3."
     );
     addLayer("", branch7x7_3);
 
     // Branch 7x7dbl
     branch7x7dbl_1 = new BasicConv2d(
         inputShape, inputChannels, nChannels_7x7, {1, 1}, {1, 1}, {0, 0},
-        prefix + ".branch7x7dbl_1"
+        prefix + "branch7x7dbl_1."
     );
     addLayer("", branch7x7dbl_1);
     branch7x7dbl_2 = new BasicConv2d(
         branch7x7dbl_1->getOutputDims(), nChannels_7x7, nChannels_7x7, {7, 1},
-        {1, 1}, {3, 0}, prefix + ".branch7x7dbl_2"
+        {1, 1}, {3, 0}, prefix + "branch7x7dbl_2."
     );
     addLayer("", branch7x7dbl_2);
     branch7x7dbl_3 = new BasicConv2d(
         branch7x7dbl_2->getOutputDims(), nChannels_7x7, nChannels_7x7, {1, 7},
-        {1, 1}, {0, 3}, prefix + ".branch7x7dbl_3"
+        {1, 1}, {0, 3}, prefix + "branch7x7dbl_3."
     );
     addLayer("", branch7x7dbl_3);
     branch7x7dbl_4 = new BasicConv2d(
         branch7x7dbl_3->getOutputDims(), nChannels_7x7, nChannels_7x7, {7, 1},
-        {1, 1}, {3, 0}, prefix + ".branch7x7dbl_4"
+        {1, 1}, {3, 0}, prefix + "branch7x7dbl_4."
     );
     addLayer("", branch7x7dbl_4);
     branch7x7dbl_5 = new BasicConv2d(
         branch7x7dbl_4->getOutputDims(), nChannels_7x7, 192, {1, 7}, {1, 1},
-        {0, 3}, prefix + ".branch7x7dbl_5"
+        {0, 3}, prefix + "branch7x7dbl_5."
     );
     addLayer("", branch7x7dbl_5);
 
@@ -319,10 +319,10 @@ InceptionC::InceptionC(
         inputShape, inputChannels, {3, 3}, {1, 1}, {1, 1},
         CUDANet::Layers::ActivationType::NONE
     );
-    addLayer(prefix + ".branch_pool", branchPool_1);
+    addLayer(prefix + "branch_pool", branchPool_1);
     branchPool_2 = new BasicConv2d(
         branchPool_1->getOutputDims(), inputChannels, 192, {1, 1}, {1, 1},
-        {0, 0}, prefix + ".branch_pool"
+        {0, 0}, prefix + "branch_pool."
     );
     addLayer("", branchPool_2);
 
@@ -402,39 +402,39 @@ InceptionD::InceptionD(
     // Branch 3x3
     branch3x3_1 = new BasicConv2d(
         inputShape, inputChannels, 192, {1, 1}, {1, 1}, {0, 0},
-        prefix + ".branch3x3_1"
+        prefix + "branch3x3_1."
     );
     addLayer("", branch3x3_1);
     branch3x3_2 = new BasicConv2d(
-        inputShape, 192, 320, {3, 3}, {2, 2}, {0, 0}, prefix + ".branch3x3_2"
+        inputShape, 192, 320, {3, 3}, {2, 2}, {0, 0}, prefix + "branch3x3_2."
     );
     addLayer("", branch3x3_2);
 
     // Branch 7x7x3
     branch7x7x3_1 = new BasicConv2d(
         inputShape, inputChannels, 192, {1, 1}, {1, 1}, {0, 0},
-        prefix + ".branch7x7x3_1"
+        prefix + "branch7x7x3_1."
     );
     addLayer("", branch7x7x3_1);
     branch7x7x3_2 = new BasicConv2d(
-        inputShape, 192, 192, {1, 7}, {1, 1}, {0, 3}, prefix + ".branch7x7x3_2"
+        inputShape, 192, 192, {1, 7}, {1, 1}, {0, 3}, prefix + "branch7x7x3_2."
     );
     addLayer("", branch7x7x3_2);
     branch7x7x3_3 = new BasicConv2d(
-        inputShape, 192, 192, {7, 1}, {1, 1}, {3, 0}, prefix + ".branch7x7x3_3"
+        inputShape, 192, 192, {7, 1}, {1, 1}, {3, 0}, prefix + "branch7x7x3_3."
     );
     addLayer("", branch7x7x3_3);
     branch7x7x3_4 = new BasicConv2d(
-        inputShape, 192, 192, {3, 3}, {2, 2}, {0, 0}, prefix + ".branch7x7x3_4"
+        inputShape, 192, 192, {3, 3}, {2, 2}, {0, 0}, prefix + "branch7x7x3_4."
     );
     addLayer("", branch7x7x3_4);
 
     // Branch Pool
     branchPool = new CUDANet::Layers::MaxPooling2d(
-        inputShape, 192, {3, 3}, {2, 2}, {0, 0},
+        inputShape, inputChannels, {3, 3}, {2, 2}, {0, 0},
         CUDANet::Layers::ActivationType::NONE
     );
-    addLayer(prefix + ".branch_pool", branchPool);
+    addLayer(prefix + "branch_pool", branchPool);
 
     // Concat
     concat_1 = new CUDANet::Layers::Concat(
@@ -497,22 +497,22 @@ InceptionE::InceptionE(
     // Branch 1x1
     branch1x1 = new BasicConv2d(
         inputShape, inputChannels, 320, {1, 1}, {1, 1}, {0, 0},
-        prefix + ".branch1x1"
+        prefix + "branch1x1."
     );
     addLayer("", branch1x1);
 
     // Branch 3x3
     branch3x3_1 = new BasicConv2d(
         inputShape, inputChannels, 384, {1, 1}, {1, 1}, {0, 0},
-        prefix + ".branch3x3_1"
+        prefix + "branch3x3_1."
     );
     addLayer("", branch3x3_1);
     branch3x3_2a = new BasicConv2d(
-        inputShape, 384, 384, {1, 3}, {1, 1}, {0, 1}, prefix + ".branch3x3_2a"
+        inputShape, 384, 384, {1, 3}, {1, 1}, {0, 1}, prefix + "branch3x3_2a."
     );
     addLayer("", branch3x3_2a);
     branch3x3_2b = new BasicConv2d(
-        inputShape, 384, 384, {3, 1}, {1, 1}, {1, 0}, prefix + ".branch3x3_2b"
+        inputShape, 384, 384, {3, 1}, {1, 1}, {1, 0}, prefix + "branch3x3_2b."
     );
     addLayer("", branch3x3_2b);
     branch_3x3_2_concat = new CUDANet::Layers::Concat(
@@ -522,21 +522,21 @@ InceptionE::InceptionE(
     // Branch 3x3dbl
     branch3x3dbl_1 = new BasicConv2d(
         inputShape, inputChannels, 448, {1, 1}, {1, 1}, {0, 0},
-        prefix + ".branch3x3dbl_1"
+        prefix + "branch3x3dbl_1."
     );
     addLayer("", branch3x3dbl_1);
     branch3x3dbl_2 = new BasicConv2d(
-        inputShape, 448, 384, {3, 3}, {1, 1}, {1, 1}, prefix + ".branch3x3dbl_2"
+        inputShape, 448, 384, {3, 3}, {1, 1}, {1, 1}, prefix + "branch3x3dbl_2."
     );
     addLayer("", branch3x3dbl_2);
     branch3x3dbl_3a = new BasicConv2d(
         inputShape, 384, 384, {1, 3}, {1, 1}, {0, 1},
-        prefix + ".branch3x3dbl_3a"
+        prefix + "branch3x3dbl_3a."
     );
     addLayer("", branch3x3dbl_3a);
     branch3x3dbl_3b = new BasicConv2d(
         inputShape, 384, 384, {3, 1}, {1, 1}, {1, 0},
-        prefix + ".branch3x3dbl_3b"
+        prefix + "branch3x3dbl_3b."
     );
     addLayer("", branch3x3dbl_3b);
     branch_3x3dbl_3_concat = new CUDANet::Layers::Concat(
@@ -548,10 +548,10 @@ InceptionE::InceptionE(
         inputShape, inputChannels, {3, 3}, {1, 1}, {1, 1},
         CUDANet::Layers::ActivationType::NONE
     );
-    addLayer(prefix + ".branch_pool", branchPool_1);
+    addLayer(prefix + "branch_pool", branchPool_1);
     branchPool_2 = new BasicConv2d(
         inputShape, inputChannels, 192, {1, 1}, {1, 1}, {0, 0},
-        prefix + ".branch_pool"
+        prefix + "branch_pool."
     );
     addLayer("", branchPool_2);
 
@@ -636,17 +636,17 @@ InceptionV3::InceptionV3(
 )
     : CUDANet::Model(inputShape, inputChannels, outputSize) {
     conv2d_1a_3x3 = new BasicConv2d(
-        inputShape, inputChannels, 32, {3, 3}, {2, 2}, {0, 0}, "Conv2d_1a_3x3"
+        inputShape, inputChannels, 32, {3, 3}, {2, 2}, {0, 0}, "Conv2d_1a_3x3."
     );
     addLayer("", conv2d_1a_3x3);
     conv2d_2a_3x3 = new BasicConv2d(
         conv2d_1a_3x3->getOutputDims(), 32, 32, {3, 3}, {1, 1}, {0, 0},
-        "Conv2d_2a_3x3"
+        "Conv2d_2a_3x3."
     );
     addLayer("", conv2d_2a_3x3);
     conv2d_2b_3x3 = new BasicConv2d(
         conv2d_2a_3x3->getOutputDims(), 32, 64, {3, 3}, {1, 1}, {1, 1},
-        "Conv2d_2b_3x3"
+        "Conv2d_2b_3x3."
     );
     addLayer("", conv2d_2b_3x3);
 
@@ -658,12 +658,12 @@ InceptionV3::InceptionV3(
 
     conv2d_3b_1x1 = new BasicConv2d(
         maxpool1->getOutputDims(), 64, 80, {1, 1}, {1, 1}, {0, 0},
-        "Conv2d_3b_1x1"
+        "Conv2d_3b_1x1."
     );
     addLayer("", conv2d_3b_1x1);
     conv2d_4a_3x3 = new BasicConv2d(
         conv2d_3b_1x1->getOutputDims(), 80, 192, {3, 3}, {1, 1}, {0, 0},
-        "Conv2d_4a_3x3"
+        "Conv2d_4a_3x3."
     );
     addLayer("", conv2d_4a_3x3);
 
@@ -673,31 +673,31 @@ InceptionV3::InceptionV3(
     );
     addLayer("Maxpool2", maxpool2);
 
-    Mixed_5b = new InceptionA(maxpool2->getOutputDims(), 192, 32, "Mixed_5b");
+    Mixed_5b = new InceptionA(maxpool2->getOutputDims(), 192, 32, "Mixed_5b.");
     addLayer("", Mixed_5b);
-    Mixed_5c = new InceptionA(Mixed_5b->getOutputDims(), 256, 64, "Mixed_5c");
+    Mixed_5c = new InceptionA(Mixed_5b->getOutputDims(), 256, 64, "Mixed_5c.");
     addLayer("", Mixed_5c);
-    Mixed_5d = new InceptionA(Mixed_5c->getOutputDims(), 288, 64, "Mixed_5d");
+    Mixed_5d = new InceptionA(Mixed_5c->getOutputDims(), 288, 64, "Mixed_5d.");
     addLayer("", Mixed_5d);
 
-    Mixed_6a = new InceptionB(Mixed_5d->getOutputDims(), 288, "Mixed_6a");
+    Mixed_6a = new InceptionB(Mixed_5d->getOutputDims(), 288, "Mixed_6a.");
     addLayer("", Mixed_6a);
 
-    Mixed_6b = new InceptionC(Mixed_6a->getOutputDims(), 768, 128, "Mixed_6b");
+    Mixed_6b = new InceptionC(Mixed_6a->getOutputDims(), 768, 128, "Mixed_6b.");
     addLayer("", Mixed_6b);
-    Mixed_6c = new InceptionC(Mixed_6b->getOutputDims(), 768, 160, "Mixed_6c");
+    Mixed_6c = new InceptionC(Mixed_6b->getOutputDims(), 768, 160, "Mixed_6c.");
     addLayer("", Mixed_6c);
-    Mixed_6d = new InceptionC(Mixed_6c->getOutputDims(), 768, 160, "Mixed_6d");
+    Mixed_6d = new InceptionC(Mixed_6c->getOutputDims(), 768, 160, "Mixed_6d.");
     addLayer("", Mixed_6d);
-    Mixed_6e = new InceptionC(Mixed_6d->getOutputDims(), 768, 192, "Mixed_6e");
+    Mixed_6e = new InceptionC(Mixed_6d->getOutputDims(), 768, 192, "Mixed_6e.");
     addLayer("", Mixed_6e);
 
-    Mixed_7a = new InceptionD(Mixed_6e->getOutputDims(), 768, "Mixed_7a");
+    Mixed_7a = new InceptionD(Mixed_6e->getOutputDims(), 768, "Mixed_7a.");
     addLayer("", Mixed_7a);
 
-    Mixed_7b = new InceptionE(Mixed_7a->getOutputDims(), 1280, "Mixed_7b");
+    Mixed_7b = new InceptionE(Mixed_7a->getOutputDims(), 1280, "Mixed_7b.");
     addLayer("", Mixed_7b);
-    Mixed_7c = new InceptionE(Mixed_7b->getOutputDims(), 2048, "Mixed_7c");
+    Mixed_7c = new InceptionE(Mixed_7b->getOutputDims(), 2048, "Mixed_7c.");
     addLayer("", Mixed_7c);
 
     avgpool = new CUDANet::Layers::AdaptiveAvgPooling2d(

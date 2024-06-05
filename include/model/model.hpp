@@ -30,7 +30,7 @@ class Model {
     Model(const Model& other);
     ~Model();
 
-    float* predict(const float* input);
+    virtual float* predict(const float* input);
 
     void addLayer(const std::string& name, Layers::SequentialLayer* layer);
     Layers::SequentialLayer* getLayer(const std::string& name);
