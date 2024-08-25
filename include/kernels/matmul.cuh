@@ -141,11 +141,27 @@ __global__ void vec_exp(
  * @param src Device pointer to source vector
  * @param dst Device pointer to destination vector
  * @param len Length of the vector
- * @return __global__ 
  */
 __global__ void vec_sqrt(
     const float* __restrict__ src,
     float* __restrict__ dst,
+    const unsigned int len
+);
+
+/**
+ * @brief Scales the vector by 1/sqrt(scale + epsilon)
+ * 
+ * @param src Device pointer to source vector
+ * @param dst Device pointer to destination vector
+ * @param scale Scale
+ * @param epsilon Epsilon
+ * @param len Length of the vector
+ */
+__global__ void vec_scale(
+    const float* __restrict__ src,
+    float* __restrict__ dst,
+    const float* __restrict__ scale,
+    const float* epsilon,
     const unsigned int len
 );
 

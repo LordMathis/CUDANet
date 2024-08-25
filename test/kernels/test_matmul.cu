@@ -66,9 +66,7 @@ TEST(MatMulTest, MatVecMulTest) {
 
     cudaFree(d_matrix);
     cudaFree(d_vector);
-    cudaFree(d_output);
-
-    
+    cudaFree(d_output);    
 }
 
 TEST(MatMulTest, MaxReduceTest) {
@@ -211,4 +209,60 @@ TEST(MatMulTest, SumReduceTest) {
 
     cudaFree(d_input);
     cudaFree(d_sum);    
+}
+
+TEST(MatMulTest, VecScaleTest) {
+    cudaError_t cudaStatus;
+    int len = 1000;
+    float* d_src;
+    float* d_dst;
+    float* d_scale;
+    float* d_epsilon;
+
+    cudaStatus = cudaMalloc((void**)&d_src, sizeof(float) * len);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    cudaStatus = cudaMalloc((void**)&d_dst, sizeof(float) * len);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    cudaStatus = cudaMalloc((void**)&d_scale, sizeof(float));
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+    
+    cudaStatus = cudaMalloc((void**)&d_epsilon, sizeof(float));
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    std::vector<float> src(len);
+    for (int i = 0; i < len; ++i) {
+        src[i] = static_cast<float>(rand()) / RAND_MAX;
+    }
+
+    float scale = 1.5f;
+    float epsilon = 1e-5f;
+
+    cudaStatus = cudaMemcpy(d_src, src.data(), sizeof(float) * len, cudaMemcpyHostToDevice);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+    cudaStatus = cudaMemcpy(d_scale, &scale, sizeof(float), cudaMemcpyHostToDevice);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+    cudaStatus = cudaMemcpy(d_epsilon, &epsilon, sizeof(float), cudaMemcpyHostToDevice);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    int grid_size = (len + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    CUDANet::Kernels::vec_scale<<<grid_size, BLOCK_SIZE>>>(d_src, d_dst, d_scale, d_epsilon, len);
+
+    cudaStatus = cudaDeviceSynchronize();
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    std::vector<float> dst_gpu(len);
+    cudaStatus = cudaMemcpy(dst_gpu.data(), d_dst, sizeof(float) * len, cudaMemcpyDeviceToHost);
+    EXPECT_EQ(cudaStatus, cudaSuccess);
+
+    float inv_std = 1.0f / std::sqrt(scale + epsilon);
+    for (int i = 0; i < len; ++i) {
+        EXPECT_NEAR(src[i] * inv_std, dst_gpu[i], 1e-5f);
+    }
+
+    cudaFree(d_src);
+    cudaFree(d_dst);
+    cudaFree(d_scale);
+    cudaFree(d_epsilon);
 }

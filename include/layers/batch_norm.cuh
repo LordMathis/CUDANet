@@ -51,6 +51,20 @@ class BatchNorm2d : public WeightedLayer, public TwoDLayer {
     std::vector<float> getBiases();
 
     /**
+     * @brief Set the Running Mean
+     * 
+     * @param running_mean_input 
+     */
+    void setRunningMean(const float* running_mean_input);
+
+    /**
+     * @brief Set the Running Var
+     * 
+     * @param running_mean_input 
+     */
+    void setRunningVar(const float* running_mean_input);
+
+    /**
      * @brief Get output size
      *
      * @return int output size
@@ -75,9 +89,8 @@ class BatchNorm2d : public WeightedLayer, public TwoDLayer {
 
     float* d_output;
 
-    float* d_mean;
-    float* d_mean_sub;
-    float* d_sqrt_var;
+    float* d_running_mean;
+    float* d_running_var;
 
     float* d_length;
     float* d_epsilon;
@@ -88,8 +101,8 @@ class BatchNorm2d : public WeightedLayer, public TwoDLayer {
     std::vector<float> weights;
     std::vector<float> biases;
 
-    std::vector<float> mean;
-    std::vector<float> sqrt_var;
+    std::vector<float> running_mean;
+    std::vector<float> running_var;
 
     Activation* activation;
 
@@ -109,13 +122,13 @@ class BatchNorm2d : public WeightedLayer, public TwoDLayer {
      * @brief Initialize mean of the batchnorm layer with zeros
      *
      */
-    void initializeMean();
+    void initializeRunningMean();
 
     /**
      * @brief Initialize sqrt of variance of the batchnorm layer with ones
      *
      */
-    void initializeSqrtVar();
+    void initializeRunningVar();
 
     /**
      * @brief Copy weights and biases to the device

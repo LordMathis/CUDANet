@@ -140,6 +140,19 @@ __global__ void Kernels::vec_sqrt(
     }
 }
 
+__global__ void Kernels::vec_scale(
+    const float* __restrict__ src,
+    float* __restrict__ dst,
+    const float* __restrict__ scale,
+    const float* epsilon,
+    const unsigned int len
+) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < len) {
+        float inv_std = rsqrtf(*scale + *epsilon);
+        dst[idx] = src[idx] * inv_std;
+    }
+}
 
 __global__ void Kernels::max_reduce(
     const float* __restrict__ d_vector,
