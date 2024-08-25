@@ -58,11 +58,23 @@ class BatchNorm2d : public WeightedLayer, public TwoDLayer {
     void setRunningMean(const float* running_mean_input);
 
     /**
+     * @brief Get the Running Mean
+     * 
+     */
+    std::vector<float> getRunningMean();
+
+    /**
      * @brief Set the Running Var
      * 
      * @param running_mean_input 
      */
     void setRunningVar(const float* running_mean_input);
+
+    /**
+     * @brief Get the Running Var
+     * 
+     */
+    std::vector<float> getRunningVar();
 
     /**
      * @brief Get output size

@@ -15,6 +15,8 @@ namespace CUDANet {
 enum TensorType {
     WEIGHT,
     BIAS,
+    RUNNING_MEAN,
+    RUNNING_VAR
 };
 
 struct TensorInfo {

@@ -121,9 +121,17 @@ void BatchNorm2d::setRunningMean(const float* running_mean_input) {
     toCuda();
 }
 
+std::vector<float> BatchNorm2d::getRunningMean() {
+    return running_mean;
+}
+
 void BatchNorm2d::setRunningVar(const float* running_var_input) {
     std::copy(running_var_input, running_var_input + inputChannels, running_var.begin());
     toCuda();
+}
+
+std::vector<float> BatchNorm2d::getRunningVar() {
+    return running_var;
 }
 
 void BatchNorm2d::toCuda() {

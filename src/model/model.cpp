@@ -9,6 +9,7 @@
 
 #include "input.cuh"
 #include "layer.cuh"
+#include "batch_norm.cuh"
 
 using namespace CUDANet;
 
@@ -91,6 +92,14 @@ void Model::loadWeights(const std::string& path) {
         return;
     }
 
+    auto getTensorType = [](const std::string& typeStr) {
+        if (typeStr == "weight") return TensorType::WEIGHT;
+        if (typeStr == "bias") return TensorType::BIAS;
+        if (typeStr == "running_mean") return TensorType::RUNNING_MEAN;
+        if (typeStr == "running_var") return TensorType::RUNNING_VAR;
+        throw std::runtime_error("Unknown tensor type: " + typeStr);
+    };
+
     u_int64_t headerSize;
     file.read(reinterpret_cast<char*>(&headerSize), sizeof(headerSize));
 
@@ -115,9 +124,8 @@ void Model::loadWeights(const std::string& path) {
         size_t      dotPos  = nameStr.find_last_of('.');
         if (dotPos == std::string::npos) continue;
         std::string name = nameStr.substr(0, dotPos);
-        TensorType  type = nameStr.substr(dotPos + 1) == "weight"
-                               ? TensorType::WEIGHT
-                               : TensorType::BIAS;
+
+        TensorType  type = getTensorType(nameStr.substr(dotPos + 1));        
 
         line = line.substr(commaPos + 1);
 
@@ -173,6 +181,29 @@ void Model::loadWeights(const std::string& path) {
 
                 wLayer->setBiases(values.data());
             }
+
+            Layers::BatchNorm2d* bnLayer = dynamic_cast<Layers::BatchNorm2d*>(wLayer);
+            if (bnLayer == nullptr) {
+                continue;
+            }
+
+            if (tensorInfo.type == TensorType::RUNNING_MEAN) {
+                if (bnLayer->getRunningMean().size() != values.size()) {
+                    std::cerr << "Layer: " << tensorInfo.name << " has incorrect number of running mean values, expected "
+                                << bnLayer->getRunningMean().size() << " but got " << values.size() << ", skipping" << std::endl;
+                    continue;
+                }
+                bnLayer->setRunningMean(values.data());
+            } else if (tensorInfo.type == TensorType::RUNNING_VAR) {
+                if (bnLayer->getRunningVar().size() != values.size()) {
+                    std::cerr << "Layer: " << tensorInfo.name << " has incorrect number of running var values, expected "
+                                << bnLayer->getRunningVar().size() << " but got " << values.size() << ", skipping" << std::endl;
+                    continue;
+                }
+                bnLayer->setRunningVar(values.data());
+            }
+
+
         } else {
             std::cerr << "Layer: " << tensorInfo.name
                       << " does not exist, skipping" << std::endl;
