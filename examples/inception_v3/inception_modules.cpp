@@ -707,7 +707,7 @@ InceptionV3::InceptionV3(
     addLayer("AveragePool", avgpool);
 
     fc = new CUDANet::Layers::Dense(
-        avgpool->getOutputSize(), 1000, CUDANet::Layers::ActivationType::SOFTMAX
+        avgpool->getOutputSize(), 1000, CUDANet::Layers::ActivationType::NONE
     );
     addLayer("fc", fc);
 }
