@@ -23,7 +23,6 @@ class BasicConv2d : public CUDANet::Module {
 
     int getOutputChannels();
 
-  private:
     int outputChannels;
 
     CUDANet::Layers::Conv2d      *conv;

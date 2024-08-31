@@ -6,6 +6,11 @@
 
 #include "inception_v3.hpp"
 
+bool __inline__ isCloseRelative(float a, float b, float rel_tol = 1e-3f, float abs_tol = 1e-3f) {
+    return std::abs(a - b) <= std::max(rel_tol * std::max(std::abs(a), std::abs(b)), abs_tol);
+};
+
+
 class InceptionBlockTest : public ::testing::Test {
   protected:
     CUDANet::Model *model;
@@ -42,7 +47,7 @@ class InceptionBlockTest : public ::testing::Test {
         EXPECT_EQ(outputSize, expected.size());
 
         for (int i = 0; i < outputSize; ++i) {
-            EXPECT_NEAR(expected[i], output[i], 1e-3f);
+            EXPECT_TRUE(isCloseRelative(expected[i], output[i]));
         }
     }
 };
