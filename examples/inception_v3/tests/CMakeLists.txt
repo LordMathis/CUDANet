@@ -14,11 +14,13 @@ target_include_directories(test_inception_v3 PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     ${CUDANet_INCLUDE_DIRS}
     ${CUDAToolkit_INCLUDE_DIRS}
+    ${OpenCV_INCLUDE_DIRS}
 )
 
 target_link_libraries(test_inception_v3
     ${GTEST_BOTH_LIBRARIES}
     ${CUDANet_LIBRARY}
+    ${OpenCV_LIBS}
     CUDA::cudart
     inception_v3_lib
 )
