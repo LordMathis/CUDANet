@@ -3,34 +3,8 @@
 #include <cudanet.cuh>
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include <vector>
 
-std::vector<float>
-readAndNormalizeImage(const std::string &imagePath, int width, int height) {
-    // Read the image using OpenCV
-    cv::Mat image = cv::imread(imagePath, cv::IMREAD_COLOR);
-
-    // Resize and normalize the image
-    cv::resize(image, image, cv::Size(width, height));
-    image.convertTo(image, CV_32FC3, 1.0 / 255.0);
-
-    // Normalize the image https://pytorch.org/hub/pytorch_vision_alexnet/
-    cv::Mat mean(image.size(), CV_32FC3, cv::Scalar(0.485, 0.456, 0.406));
-    cv::Mat std(image.size(), CV_32FC3, cv::Scalar(0.229, 0.224, 0.225));
-    cv::subtract(image, mean, image);
-    cv::divide(image, std, image);
-
-    // Convert the 3D image matrix to a 1D array of floats
-    std::vector<float> imageData;
-    for (int c = 0; c < image.channels(); ++c) {
-        for (int i = 0; i < image.rows; ++i) {
-            for (int j = 0; j < image.cols; ++j) {
-                imageData.push_back(image.at<cv::Vec3f>(i, j)[c]);
-            }
-        }
-    }
-
-    return imageData;
-}
 
 int main(int argc, const char *const argv[]) {
     if (argc != 3) {
@@ -55,12 +29,12 @@ int main(int argc, const char *const argv[]) {
     inception_v3->loadWeights(modelWeightsPath);
 
     std::vector<float> imageData =
-        readAndNormalizeImage(imagePath, inputSize.first, inputSize.second);
+        readAndNormalizeImage(imagePath, inputSize.first, inputSize.first);
 
     // Print the size of the image data
     const float *output = inception_v3->predict(imageData.data());
 
-    // Get max index
+        // Get max index
     int maxIndex = 0;
     for (int i = 0; i < outputSize; i++) {
         if (output[i] > output[maxIndex]) {

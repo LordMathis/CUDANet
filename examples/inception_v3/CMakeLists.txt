@@ -6,6 +6,7 @@ project(Inceptionv3
 
 add_library(inception_v3_lib 
     inception_modules.cpp
+    inception_utils.cpp
 )
 
 find_library(CUDANet_LIBRARY NAMES CUDANet HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../build)

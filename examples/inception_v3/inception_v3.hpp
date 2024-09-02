@@ -2,6 +2,10 @@
 #define INCEPTION_V3_HPP
 
 #include <cudanet.cuh>
+#include <vector>
+
+std::vector<float>
+readAndNormalizeImage(const std::string &imagePath, int resizeSize, int cropSize);
 
 class BasicConv2d : public CUDANet::Module {
   public:
