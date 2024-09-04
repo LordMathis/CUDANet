@@ -4,15 +4,30 @@
 #include <vector>
 
 std::vector<float>
-readAndNormalizeImage(const std::string &imagePath, int width, int height) {
+readAndNormalizeImage(const std::string &imagePath, int resizeSize, int cropSize) {
     // Read the image using OpenCV
     cv::Mat image = cv::imread(imagePath, cv::IMREAD_COLOR);
+    // Convert the image from BGR to RGB
+    cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
 
-    // Resize and normalize the image
-    cv::resize(image, image, cv::Size(width, height));
+    // Calculate the scaling factor
+    double scale = std::max(static_cast<double>(resizeSize) / image.cols, static_cast<double>(resizeSize) / image.rows);
+
+    // Resize the image
+    cv::Mat resized;
+    cv::resize(image, resized, cv::Size(), scale, scale, cv::INTER_AREA);
+
+    // Calculate the cropping coordinates
+    int x = (resized.cols - cropSize) / 2;
+    int y = (resized.rows - cropSize) / 2;
+
+    // Perform center cropping
+    cv::Rect roi(x, y, cropSize, cropSize);
+    image = resized(roi);
+
+    // Normalize the image
     image.convertTo(image, CV_32FC3, 1.0 / 255.0);
 
-    // Normalize the image https://pytorch.org/hub/pytorch_vision_alexnet/
     cv::Mat mean(image.size(), CV_32FC3, cv::Scalar(0.485, 0.456, 0.406));
     cv::Mat std(image.size(), CV_32FC3, cv::Scalar(0.229, 0.224, 0.225));
     cv::subtract(image, mean, image);
@@ -124,7 +139,7 @@ int main(int argc, const char *const argv[]) {
 
     // Read and normalize the image
     std::vector<float> imageData =
-        readAndNormalizeImage(imagePath, inputSize.first, inputSize.second);
+        readAndNormalizeImage(imagePath, inputSize.first, inputSize.first);
 
     // Print the size of the image data
     const float *output = model->predict(imageData.data());
