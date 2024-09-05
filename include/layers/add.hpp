@@ -25,13 +25,23 @@ class Add {
      * @param d_inputB Device pointer to the second input
      *
      */
-    void forward(const float* d_inputA, const float* d_inputB);
+    float* forward(const float* inputA, const float* inputB);
 
   private:
     int inputSize;
+
+    float* output;
+
+    float* forwardCPU(const float* inputA, const float* inputB);
+
+#ifdef USE_CUDA
+    float* d_output;
     int gridSize;
 
-    float* d_output;
+    float* forwardCUDA(const float* d_inputA, const float* d_inputB);
+    void initCUDA();
+    void delCUDA();
+#endif
 };
 
 }  // namespace CUDANet::Layers

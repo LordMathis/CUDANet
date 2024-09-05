@@ -20,6 +20,7 @@ if(USE_CUDA)
 endif()
 
 file(GLOB_RECURSE CPU_SOURCES
+    src/layers/*.cpp
     src/model/*.cpp
 )
 
@@ -27,10 +28,11 @@ set(LIBRARY_SOURCES ${CPU_SOURCES})
 
 if(USE_CUDA)
     file(GLOB_RECURSE CUDA_SOURCES
-        src/*.cu
-        src/cuda/utils/*.cu
-        src/cuda/kernels/*.cu
-        src/cuda/layers/*.cu
+        src/backends/cuda/*.cu
+        src/backends/cuda/utils/*.cu
+        src/backends/cuda/kernels/*.cu
+        src/backends/cuda/layers/*.cu
+        src/layers/*.cu  # To be removed
     )
     set(LIBRARY_SOURCES ${LIBRARY_SOURCES} ${CUDA_SOURCES})
 endif()
