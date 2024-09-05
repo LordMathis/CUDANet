@@ -4,27 +4,45 @@ project(CUDANet
         LANGUAGES CXX CUDA
 )
 
-find_package(CUDAToolkit REQUIRED)
-include_directories(${CUDAToolkit_INCLUDE_DIRS})
+find_package(CUDAToolkit QUIET)
 
-file(GLOB_RECURSE LIBRARY_SOURCES
-    src/*.cu
-    src/utils/*.cu
-    src/kernels/*.cu
-    src/layers/*.cu
+# Set USE_CUDA option based on whether CUDA was found
+if(CUDAToolkit_FOUND)
+    option(USE_CUDA "Use CUDA implementation" ON)
+else()
+    option(USE_CUDA "Use CUDA implementation" OFF)
+    message(STATUS "CUDA not found. Defaulting to CPU implementation.")
+endif()
+
+if(USE_CUDA)
+    enable_language(CUDA)
+    add_definitions(-DUSE_CUDA)
+endif()
+
+file(GLOB_RECURSE CPU_SOURCES
     src/model/*.cpp
 )
 
-set(LIBRARY_SOURCES
-    ${LIBRARY_SOURCES}
-)
+set(LIBRARY_SOURCES ${CPU_SOURCES})
+
+if(USE_CUDA)
+    file(GLOB_RECURSE CUDA_SOURCES
+        src/*.cu
+        src/cuda/utils/*.cu
+        src/cuda/kernels/*.cu
+        src/cuda/layers/*.cu
+    )
+    set(LIBRARY_SOURCES ${LIBRARY_SOURCES} ${CUDA_SOURCES})
+endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Build static library
 add_library(${PROJECT_NAME} STATIC ${LIBRARY_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} CUDA::cudart)
+if(USE_CUDA)
+    target_link_libraries(${PROJECT_NAME} CUDA::cudart)
+endif()
 
 # Set include directories for the library
 target_include_directories(${PROJECT_NAME} PUBLIC
