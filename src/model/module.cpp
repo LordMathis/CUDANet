@@ -2,8 +2,6 @@
 
 #include <algorithm>
 
-#include "cuda_helper.cuh"
-
 using namespace CUDANet;
 
 void Module::addLayer(const std::string& name, Layers::SequentialLayer* layer) {

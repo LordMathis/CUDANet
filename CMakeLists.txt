@@ -17,7 +17,11 @@ endif()
 if(USE_CUDA)
     enable_language(CUDA)
     add_definitions(-DUSE_CUDA)
+    message(STATUS "Building library with CUDA support")
+else()
+    message(STATUS "Building library without CUDA support")
 endif()
+
 
 file(GLOB_RECURSE CPU_SOURCES
     src/layers/*.cpp
