@@ -1,4 +1,4 @@
-#include "activation.cuh"
+#include "activation.hpp"
 #include <gtest/gtest.h>
 #include <cuda_runtime.h>
 #include <vector>

@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include "activation.cuh"
-#include "layer.cuh"
+#include "activation.hpp"
+#include "layer.hpp"
 
 namespace CUDANet::Layers {
 

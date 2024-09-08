@@ -1,7 +1,7 @@
 #ifndef CUDANET_INPUT_LAYER_H
 #define CUDANET_INPUT_LAYER_H
 
-#include "layer.cuh"
+#include "layer.hpp"
 
 namespace CUDANet::Layers {
 

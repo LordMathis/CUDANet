@@ -3,9 +3,9 @@
 
 #include <vector>
 
-#include "activation.cuh"
+#include "activation.hpp"
 #include "convolution.cuh"
-#include "layer.cuh"
+#include "layer.hpp"
 
 namespace CUDANet::Layers {
 

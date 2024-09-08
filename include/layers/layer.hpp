@@ -111,10 +111,12 @@ class WeightedLayer : public SequentialLayer {
      */
     virtual void initializeBiases() = 0;
 
+#ifdef USE_CUDA
     /**
      * @brief Copy the weights and biases to the device
      */
     virtual void toCuda() = 0;
+#endif
 };
 
 }  // namespace CUDANet::Layers

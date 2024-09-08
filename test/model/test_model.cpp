@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "conv2d.cuh"
-#include "dense.cuh"
+#include "dense.hpp"
 #include "max_pooling.cuh"
 #include "model.hpp"
 

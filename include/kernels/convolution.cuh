@@ -2,7 +2,7 @@
 #define CUDANET_CONVOLUTION_H
 
 #include <cuda_runtime.h>
-#include "layer.cuh"
+#include "layer.hpp"
 
 namespace CUDANet::Kernels {
 

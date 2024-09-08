@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "input.cuh"
-#include "layer.cuh"
+#include "layer.hpp"
 #include "batch_norm.cuh"
 
 using namespace CUDANet;

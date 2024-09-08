@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "input.cuh"
-#include "layer.cuh"
+#include "layer.hpp"
 #include "module.hpp"
 #include "output.cuh"
 

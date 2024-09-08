@@ -48,6 +48,8 @@ class Activation {
     ActivationType activationType;
     int length;
 
+    void activateCPU(float* input);
+
 #ifdef USE_CUDA
     int gridSize;
 
@@ -58,10 +60,7 @@ class Activation {
 
     void initCUDA();
     void delCUDA();
-#else
-    void activateCPU(float* input);
 #endif
-
 };
 
 

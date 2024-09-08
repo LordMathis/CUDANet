@@ -3,8 +3,8 @@
 
 #include <iostream>
 
-#include "activation.cuh"
-#include "dense.cuh"
+#include "activation.hpp"
+#include "dense.hpp"
 
 class DenseLayerTest : public ::testing::Test {
   protected:

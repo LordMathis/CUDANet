@@ -1,7 +1,7 @@
 #ifndef CUDANET_OUTPUT_LAYER_H
 #define CUDANET_OUTPUT_LAYER_H
 
-#include "layer.cuh"
+#include "layer.hpp"
 
 namespace CUDANet::Layers {
 

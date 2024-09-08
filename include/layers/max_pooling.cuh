@@ -1,8 +1,8 @@
 #ifndef CUDANET_MAX_POOLING_H
 #define CUDANET_MAX_POOLING_H
 
-#include "activation.cuh"
-#include "layer.cuh"
+#include "activation.hpp"
+#include "layer.hpp"
 
 namespace CUDANet::Layers {
 

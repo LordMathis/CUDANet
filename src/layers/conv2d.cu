@@ -1,11 +1,11 @@
 #include <iostream>
 #include <vector>
 
-#include "activation.cuh"
+#include "activation.hpp"
 #include "conv2d.cuh"
 #include "convolution.cuh"
 #include "cuda_helper.cuh"
-#include "layer.cuh"
+#include "layer.hpp"
 #include "matmul.cuh"
 #include "vector.cuh"
 

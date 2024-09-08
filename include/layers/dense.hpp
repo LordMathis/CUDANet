@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include "activation.cuh"
-#include "layer.cuh"
+#include "activation.hpp"
+#include "layer.hpp"
 
 namespace CUDANet::Layers {
 
@@ -84,19 +84,10 @@ class Dense : public WeightedLayer {
     int inputSize;
     int outputSize;
 
-    float* d_output;
-
-    float* d_weights;
-    float* d_biases;
-
     std::vector<float> weights;
     std::vector<float> biases;
 
     Layers::Activation* activation;
-
-    // Precompute kernel launch parameters
-    int forwardGridSize;
-    int biasGridSize;
 
     /**
      * @brief Initialize the weights to zeros
@@ -110,11 +101,30 @@ class Dense : public WeightedLayer {
      */
     void initializeBiases();
 
+    float* forwardCPU(const float* input);
+
+#ifdef USE_CUDA
+    float* d_output;
+
+    float* d_weights;
+    float* d_biases;
+
+    // Precompute kernel launch parameters
+    int forwardGridSize;
+    int biasGridSize;
+
     /**
      * @brief Copy the weights and biases to the device
      *
      */
     void toCuda();
+
+    void initCUDA();
+    void delCUDA();
+
+    float* forwardCUDA(const float* d_input);
+#endif
+
 };
 
 }  // namespace CUDANet::Layers

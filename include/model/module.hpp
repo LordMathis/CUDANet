@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "layer.cuh"
+#include "layer.hpp"
 
 namespace CUDANet {
 

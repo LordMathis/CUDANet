@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "activation.cuh"
+#include "activation.hpp"
 #include "batch_norm.cuh"
 
 class BatchNormLayerTest : public ::testing::Test {
