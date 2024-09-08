@@ -11,7 +11,6 @@ if(CUDAToolkit_FOUND)
     option(USE_CUDA "Use CUDA implementation" ON)
 else()
     option(USE_CUDA "Use CUDA implementation" OFF)
-    message(STATUS "CUDA not found. Defaulting to CPU implementation.")
 endif()
 
 if(USE_CUDA)
@@ -19,7 +18,7 @@ if(USE_CUDA)
     add_definitions(-DUSE_CUDA)
     message(STATUS "Building library with CUDA support")
 else()
-    message(STATUS "Building library without CUDA support")
+    message(STATUS "CUDA not found or disabled. Defaulting to CPU implementation.")
 endif()
 
 

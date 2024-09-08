@@ -47,10 +47,20 @@ class Activation {
   private:
     ActivationType activationType;
     int length;
+
+#ifdef USE_CUDA
     int gridSize;
 
     float* d_softmax_sum;
     float* d_max;
+
+    void activateCUDA(float* d_input);
+
+    void initCUDA();
+    void delCUDA();
+#else
+    void activateCPU(float* input);
+#endif
 
 };
 

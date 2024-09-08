@@ -1,7 +1,6 @@
-#include <iostream>
 #include <vector>
 
-#include "activation.cuh"
+#include "activation.hpp"
 #include "activation_functions.cuh"
 #include "cuda_helper.cuh"
 #include "matmul.cuh"
@@ -9,8 +8,7 @@
 
 using namespace CUDANet::Layers;
 
-Activation::Activation(ActivationType activation, const int length)
-    : activationType(activation), length(length) {
+void Activation::initCUDA() {
     if (activationType == SOFTMAX) {
         d_softmax_sum = nullptr;
         CUDA_CHECK(cudaMalloc((void**)&d_softmax_sum, sizeof(float) * length));
@@ -22,14 +20,14 @@ Activation::Activation(ActivationType activation, const int length)
     gridSize = (length + BLOCK_SIZE - 1) / BLOCK_SIZE;
 }
 
-Activation::~Activation() {
+void Activation::delCUDA() {
     if (activationType == SOFTMAX) {
         CUDA_CHECK(cudaFree(d_softmax_sum));
         CUDA_CHECK(cudaFree(d_max));
     }
 }
 
-void Activation::activate(float* d_input) {
+void Activation::activateCUDA(float* d_input) {
 
     // float sum = 0.0f;
 
