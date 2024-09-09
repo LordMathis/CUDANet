@@ -2,7 +2,7 @@
 
 #include "conv2d.cuh"
 #include "dense.hpp"
-#include "max_pooling.cuh"
+#include "max_pooling.hpp"
 #include "model.hpp"
 
 class ModelTest : public ::testing::Test {

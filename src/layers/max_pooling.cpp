@@ -1,6 +1,5 @@
-#include "cuda_helper.cuh"
-#include "max_pooling.cuh"
-#include "pooling.cuh"
+#include "max_pooling.hpp"
+#include <stdexcept>
 
 using namespace CUDANet::Layers;
 
@@ -30,37 +29,30 @@ MaxPooling2d::MaxPooling2d(
         activationType, outputSize.first * outputSize.second * nChannels
     );
 
-    d_output = nullptr;
-    CUDA_CHECK(cudaMalloc(
-        (void**)&d_output,
-        sizeof(float) * outputSize.first * outputSize.second * nChannels
-    ));
+    #ifdef USE_CUDA
+    initCUDA();
+#endif
 }
 
 MaxPooling2d::~MaxPooling2d() {
-    cudaFree(d_output);
+#ifdef USE_CUDA
+    delCUDA();
+#endif
     delete activation;
 }
 
-float* MaxPooling2d::forward(const float* d_input) {
-    dim3 block(8, 8, 8);
-    dim3 grid(
-        (outputSize.first + block.x - 1) / block.x,
-        (outputSize.second + block.y - 1) / block.y,
-        (nChannels + block.z - 1) / block.z
-    );
-
-    Kernels::max_pooling<<<grid, block>>>(
-        d_input, d_output, inputSize, outputSize, nChannels, poolingSize,
-        stride, padding
-    );
-    CUDA_CHECK(cudaGetLastError());
-
-    activation->activate(d_output);
-    CUDA_CHECK(cudaDeviceSynchronize());
-
-    return d_output;
+float* MaxPooling2d::forwardCPU(const float* input) {
+    throw std::logic_error("Not implemented");
 }
+
+float* MaxPooling2d::forward(const float* input) {
+#ifdef USE_CUDA
+    return forwardCUDA(input);
+#else
+    return forwardCPU(input);
+#endif
+}
+
 
 int MaxPooling2d::getOutputSize() {
     return outputSize.first * outputSize.second * nChannels;

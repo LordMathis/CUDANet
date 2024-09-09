@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "max_pooling.cuh"
+#include "max_pooling.hpp"
 
 class MaxPoolingLayerTest : public ::testing::Test {
   protected:

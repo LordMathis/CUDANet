@@ -18,7 +18,7 @@ class MaxPooling2d : public SequentialLayer, public TwoDLayer {
     );
     ~MaxPooling2d();
 
-    float* forward(const float* d_input);
+    float* forward(const float* input);
 
     /**
      * @brief Get output size
@@ -45,9 +45,17 @@ class MaxPooling2d : public SequentialLayer, public TwoDLayer {
 
     shape2d outputSize;
 
-    float* d_output;
-
     Activation* activation;
+
+    float* forwardCPU(const float* input);
+
+#ifdef USE_CUDA
+    float* d_output;
+    float* forwardCUDA(const float* d_input);
+
+    void initCUDA();
+    void delCUDA();
+#endif
 };
 
 }  // namespace CUDANet::Layers

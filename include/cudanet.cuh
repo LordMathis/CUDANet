@@ -18,7 +18,7 @@
 #include "dense.hpp"
 #include "input.cuh"
 #include "layer.hpp"
-#include "max_pooling.cuh"
+#include "max_pooling.hpp"
 #include "output.cuh"
 
 // Models
