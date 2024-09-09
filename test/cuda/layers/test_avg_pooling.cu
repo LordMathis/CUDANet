@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "avg_pooling.cuh"
+#include "avg_pooling.hpp"
 
 class AvgPoolingLayerTest : public ::testing::Test {
   protected:

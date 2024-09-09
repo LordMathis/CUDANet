@@ -1,16 +1,17 @@
 #ifndef CUDANET_H
 #define CUDANET_H
 
-// Kernels
+#ifdef USE_CUDA
 #include "activation_functions.cuh"
 #include "convolution.cuh"
 #include "matmul.cuh"
 #include "pooling.cuh"
+#endif
 
 // Layers
 #include "activation.hpp"
-#include "add.cuh"
-#include "avg_pooling.cuh"
+#include "add.hpp"
+#include "avg_pooling.hpp"
 #include "batch_norm.cuh"
 #include "concat.cuh"
 #include "conv2d.cuh"
@@ -25,8 +26,10 @@
 #include "module.hpp"
 
 // Utils
-#include "cuda_helper.cuh"
 #include "imagenet.hpp"
+#ifdef USE_CUDA
+#include "cuda_helper.cuh"
 #include "vector.cuh"
+#endif
 
 #endif  // CUDANET_H

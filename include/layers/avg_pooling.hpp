@@ -18,7 +18,7 @@ class AvgPooling2d : public SequentialLayer, public TwoDLayer {
     );
     ~AvgPooling2d();
 
-    float* forward(const float* d_input);
+    float* forward(const float* input);
 
     /**
      * @brief Get output size
@@ -45,14 +45,32 @@ class AvgPooling2d : public SequentialLayer, public TwoDLayer {
 
     shape2d outputSize;
 
-    float* d_output;
-
     Activation* activation;
+
+    float* forwardCPU(const float* input);
+
+#ifdef USE_CUDA
+    float* d_output;
+    float* forwardCUDA(const float* d_input);
+
+    void initCUDA();
+    void delCUDA();
+#endif
 };
 
 class AdaptiveAvgPooling2d : public AvgPooling2d {
   public:
-    AdaptiveAvgPooling2d(shape2d inputShape, int nChannels, shape2d outputShape, ActivationType activationType);
+    AdaptiveAvgPooling2d(
+        shape2d        inputShape,
+        int            nChannels,
+        shape2d        outputShape,
+        ActivationType activationType
+    );
+
+  private:
+#ifdef USE_CUDA
+    void initCUDA();
+#endif
 };
 
 }  // namespace CUDANet::Layers
