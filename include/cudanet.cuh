@@ -13,7 +13,7 @@
 #include "add.hpp"
 #include "avg_pooling.hpp"
 #include "batch_norm.cuh"
-#include "concat.cuh"
+#include "concat.hpp"
 #include "conv2d.cuh"
 #include "dense.hpp"
 #include "input.cuh"
