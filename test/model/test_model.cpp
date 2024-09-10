@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "conv2d.cuh"
+#include "conv2d.hpp"
 #include "dense.hpp"
 #include "max_pooling.hpp"
 #include "model.hpp"
@@ -85,8 +85,6 @@ class ModelTest : public ::testing::Test {
     void commonTestTeardown(CUDANet::Model *model) {
         delete model;
     }
-
-    cudaError_t cudaStatus;
 };
 
 TEST_F(ModelTest, TestModelPredict) {

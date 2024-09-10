@@ -14,7 +14,7 @@
 #include "avg_pooling.hpp"
 #include "batch_norm.cuh"
 #include "concat.hpp"
-#include "conv2d.cuh"
+#include "conv2d.hpp"
 #include "dense.hpp"
 #include "input.hpp"
 #include "layer.hpp"

@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "activation.hpp"
-#include "convolution.cuh"
 #include "layer.hpp"
 
 namespace CUDANet::Layers {
@@ -28,12 +27,12 @@ class Conv2d : public WeightedLayer, public TwoDLayer {
      * 'SOFTMAX' or 'NONE')
      */
     Conv2d(
-        shape2d          inputSize,
+        shape2d        inputSize,
         int            inputChannels,
-        shape2d          kernelSize,
-        shape2d          stride,
+        shape2d        kernelSize,
+        shape2d        stride,
         int            numFilters,
-        shape2d          paddingSize,
+        shape2d        paddingSize,
         ActivationType activationType
     );
 
@@ -107,7 +106,7 @@ class Conv2d : public WeightedLayer, public TwoDLayer {
   private:
     // Inputs
     shape2d inputSize;
-    int   inputChannels;
+    int     inputChannels;
 
     // Outputs
     shape2d outputSize;
@@ -116,16 +115,30 @@ class Conv2d : public WeightedLayer, public TwoDLayer {
     shape2d kernelSize;
     shape2d stride;
     shape2d paddingSize;
-    int   numFilters;
+    int     numFilters;
 
     // Kernels
     std::vector<float> weights;
     std::vector<float> biases;
 
-    // Cuda
+    float* forwardCPU(const float* input);
+
+// Cuda
+#ifdef USE_CUDA
     float* d_output;
     float* d_weights;
     float* d_biases;
+
+    float* forwardCUDA(const float* d_input);
+    void   initCUDA();
+    void   delCUDA();
+
+    /**
+     * @brief Copy weights and biases to the device
+     *
+     */
+    void toCuda();
+#endif
 
     Activation* activation;
 
@@ -140,12 +153,6 @@ class Conv2d : public WeightedLayer, public TwoDLayer {
      *
      */
     void initializeBiases();
-
-    /**
-     * @brief Copy weights and biases to the device
-     *
-     */
-    void toCuda();
 };
 
 }  // namespace CUDANet::Layers

@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "conv2d.cuh"
+#include "conv2d.hpp"
 
 class Conv2dTest : public ::testing::Test {
   protected:
