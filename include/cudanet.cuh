@@ -16,7 +16,7 @@
 #include "concat.hpp"
 #include "conv2d.cuh"
 #include "dense.hpp"
-#include "input.cuh"
+#include "input.hpp"
 #include "layer.hpp"
 #include "max_pooling.hpp"
 #include "output.cuh"

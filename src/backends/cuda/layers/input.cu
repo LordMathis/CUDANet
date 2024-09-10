@@ -1,31 +1,22 @@
 #include "cuda_helper.cuh"
-#include "input.cuh"
+#include "input.hpp"
 
 using namespace CUDANet::Layers;
 
-Input::Input(int inputSize) : inputSize(inputSize) {
+void Input::initCUDA() {
     d_output = nullptr;
     CUDA_CHECK(cudaMalloc((void**)&d_output, sizeof(float) * inputSize));
 }
 
-Input::~Input() {
+void Input::delCUDA() {
     cudaFree(d_output);
 }
 
-float* Input::forward(const float* input) {
+float* Input::forwardCUDA(const float* input) {
     CUDA_CHECK(cudaMemcpy(
         d_output, input, sizeof(float) * inputSize, cudaMemcpyHostToDevice
     ));
     CUDA_CHECK(cudaDeviceSynchronize());
 
     return d_output;
-}
-
-int Input::getOutputSize() {
-    return inputSize;
-}
-
-
-int Input::getInputSize() {
-    return inputSize;
 }

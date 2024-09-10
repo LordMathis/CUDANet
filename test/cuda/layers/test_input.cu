@@ -1,7 +1,7 @@
 #include <cuda_runtime_api.h>
 #include <gtest/gtest.h>
 
-#include "input.cuh"
+#include "input.hpp"
 
 TEST(InputLayerTest, InputForward) {
     std::vector<float> input = {0.573f, 0.619f, 0.732f, 0.055f, 0.243f, 0.316f};

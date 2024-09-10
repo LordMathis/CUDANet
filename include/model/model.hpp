@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "input.cuh"
+#include "input.hpp"
 #include "layer.hpp"
 #include "module.hpp"
 #include "output.cuh"

@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "input.cuh"
+#include "input.hpp"
 #include "layer.hpp"
 #include "batch_norm.cuh"
 

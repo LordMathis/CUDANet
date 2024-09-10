@@ -40,16 +40,25 @@ class Input : public SequentialLayer {
      */
     int getOutputSize();
 
-        /**
+    /**
      * @brief Get input size
-     * 
+     *
      * @return int input size
      */
     int getInputSize();
 
   private:
-    int    inputSize;
+    int inputSize;
+
+    float* forwardCPU(const float* input);
+
+#ifdef USE_CUDA
     float* d_output;
+
+    float* forwardCUDA(const float* input);
+    void   initCUDA();
+    void   delCUDA();
+#endif
 };
 
 }  // namespace CUDANet::Layers
