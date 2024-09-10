@@ -19,7 +19,7 @@
 #include "input.hpp"
 #include "layer.hpp"
 #include "max_pooling.hpp"
-#include "output.cuh"
+#include "output.hpp"
 
 // Models
 #include "model.hpp"

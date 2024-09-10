@@ -8,7 +8,7 @@
 #include "input.hpp"
 #include "layer.hpp"
 #include "module.hpp"
-#include "output.cuh"
+#include "output.hpp"
 
 namespace CUDANet {
 

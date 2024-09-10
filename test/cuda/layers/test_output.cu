@@ -1,7 +1,7 @@
 #include <cuda_runtime_api.h>
 #include <gtest/gtest.h>
 
-#include "output.cuh"
+#include "output.hpp"
 
 TEST(OutputLayerTest, OutputForward) {
     cudaError_t cudaStatus;

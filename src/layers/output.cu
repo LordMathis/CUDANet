@@ -1,6 +1,5 @@
-#include "output.cuh"
-
-#include "cuda_helper.cuh"
+#include "output.hpp"
+#include <stdexcept>
 
 using namespace CUDANet::Layers;
 
@@ -13,13 +12,16 @@ Output::~Output() {
     free(h_output);
 }
 
-float* Output::forward(const float* input) {
-    CUDA_CHECK(cudaMemcpy(
-        h_output, input, sizeof(float) * inputSize, cudaMemcpyDeviceToHost
-    ));
-    CUDA_CHECK(cudaDeviceSynchronize());
+float* Output::forwardCPU(const float* input) {
+    throw std::logic_error("Not implemented");
+}
 
-    return h_output;
+float* Output::forward(const float* input) {
+#ifdef USE_CUDA
+    return forwardCUDA(input);
+#else
+    return forwardCPU(input);
+#endif
 }
 
 int Output::getOutputSize() {

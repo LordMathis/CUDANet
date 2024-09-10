@@ -46,6 +46,12 @@ class Output : public SequentialLayer {
   private:
     int    inputSize;
     float* h_output;
+
+    float* forwardCPU(const float* input);
+
+#ifdef USE_CUDA
+    float* forwardCUDA(const float* input);
+#endif
 };
 
 }  // namespace CUDANet::Layers
