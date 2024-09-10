@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "activation.hpp"
-#include "batch_norm.cuh"
+#include "batch_norm.hpp"
 
 class BatchNormLayerTest : public ::testing::Test {
   protected:

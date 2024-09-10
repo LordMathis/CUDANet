@@ -1,7 +1,7 @@
 #include <vector>
 
 #include "activation.hpp"
-#include "batch_norm.cuh"
+#include "batch_norm.hpp"
 #include "cuda_helper.cuh"
 #include "layer.hpp"
 #include "matmul.cuh"
@@ -9,17 +9,7 @@
 
 using namespace CUDANet::Layers;
 
-BatchNorm2d::BatchNorm2d(
-    shape2d          inputSize,
-    int            inputChannels,
-    float          epsilon,
-    ActivationType activationType
-)
-    : inputSize(inputSize), inputChannels(inputChannels) {
-    activation = new Activation(
-        activationType, inputSize.first * inputSize.second * inputChannels
-    );
-
+void BatchNorm2d::initCUDA() {
     d_output = nullptr;
     CUDA_CHECK(cudaMalloc(
         (void **)&d_output,
@@ -27,14 +17,14 @@ BatchNorm2d::BatchNorm2d(
     ));
 
     d_running_mean = nullptr;
-    CUDA_CHECK(cudaMalloc(
-        (void **)&d_running_mean, sizeof(float) * inputChannels
-    ));
+    CUDA_CHECK(
+        cudaMalloc((void **)&d_running_mean, sizeof(float) * inputChannels)
+    );
 
     d_running_var = nullptr;
-    CUDA_CHECK(cudaMalloc(
-        (void **)&d_running_var, sizeof(float) * inputChannels
-    ));
+    CUDA_CHECK(
+        cudaMalloc((void **)&d_running_var, sizeof(float) * inputChannels)
+    );
 
     d_weights = nullptr;
     CUDA_CHECK(cudaMalloc((void **)&d_weights, sizeof(float) * inputChannels));
@@ -55,24 +45,11 @@ BatchNorm2d::BatchNorm2d(
         cudaMemcpy(d_epsilon, &epsilon, sizeof(float), cudaMemcpyHostToDevice)
     );
 
-    weights.resize(inputChannels);
-    biases.resize(inputChannels);
-
-    running_mean.resize(inputChannels);
-    running_var.resize(inputChannels);
-
-    initializeWeights();
-    initializeBiases();
-    initializeRunningMean();
-    initializeRunningVar();
-
-    toCuda();
-
     gridSize =
         (inputSize.first * inputSize.second + BLOCK_SIZE - 1) / BLOCK_SIZE;
 }
 
-BatchNorm2d::~BatchNorm2d() {
+void BatchNorm2d::delCUDA() {
     cudaFree(d_output);
     cudaFree(d_running_mean);
     cudaFree(d_running_var);
@@ -80,58 +57,6 @@ BatchNorm2d::~BatchNorm2d() {
     cudaFree(d_biases);
     cudaFree(d_length);
     cudaFree(d_epsilon);
-}
-
-void BatchNorm2d::initializeWeights() {
-    std::fill(weights.begin(), weights.end(), 1.0f);
-}
-
-void BatchNorm2d::initializeBiases() {
-    std::fill(biases.begin(), biases.end(), 0.0f);
-}
-
-void BatchNorm2d::initializeRunningMean() {
-    std::fill(running_mean.begin(), running_mean.end(), 0.0f);
-}
-
-void BatchNorm2d::initializeRunningVar() {
-    std::fill(running_var.begin(), running_var.end(), 1.0f);
-}
-
-void BatchNorm2d::setWeights(const float *weights_input) {
-    std::copy(weights_input, weights_input + weights.size(), weights.begin());
-    toCuda();
-}
-
-std::vector<float> BatchNorm2d::getWeights() {
-    return weights;
-}
-
-void BatchNorm2d::setBiases(const float *biases_input) {
-    std::copy(biases_input, biases_input + biases.size(), biases.begin());
-    toCuda();
-}
-
-std::vector<float> BatchNorm2d::getBiases() {
-    return biases;
-}
-
-void BatchNorm2d::setRunningMean(const float* running_mean_input) {
-    std::copy(running_mean_input, running_mean_input + inputChannels, running_mean.begin());
-    toCuda();
-}
-
-std::vector<float> BatchNorm2d::getRunningMean() {
-    return running_mean;
-}
-
-void BatchNorm2d::setRunningVar(const float* running_var_input) {
-    std::copy(running_var_input, running_var_input + inputChannels, running_var.begin());
-    toCuda();
-}
-
-std::vector<float> BatchNorm2d::getRunningVar() {
-    return running_var;
 }
 
 void BatchNorm2d::toCuda() {
@@ -153,22 +78,9 @@ void BatchNorm2d::toCuda() {
     ));
 }
 
-int BatchNorm2d::getInputSize() {
-    return inputSize.first * inputSize.second * inputChannels;
-}
-
-int BatchNorm2d::getOutputSize() {
-    return inputSize.first * inputSize.second * inputChannels;
-}
-
-shape2d BatchNorm2d::getOutputDims() {
-    return inputSize;
-}
-
-float *BatchNorm2d::forward(const float *d_input) {
+float *BatchNorm2d::forwardCUDA(const float *d_input) {
     // Compute per-channel batch normalization
     for (int i = 0; i < inputChannels; i++) {
-
         // Subtract mean from input
         Kernels::vec_scalar_sub<<<gridSize, BLOCK_SIZE>>>(
             d_input + i * inputSize.first * inputSize.second,
@@ -181,17 +93,14 @@ float *BatchNorm2d::forward(const float *d_input) {
         Kernels::vec_scale<<<gridSize, BLOCK_SIZE>>>(
             d_output + i * inputSize.first * inputSize.second,
             d_output + i * inputSize.first * inputSize.second,
-            &d_running_var[i],
-            d_epsilon,
-            inputSize.first * inputSize.second
+            &d_running_var[i], d_epsilon, inputSize.first * inputSize.second
         );
         CUDA_CHECK(cudaGetLastError());
 
         // Multiply by weights
         Kernels::vec_scalar_mul<<<gridSize, BLOCK_SIZE>>>(
             d_output + i * inputSize.first * inputSize.second,
-            d_output + i * inputSize.first * inputSize.second,
-            &d_weights[i],
+            d_output + i * inputSize.first * inputSize.second, &d_weights[i],
             inputSize.first * inputSize.second
         );
         CUDA_CHECK(cudaGetLastError());
@@ -199,8 +108,7 @@ float *BatchNorm2d::forward(const float *d_input) {
         // Add biases
         Kernels::vec_scalar_add<<<gridSize, BLOCK_SIZE>>>(
             d_output + i * inputSize.first * inputSize.second,
-            d_output + i * inputSize.first * inputSize.second,
-            &d_biases[i],
+            d_output + i * inputSize.first * inputSize.second, &d_biases[i],
             inputSize.first * inputSize.second
         );
         CUDA_CHECK(cudaGetLastError());

@@ -10,7 +10,12 @@ namespace CUDANet::Layers {
 
 class BatchNorm2d : public WeightedLayer, public TwoDLayer {
   public:
-    BatchNorm2d(shape2d inputSize, int inputChannels, float epsilon, ActivationType activationType);
+    BatchNorm2d(
+        shape2d        inputSize,
+        int            inputChannels,
+        float          epsilon,
+        ActivationType activationType
+    );
 
     ~BatchNorm2d();
 
@@ -52,27 +57,27 @@ class BatchNorm2d : public WeightedLayer, public TwoDLayer {
 
     /**
      * @brief Set the Running Mean
-     * 
-     * @param running_mean_input 
+     *
+     * @param running_mean_input
      */
     void setRunningMean(const float* running_mean_input);
 
     /**
      * @brief Get the Running Mean
-     * 
+     *
      */
     std::vector<float> getRunningMean();
 
     /**
      * @brief Set the Running Var
-     * 
-     * @param running_mean_input 
+     *
+     * @param running_mean_input
      */
     void setRunningVar(const float* running_mean_input);
 
     /**
      * @brief Get the Running Var
-     * 
+     *
      */
     std::vector<float> getRunningVar();
 
@@ -93,11 +98,13 @@ class BatchNorm2d : public WeightedLayer, public TwoDLayer {
     shape2d getOutputDims();
 
   private:
-
     shape2d inputSize;
-    int inputChannels;
+    int     inputChannels;
+    float   epsilon;
 
     int gridSize;
+
+#ifdef USE_CUDA
 
     float* d_output;
 
@@ -110,6 +117,19 @@ class BatchNorm2d : public WeightedLayer, public TwoDLayer {
     float* d_weights;
     float* d_biases;
 
+    void initCUDA();
+    void delCUDA();
+
+    /**
+     * @brief Copy weights and biases to the device
+     *
+     */
+    void toCuda();
+
+    float* forwardCUDA(const float* d_input);
+
+#endif
+
     std::vector<float> weights;
     std::vector<float> biases;
 
@@ -117,6 +137,8 @@ class BatchNorm2d : public WeightedLayer, public TwoDLayer {
     std::vector<float> running_var;
 
     Activation* activation;
+
+    float* forwardCPU(const float* input);
 
     /**
      * @brief Initialize weights of the batchnorm layer with zeros
@@ -141,12 +163,6 @@ class BatchNorm2d : public WeightedLayer, public TwoDLayer {
      *
      */
     void initializeRunningVar();
-
-    /**
-     * @brief Copy weights and biases to the device
-     *
-     */
-    void toCuda();
 };
 
 }  // namespace CUDANet::Layers

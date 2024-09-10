@@ -9,7 +9,7 @@
 
 #include "input.hpp"
 #include "layer.hpp"
-#include "batch_norm.cuh"
+#include "batch_norm.hpp"
 
 using namespace CUDANet;
 

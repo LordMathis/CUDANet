@@ -12,7 +12,7 @@
 #include "activation.hpp"
 #include "add.hpp"
 #include "avg_pooling.hpp"
-#include "batch_norm.cuh"
+#include "batch_norm.hpp"
 #include "concat.hpp"
 #include "conv2d.hpp"
 #include "dense.hpp"
